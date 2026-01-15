@@ -2,7 +2,7 @@
 
 @theme {
   /* 타이포그래피 세팅 */
-  --font-pretendard: 'Pretendard', 'sans-serif';
+  --font-pretendard: 'Pretendard', sans-serif;
 
   /* 컬러 세팅 */
   --color-gray-1: #f2f3f8;
