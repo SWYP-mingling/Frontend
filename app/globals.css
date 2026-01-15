@@ -1,75 +1,89 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-pretendard-black: 'PRETENDARD-BLACK', 'sans-serif';
-  --font-pretendard-extrabold: 'PRETENDARD-EXTRABOLD', 'sans-serif';
-  --font-pretendard-bold: 'PRETENDARD-BOLD', 'sans-serif';
-  --font-pretendard-semibold: 'PRETENDARD-SEMIBOLD', 'sans-serif';
-  --font-pretendard-medium: 'PRETENDARD-MEDIUM', 'sans-serif';
-  --font-pretendard-regular: 'PRETENDARD-REGULAR', 'sans-serif';
-  --font-pretendard-light: 'PRETENDARD-LIGHT', 'sans-serif';
-  --font-pretendard-extralight: 'PRETENDARD-EXTRALIGHT', 'sans-serif';
-  --font-pretendard-thin: 'PRETENDARD-THIN', 'sans-serif';
+  /* 타이포그래피 세팅 */
+  --font-pretendard: 'Pretendard', 'sans-serif';
+
+  /* 컬러 세팅 */
+  --color-gray-1: #f2f3f8;
+  --color-gray-2: #e5e7ee;
+  --color-gray-3: #cbd1db;
+  --color-gray-4: #b6bbc9;
+  --color-gray-5: #9ba0b0;
+  --color-gray-6: #6b7284;
+  --color-gray-7: #4d5565;
+  --color-gray-8: #384151;
+  --color-gray-9: #282f3b;
+  --color-gray-10: #151a23;
+
+  --color-blue-1: #e6f4ff;
+  --color-blue-2: #96d2ff;
+  --color-blue-3: #6bbfff;
+  --color-blue-4: #2ba4ff;
+  --color-blue-5: #0091ff;
+  --color-blue-8: #1158bb;
+
+  --color-error: #f94239;
 }
 
 @font-face {
-  font-family: 'PRETENDARD-BLACK';
+  font-family: 'Pretendard';
   src: url('../asset/fonts/PRETENDARD-BLACK.OTF') format('opentype');
   font-weight: 900;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'PRETENDARD-EXTRABOLD';
+  font-family: 'Pretendard';
   src: url('../asset/fonts/PRETENDARD-EXTRABOLD.OTF') format('opentype');
   font-weight: 800;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'PRETENDARD-BOLD';
+  font-family: 'Pretendard';
   src: url('../asset/fonts/PRETENDARD-BOLD.OTF') format('opentype');
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'PRETENDARD-SEMIBOLD';
+  font-family: 'Pretendard';
   src: url('../asset/fonts/PRETENDARD-SEMIBOLD.OTF') format('opentype');
   font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'PRETENDARD-MEDIUM';
+  font-family: 'Pretendard';
   src: url('../asset/fonts/PRETENDARD-MEDIUM.OTF') format('opentype');
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'PRETENDARD-REGULAR';
+  font-family: 'Pretendard';
   src: url('../asset/fonts/PRETENDARD-REGULAR.OTF') format('opentype');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'PRETENDARD-LIGHT';
+  font-family: 'Pretendard';
   src: url('../asset/fonts/PRETENDARD-LIGHT.OTF') format('opentype');
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'PRETENDARD-EXTRALIGHT';
+  font-family: 'Pretendard';
   src: url('../asset/fonts/PRETENDARD-EXTRALIGHT.OTF') format('opentype');
   font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'PRETENDARD-THIN';
+  font-family: 'Pretendard';
   src: url('../asset/fonts/PRETENDARD-THIN.OTF') format('opentype');
   font-weight: 100;
   font-style: normal;
