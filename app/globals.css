@@ -1,10 +1,6 @@
 @import 'tailwindcss';
 
 @theme {
-  /* 타이포그래피 세팅 */
-  --font-pretendard: 'Pretendard', sans-serif;
-
-  /* 컬러 세팅 */
   --color-gray-1: #f2f3f8;
   --color-gray-2: #e5e7ee;
   --color-gray-3: #cbd1db;
@@ -26,65 +22,10 @@
   --color-error: #f94239;
 }
 
-@font-face {
-  font-family: 'Pretendard';
-  src: url('../asset/fonts/PRETENDARD-BLACK.OTF') format('opentype');
-  font-weight: 900;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Pretendard';
-  src: url('../asset/fonts/PRETENDARD-EXTRABOLD.OTF') format('opentype');
-  font-weight: 800;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Pretendard';
-  src: url('../asset/fonts/PRETENDARD-BOLD.OTF') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Pretendard';
-  src: url('../asset/fonts/PRETENDARD-SEMIBOLD.OTF') format('opentype');
-  font-weight: 600;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Pretendard';
-  src: url('../asset/fonts/PRETENDARD-MEDIUM.OTF') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Pretendard';
-  src: url('../asset/fonts/PRETENDARD-REGULAR.OTF') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Pretendard';
-  src: url('../asset/fonts/PRETENDARD-LIGHT.OTF') format('opentype');
-  font-weight: 300;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Pretendard';
-  src: url('../asset/fonts/PRETENDARD-EXTRALIGHT.OTF') format('opentype');
-  font-weight: 200;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Pretendard';
-  src: url('../asset/fonts/PRETENDARD-THIN.OTF') format('opentype');
-  font-weight: 100;
-  font-style: normal;
+@layer base {
+  body {
+    font-family: var(--font-pretendard);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
