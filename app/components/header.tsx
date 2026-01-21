@@ -9,10 +9,10 @@ const Header = () => {
           <Image src="/logo.svg" alt="Mingling Logo" width={112} height={40} priority />
         </Link>
         <nav className="hidden items-center gap-2.5 sm:flex">
-          <Link href="/login" className="text-gray-5 p-2 text-[16px]">
+          <Link href="/" className="text-gray-5 p-2 text-[16px]">
             문의하기
           </Link>
-          <Link href="/login" className="text-gray-5 p-2 text-[16px]">
+          <Link href="/" className="text-gray-5 p-2 text-[16px]">
             피드백남기기
           </Link>
         </nav>

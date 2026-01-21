@@ -1,0 +1,43 @@
+import Link from 'next/link';
+import Image from 'next/image';
+
+const ICON = ['threads', 'instagram'];
+
+const Footer = () => {
+  return (
+    <footer className="bg-gray-1 flex h-59 items-center sm:h-35">
+      <div className="flex w-full flex-col items-start gap-5 px-5 sm:flex-row sm:justify-between sm:gap-0">
+        <Image src="/logo.svg" alt="Mingling Logo" width={112} height={40} priority />
+        <nav className="flex flex-col items-start gap-6 sm:items-end">
+          <div className="flex flex-wrap gap-3 sm:gap-8">
+            <div className="flex gap-4 sm:gap-8">
+              <Link href="/" className="text-gray-7 text-[16px]">
+                이용약관
+              </Link>
+              <Link href="/" className="text-gray-7 text-[16px]">
+                개인정보 처리방침
+              </Link>
+            </div>
+            <div className="flex gap-4 sm:gap-8">
+              <Link href="/" className="text-gray-7 text-[16px]">
+                문의하기
+              </Link>
+              <Link href="/" className="text-gray-7 text-[16px]">
+                피드백남기기
+              </Link>
+            </div>
+          </div>
+          <div className="text-gray-4 flex gap-3">
+            {ICON.map((item, idx) => (
+              <Link href={`https://www.${item}.com/`} key={idx}>
+                <Image src={`/${item}.svg`} alt={`${item} Logo`} width={24} height={24} />
+              </Link>
+            ))}
+          </div>
+        </nav>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
