@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div className="flex h-screen w-screen justify-center gap-10 bg-slate-950">
+    <div className="flex h-screen justify-center gap-10 bg-slate-950">
       <div className="flex flex-col gap-5 text-white">
         <h1 className="py-4 text-3xl font-bold text-white">타이포그래피 세팅</h1>
         <h3 className="text-2xl font-thin">안녕, 세계!!</h3>
