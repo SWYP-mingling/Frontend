@@ -1,32 +1,23 @@
 'use client';
 
+import Toast from '@/components/ui/toast';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useToast } from '@/hooks/useToast';
+import { useState } from 'react';
 
 export default function ShareLinkPage() {
   const [link, setLink] = useState('www.abcabc');
-  const [showToast, setShowToast] = useState(false);
+  const { isVisible, show } = useToast();
 
   const handleCopyLink = async () => {
-    if (showToast) return;
-
     try {
       await navigator.clipboard.writeText(link);
-      setShowToast(true);
-    } catch (err) {
-      console.error('복사 실패', err);
+      show();
+    } catch (error) {
+      console.error('복사 실패: ', error);
+      alert('복사에 실패했습니다. 링크를 직접 복사해주세요.');
     }
   };
-
-  // 2초 뒤에 자동으로 사라지게 하는 로직
-  useEffect(() => {
-    if (showToast) {
-      const timer = setTimeout(() => {
-        setShowToast(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [showToast]);
 
   return (
     <div className="flex flex-col items-center justify-center bg-white px-5 py-10 md:py-25">
@@ -44,24 +35,20 @@ export default function ShareLinkPage() {
       </section>
 
       <div className="relative z-10 mb-9 flex w-full rounded-sm md:w-90">
-        <div
-          className={`absolute bottom-full left-1/2 mb-3 h-8 -translate-x-1/2 whitespace-nowrap transition-all duration-300 ease-out ${showToast ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'}`}
-        >
-          <div className="bg-gray-8 relative rounded-full px-7 py-2 text-xs font-normal text-white">
-            주소가 복사되었습니다
-          </div>
-        </div>
+        <Toast message="주소가 복사되었습니다" isVisible={isVisible} />
 
         <input
           type="text"
           name="shareLink"
+          aria-label="모임 공유 링크"
           value={link}
           readOnly
-          className="border-gray-1 grow border border-r-0 bg-white p-2.5 text-[15px] font-normal text-black focus:outline-none"
+          className="border-gray-1 grow rounded-l-sm border border-r-0 bg-white p-2.5 text-[15px] font-normal text-black focus:outline-none"
         />
         <button
+          type="button"
           onClick={handleCopyLink}
-          className="bg-gray-1 text-gray-6 border-gray-1 hover:bg-gray-2 cursor-pointer border px-3.5 py-3 text-sm font-semibold whitespace-nowrap transition-colors"
+          className="bg-gray-1 text-gray-6 border-gray-1 hover:bg-gray-2 cursor-pointer rounded-r-sm border px-3.5 py-3 text-sm font-semibold whitespace-nowrap transition-colors"
         >
           복사
         </button>
