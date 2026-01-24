@@ -16,10 +16,10 @@ export default function GlobalModal() {
     case 'FEEDBACK':
       return <FeedbackModal isOpen={isOpen} onClose={onClose} />;
     case 'SHARE':
-      return;
+      return null;
     //   return <ShareModal isOpen={isOpen} onClose={onClose} {...props} />;
     case 'NUDGE':
-      return;
+      return null;
     //   return <NudgeModal isOpen={isOpen} onClose={onClose} {...props} />;
     default:
       return null;

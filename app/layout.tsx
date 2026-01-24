@@ -35,11 +35,9 @@ export default function RootLayout({
     <html lang="ko" className={pretendard.variable}>
       <body className="flex min-h-screen flex-col">
         <Header />
-        <main className="flex-1">
-          {children}
-          <GlobalModal />
-        </main>
+        <main className="flex-1">{children}</main>
         <Footer />
+        <GlobalModal />
       </body>
     </html>
   );

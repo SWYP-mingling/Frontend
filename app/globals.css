@@ -24,12 +24,15 @@
   --color-error: #f94239;
 }
 
-/* 사용자 정의 폰트 세팅 */
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
   body {
     font-family: var(--font-pretendard);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground;
   }
 }
 
@@ -77,10 +80,4 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
 }

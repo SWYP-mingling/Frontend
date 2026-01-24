@@ -23,16 +23,22 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
   const isValid = score !== null;
 
+  const handleClose = () => {
+    setScore(null);
+    setReason('');
+    onClose();
+  };
+
   const handleSubmit = () => {
     if (!isValid) return;
     console.log('제출 데이터:', { score, reason });
 
     // TODO: API 호출
-    onClose();
+    handleClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
         className="w-81 min-w-81 gap-11 rounded bg-white px-6 py-5 md:w-110"
@@ -61,6 +67,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   <button
                     key={num}
                     onClick={() => setScore(num)}
+                    aria-pressed={score === num}
                     className={`flex h-10 w-full items-center justify-center rounded border text-base font-normal focus:outline-none ${score === num ? 'bg-blue-5 text-white' : 'border-gray-2 text-gray-7 hover:bg-blue-1 bg-white'} `}
                   >
                     {num}
