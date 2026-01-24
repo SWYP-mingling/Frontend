@@ -1,9 +1,14 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { useModalStore } from '@/store/useModalStore';
 
 const ICON = ['threads', 'instagram'];
 
 const Footer = () => {
+  const { onOpen } = useModalStore();
+
   return (
     <footer className="bg-gray-1 flex h-59 items-center md:h-35">
       <div className="flex w-full flex-col items-start gap-5 px-5 md:flex-row md:justify-between md:gap-0">
@@ -22,11 +27,16 @@ const Footer = () => {
               <Link href="/" className="text-gray-7 text-[16px]">
                 문의하기
               </Link>
-              <Link href="/" className="text-gray-7 text-[16px]">
+              <button
+                type="button"
+                onClick={() => onOpen('FEEDBACK')}
+                className="text-gray-7 cursor-pointer text-[16px]"
+              >
                 피드백남기기
-              </Link>
+              </button>
             </div>
           </div>
+          {/* 쓰레드, 인스타그램 아이콘 렌더링 */}
           <div className="text-gray-4 flex gap-3">
             {ICON.map((item, idx) => (
               <Link href={`https://www.${item}.com/`} key={idx}>

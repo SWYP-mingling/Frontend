@@ -25,9 +25,9 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
   const handleSubmit = () => {
     if (!isValid) return;
-
     console.log('제출 데이터:', { score, reason });
-    // TODO: API 호출 로직 추가
+
+    // TODO: API 호출
     onClose();
   };
 
@@ -61,7 +61,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   <button
                     key={num}
                     onClick={() => setScore(num)}
-                    className={`hover:bg-blue-1 flex h-10 w-full items-center justify-center rounded border text-base font-normal transition-colors focus:outline-none ${score === num ? 'bg-blue-5 text-white' : 'border-gray-2 text-gray-7 bg-white'} `}
+                    className={`flex h-10 w-full items-center justify-center rounded border text-base font-normal focus:outline-none ${score === num ? 'bg-blue-5 text-white' : 'border-gray-2 text-gray-7 hover:bg-blue-1 bg-white'} `}
                   >
                     {num}
                   </button>
