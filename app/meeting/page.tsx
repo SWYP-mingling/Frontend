@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Share2, MapPin } from 'lucide-react';
+import { Search, Share2 } from 'lucide-react';
+import KakaoMap from '@/components/map/kakaoMap'; // 컴포넌트 임포트
 
 const MOCK_PARTICIPANTS = [
   { id: 1, name: '안', station: '홍대입구역', status: 'pending', color: 'bg-blue-500' },
@@ -19,18 +20,13 @@ export default function MeetingPage() {
   return (
     // 1. 전체 화면 배경 및 중앙 정렬 (회색 배경)
     <div className="flex items-center justify-center p-0 md:min-h-[calc(100vh-200px)] md:py-25">
-      {/* 2. 메인 컨테이너 (반응형 박스)
-          - 모바일: 화면 꽉 참 (w-full h-full)
-          - 데스크탑(md): 860px x 700px 고정, 중앙 정렬, 둥근 모서리
-       */}
+      {/* 2. 메인 컨테이너 (반응형 박스) */}
       <div className="flex h-full w-full flex-col overflow-hidden bg-white md:h-175 md:w-215 md:flex-row md:gap-4 md:rounded-xl">
         {/* =========================================================
             [LEFT PANEL] 정보 영역
-            - 너비: 모바일(100%), 데스크탑(380px 고정)
-            - 구조: 타이머 -> [모바일 지도] -> 검색 -> 리스트
         ========================================================= */}
         <section className="flex w-full flex-col border-gray-100 bg-white md:w-77.5">
-          {/* A. 타이머 섹션 (항상 상단) */}
+          {/* A. 타이머 섹션 */}
           <div className="px-6 pt-8 pb-4">
             <div className="flex items-start justify-between">
               <div>
@@ -50,15 +46,11 @@ export default function MeetingPage() {
             </div>
           </div>
 
-          {/* ★★★ B. [모바일 전용 지도] ★★★ 
-              - 위치: 타이머와 검색창 사이
-              - 동작: 모바일(기본)에선 보이고(block), 데스크탑(md)에선 숨김(hidden)
+          {/* ★★★ B. [모바일 전용 지도] 교체 완료 ★★★ 
+              - 기존 div 태그를 KakaoMap 컴포넌트로 변경
+              - className은 기존 div의 것을 그대로 승계 (배경색, aspect-ratio 등 유지)
           */}
-          <div className="relative mb-4 block aspect-video w-full bg-gray-100 md:hidden">
-            <div className="absolute inset-0 flex items-center justify-center bg-blue-50 text-sm text-gray-400">
-              <MapPin className="mr-1" size={16} /> 모바일 지도 영역
-            </div>
-          </div>
+          <KakaoMap className="relative mb-4 block aspect-video w-full bg-gray-100 md:hidden" />
 
           {/* C. 검색창 */}
           <div className="mb-4 px-6">
@@ -78,9 +70,9 @@ export default function MeetingPage() {
             </div>
           </div>
 
-          {/* D. 참여 현황 (남은 공간 전체 차지) */}
+          {/* D. 참여 현황 */}
           <div className="flex flex-1 flex-col overflow-hidden pb-6">
-            {/* [1] 상단 고정 영역 (헤더 + 배너) - 스크롤 안 됨 */}
+            {/* [1] 상단 고정 영역 */}
             <div className="px-6 pt-2">
               <div className="mb-3 flex items-end justify-between bg-white">
                 <h3 className="text-[15px] font-bold text-gray-900">참여현황</h3>
@@ -102,7 +94,7 @@ export default function MeetingPage() {
               </div>
             </div>
 
-            {/* [2] 하단 스크롤 영역 (리스트) - 남은 공간 차지(flex-1) & 스크롤(overflow-y-auto) */}
+            {/* [2] 하단 스크롤 영역 */}
             <div className="scrollbar-hide flex-1 overflow-y-auto pr-2 pl-6">
               <div className="flex flex-col gap-3">
                 {MOCK_PARTICIPANTS.map((user) => (
@@ -130,19 +122,13 @@ export default function MeetingPage() {
 
         {/* =========================================================
             [RIGHT PANEL] 데스크탑 전용 지도 영역
-            - 위치: 오른쪽 패널
-            - 동작: 모바일(기본)에선 숨김(hidden), 데스크탑(md)에선 보임(block)
         ========================================================= */}
         <section className="hidden h-full flex-1 bg-gray-100 md:block">
-          {/* 지도 배경 */}
-          <div className="bg-[url('https://placehold.co/800x800/e5e7eb/a3a3a3?text=Map')] bg-cover opacity-60"></div>
-
-          {/* 핀 예시 */}
-          <div className="absolute top-[40%] left-[50%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-white bg-blue-500 text-xs font-bold text-white shadow-lg">
-              안
-            </div>
-          </div>
+          {/* ★★★ [데스크탑 지도] 교체 완료 ★★★ 
+               - 기존의 배경 이미지와 절대 좌표 핀 div들을 제거하고 
+               - KakaoMap이 부모 section(flex-1)을 가득 채우도록 h-full w-full 적용
+           */}
+          <KakaoMap className="h-full w-full" />
         </section>
       </div>
     </div>
