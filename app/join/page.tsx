@@ -1,11 +1,14 @@
 'use client';
 
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function JoinMeetingPage() {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [isRemembered, setIsRemembered] = useState(true);
+  const router = useRouter();
 
   // 이름/비번 유효성 검사 (입력값이 있을 때만 버튼 활성화)
   const isFormValid = name.length > 0 && password.length === 4;
@@ -15,6 +18,7 @@ export default function JoinMeetingPage() {
     if (!isFormValid) return;
 
     console.log('참여 요청:', { name, password, isRemembered });
+    router.push('/meeting');
   };
 
   return (
