@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import KakaoMap from '@/components/map/kakaoMap';
 import StationSearch from '@/components/meeting/stationSearch';
-import { useModalStore } from '@/store/useModalStore';
+import { useOpenModal } from '@/hooks/useOpenModal';
 
 // 목 데이터 (참여자 목록)
 const MOCK_PARTICIPANTS = [
@@ -29,7 +29,7 @@ const SEARCH_STATIONS = [
 export default function MeetingPage() {
   // 선택된 역 상태 관리
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
-  const { onOpen } = useModalStore();
+  const openModal = useOpenModal();
 
   return (
     // 전체 화면 배경 및 중앙 정렬
@@ -54,7 +54,7 @@ export default function MeetingPage() {
               <button
                 className="text-blue-5 bg-blue-1 hover:bg-blue-2 flex h-6 w-30 cursor-pointer items-center gap-0.5 rounded px-3 py-1.5 text-[11px] font-semibold transition-colors"
                 type="button"
-                onClick={() => onOpen('SHARE')}
+                onClick={(e) => openModal('SHARE', e)}
               >
                 <Image src="/icon/share.svg" alt="공유 아이콘" width={12} height={12} />
                 참여 링크 공유하기
@@ -85,7 +85,11 @@ export default function MeetingPage() {
             </div>
 
             {/* [2] 재촉하기 배너 */}
-            <div className="bg-blue-5 hover:bg-blue-8 flex h-21 w-full cursor-pointer items-center justify-between rounded p-4 text-white transition-transform active:scale-[0.98]">
+            <button
+              type="button"
+              className="bg-blue-5 hover:bg-blue-8 flex h-21 w-full cursor-pointer items-center justify-between rounded p-4 text-left text-white transition-transform active:scale-[0.98]"
+              onClick={(e) => openModal('NUDGE', e)}
+            >
               <div className="flex flex-col gap-0.5">
                 <span className="text-lg leading-[1.44] font-semibold">
                   아직 입력하지 않은 친구
@@ -95,7 +99,7 @@ export default function MeetingPage() {
               </div>
 
               <div className="bg-gray-3 h-13 w-14"></div>
-            </div>
+            </button>
 
             {/* [3] 출발지 컴포넌트 */}
             <div className="mb-10 flex-1">

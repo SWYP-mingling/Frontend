@@ -3,7 +3,7 @@
 import { useModalStore } from '@/store/useModalStore';
 import FeedbackModal from '@/components/modal/feedbackModal';
 import ShareModal from '@/components/modal/shareModal';
-// import NudgeModal from '@/components/NudgeModal'; // 추후 제작 예정
+import NudgeModal from '@/components/modal/nudgeModal';
 
 export default function GlobalModal() {
   const { type, isOpen, onClose } = useModalStore();
@@ -18,8 +18,7 @@ export default function GlobalModal() {
     case 'SHARE':
       return <ShareModal isOpen={isOpen} onClose={onClose} />;
     case 'NUDGE':
-      return null;
-    //   return <NudgeModal isOpen={isOpen} onClose={onClose} {...props} />;
+      return <NudgeModal isOpen={isOpen} onClose={onClose} />;
     default:
       return null;
   }

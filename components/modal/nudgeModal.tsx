@@ -12,12 +12,12 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/useToast';
 import Toast from '../ui/toast';
 
-interface ShareModalProps {
+interface NudgeModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function ShareModal({ isOpen, onClose }: ShareModalProps) {
+export default function NudgeModal({ isOpen, onClose }: NudgeModalProps) {
   const [link, setLink] = useState('www.abcabc');
   const { isVisible, show } = useToast();
 
@@ -39,11 +39,12 @@ export default function ShareModal({ isOpen, onClose }: ShareModalProps) {
       >
         {/* 헤더 영역 */}
         <DialogHeader className="text-left">
-          <DialogTitle className="text-[22px] font-semibold text-black">
-            모임 링크를 공유해주세요
+          <DialogTitle className="text-[22px] leading-[1.364] font-semibold text-black">
+            아직 입력하지 않은 친구를 <br />
+            재촉해 보세요!
           </DialogTitle>
           <DialogDescription className="sr-only">
-            현재 모임의 참여 링크를 복사하거나 친구들에게 공유하여 초대할 수 있습니다.
+            아직 출발지를 입력하지 않은 친구들에게 재촉 알림을 보냅니다.
           </DialogDescription>
         </DialogHeader>
 
@@ -57,7 +58,7 @@ export default function ShareModal({ isOpen, onClose }: ShareModalProps) {
 
             <input
               type="text"
-              name="shareLink"
+              name="NudgeLink"
               aria-label="모임 공유 링크"
               value={link}
               readOnly
