@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import Header from '../components/header';
 import Footer from '../components/footer';
+import GlobalModal from '@/components/globalModal';
 
 const pretendard = localFont({
   src: [
@@ -36,6 +37,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <GlobalModal />
       </body>
     </html>
   );

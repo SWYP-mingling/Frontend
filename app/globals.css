@@ -1,5 +1,7 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
+/* 사용자 정의 컬러 시스템 */
 @theme {
   --color-gray-1: #f2f3f8;
   --color-gray-2: #e5e7ee;
@@ -23,9 +25,59 @@
 }
 
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
   body {
     font-family: var(--font-pretendard);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground;
   }
+}
+
+/* shadcn/ui를 사용함에 있어 필요한 최소한의 변수 */
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+
+  /* 배경/텍스트 */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* 닫기 버튼(X) 및 보조 요소 */
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* 테두리 및 포커스 */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --radius: 0.625rem;
+
+  /* 흰색 배경, 검은색 글씨 */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+
+  /* X 아이콘 색상 (연한 검정) */
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+
+  /* X 버튼 호버 배경 (연한 회색) */
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+
+  /* 테두리 라인 색상 */
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+}
+
+@layer base {
 }
