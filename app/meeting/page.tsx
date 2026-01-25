@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import KakaoMap from '@/components/map/kakaoMap';
+import { getChoseong, disassemble } from 'es-hangul';
+import StationSearch from '@/components/meeting/stationSearch';
 
-// 목 데이터
+// 목 데이터 (참여자 목록)
 const MOCK_PARTICIPANTS = [
   { id: 1, name: '안', station: '홍대입구역', status: 'pending', color: 'bg-blue-500' },
   { id: 2, name: '손', station: '성수역', status: 'pending', color: 'bg-orange-400' },
@@ -12,8 +14,21 @@ const MOCK_PARTICIPANTS = [
   { id: 4, name: '이', station: '건대입구역', status: 'done', color: 'bg-purple-600' },
 ];
 
+// [NEW] 목 데이터 (검색용 역 리스트) - 실제로는 API 등에서 가져올 데이터
+const SEARCH_STATIONS = [
+  '검단오류(검단산업단지)',
+  '광교(경기대)',
+  '구의(광진구청)',
+  '굽은다리(강동구민회관앞)',
+  '금정역',
+  '강남역',
+  '홍대입구역',
+  '서울역',
+];
+
 export default function MeetingPage() {
-  const [searchValue, setSearchValue] = useState('');
+  // 선택된 역 상태 관리
+  const [selectedStation, setSelectedStation] = useState<string | null>(null);
 
   return (
     // 전체 화면 배경 및 중앙 정렬
@@ -48,26 +63,12 @@ export default function MeetingPage() {
           {/* 모바일 전용 지도 영역 */}
           <KakaoMap className="relative block aspect-video h-93.5 bg-gray-100 md:hidden" />
 
-          {/* 검색창 */}
-          <div className="px-5 md:p-0">
-            <h3 className="text-gray-9 mb-3 text-xl font-semibold">내 출발지</h3>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="출발역을 검색해주세요"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                className="bg-gray-1 placeholder:text-gray-4 border-gray-2 focus:ring-blue-5 h-10 w-full rounded border py-2 pl-3 text-[15px] text-gray-900 transition-all outline-none focus:ring-1"
-              />
-              <Image
-                className="text-gray-6 absolute top-1/2 right-2.5 -translate-y-1/2"
-                src="/icon/search.svg"
-                alt="돋보기 아이콘"
-                width={20}
-                height={20}
-              />
-            </div>
-          </div>
+          {/* 출발지 검색 창 컴포넌트 */}
+          <StationSearch
+            stations={SEARCH_STATIONS}
+            selectedStation={selectedStation}
+            onSelect={setSelectedStation}
+          />
 
           <div className="bg-gray-1 relative h-1 w-full md:hidden"></div>
 
