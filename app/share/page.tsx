@@ -21,11 +21,11 @@ export default function ShareLinkPage() {
 
   return (
     <div className="flex flex-col items-center justify-center bg-white px-5 py-10 md:py-25">
-      <h3 className="text-gray-10 mb-9 text-center text-2xl leading-[1.334] font-bold md:text-4xl">
+      <h2 className="text-gray-10 mb-9 text-center text-2xl leading-[1.334] font-bold md:text-4xl">
         모임이 만들어졌어요!
         <br />
         링크를 공유해주세요
-      </h3>
+      </h2>
 
       <section className="mb-9 flex h-70 w-80 max-w-sm items-center justify-center rounded-2xl bg-gray-200 md:w-90">
         <div className="text-gray-10 text-center font-semibold">

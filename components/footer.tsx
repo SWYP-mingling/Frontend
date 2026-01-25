@@ -40,7 +40,7 @@ const Footer = () => {
           <div className="text-gray-4 flex gap-3">
             {ICON.map((item, idx) => (
               <Link href={`https://www.${item}.com/`} key={idx}>
-                <Image src={`/${item}.svg`} alt={`${item} Logo`} width={24} height={24} />
+                <Image src={`/icon/${item}.svg`} alt={`${item} Logo`} width={24} height={24} />
               </Link>
             ))}
           </div>

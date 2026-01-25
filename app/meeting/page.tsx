@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import KakaoMap from '@/components/map/kakaoMap';
 
+// 목 데이터
 const MOCK_PARTICIPANTS = [
   { id: 1, name: '안', station: '홍대입구역', status: 'pending', color: 'bg-blue-500' },
   { id: 2, name: '손', station: '성수역', status: 'pending', color: 'bg-orange-400' },
@@ -15,16 +16,14 @@ export default function MeetingPage() {
   const [searchValue, setSearchValue] = useState('');
 
   return (
-    // 1. 전체 화면 배경 및 중앙 정렬
+    // 전체 화면 배경 및 중앙 정렬
     <div className="flex items-center justify-center p-0 md:min-h-[calc(100vh-200px)] md:py-25">
-      {/* 2. 메인 컨테이너 (반응형 박스) */}
-      <div className="flex h-full w-full flex-col overflow-hidden bg-white md:h-175 md:w-174 md:flex-row md:gap-5 md:rounded-xl lg:w-215">
-        {/* =========================================================
-            [LEFT PANEL] 정보 영역
-        ========================================================= */}
-        <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5">
-          {/* A. 타이머 섹션 */}
-          <div className="px-5 pt-10">
+      {/* 메인 컨테이너 (반응형 박스) */}
+      <div className="flex h-full w-full flex-col overflow-hidden bg-white md:h-175 md:w-174 md:flex-row md:gap-4 md:rounded-xl lg:w-215">
+        {/* [LEFT PANEL] 데스크탑 전용 정보 영역 */}
+        <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5 md:gap-10">
+          {/* 타이머 섹션 */}
+          <div className="px-5 pt-10 md:p-0">
             <div className="flex items-start justify-between">
               <div className="text-[22px] leading-[1.364] font-semibold tracking-[-1.948%]">
                 <h2 className="text-gray-9">
@@ -36,21 +35,21 @@ export default function MeetingPage() {
                   아직 입력 안 한 모임원 2명
                 </p>
               </div>
-              <button className="text-blue-5 bg-blue-1 flex items-center gap-0.5 rounded px-3 py-1.5 text-[11px] font-semibold transition-colors">
-                <Image src="/share.svg" alt={''} width={12} height={12} />
+              <button
+                className="text-blue-5 bg-blue-1 flex h-6 w-30 cursor-pointer items-center gap-0.5 rounded px-3 py-1.5 text-[11px] font-semibold transition-colors"
+                type="button"
+              >
+                <Image src="/icon/share.svg" alt="공유 아이콘" width={12} height={12} />
                 참여 링크 공유하기
               </button>
             </div>
           </div>
 
-          {/* ★★★ B. [모바일 전용 지도] 교체 완료 ★★★ 
-              - 기존 div 태그를 KakaoMap 컴포넌트로 변경
-              - className은 기존 div의 것을 그대로 승계 (배경색, aspect-ratio 등 유지)
-          */}
+          {/* 모바일 전용 지도 영역 */}
           <KakaoMap className="relative block aspect-video h-93.5 bg-gray-100 md:hidden" />
 
-          {/* C. 검색창 */}
-          <div className="px-5">
+          {/* 검색창 */}
+          <div className="px-5 md:p-0">
             <h3 className="text-gray-9 mb-3 text-xl font-semibold">내 출발지</h3>
             <div className="relative">
               <input
@@ -62,8 +61,8 @@ export default function MeetingPage() {
               />
               <Image
                 className="text-gray-6 absolute top-1/2 right-2.5 -translate-y-1/2"
-                src="/search.svg"
-                alt=""
+                src="/icon/search.svg"
+                alt="돋보기 아이콘"
                 width={20}
                 height={20}
               />
@@ -72,8 +71,8 @@ export default function MeetingPage() {
 
           <div className="bg-gray-1 relative h-1 w-full md:hidden"></div>
 
-          {/* D. 참여 현황 */}
-          <div className="flex flex-1 flex-col gap-3 overflow-hidden px-5">
+          {/* 참여 현황 */}
+          <div className="flex flex-1 flex-col gap-3 overflow-hidden px-5 md:gap-3.5 md:p-0">
             {/* [1] 상단 고정 영역 */}
             <div className="flex items-center justify-between bg-white">
               <h3 className="text-gray-9 text-xl font-semibold">참여현황</h3>
@@ -82,19 +81,21 @@ export default function MeetingPage() {
               </span>
             </div>
 
-            {/* 재촉하기 배너 */}
-            <div className="bg-blue-5 flex w-full cursor-pointer items-center justify-between rounded px-4 py-4 text-white transition-transform active:scale-[0.98]">
+            {/* [2] 재촉하기 배너 */}
+            <div className="bg-blue-5 hover:bg-blue-8 flex h-21 w-full cursor-pointer items-center justify-between rounded p-4 text-white transition-transform active:scale-[0.98]">
               <div className="flex flex-col gap-0.5">
-                <span className="text-lg font-semibold">
-                  아직 입력하지 않은 친구 <br /> 재촉하기
+                <span className="text-lg leading-[1.44] font-semibold">
+                  아직 입력하지 않은 친구
+                  <br />
+                  재촉하기
                 </span>
               </div>
 
               <div className="bg-gray-3 h-13 w-14"></div>
             </div>
 
-            {/* [2] 하단 스크롤 영역 */}
-            <div className="scrollbar-hide mb-10 flex-1 overflow-y-auto">
+            {/* [3] 출발지 컴포넌트 */}
+            <div className="mb-10 flex-1">
               <div className="flex flex-col gap-3.5">
                 {MOCK_PARTICIPANTS.map((user) => (
                   <div
@@ -117,14 +118,8 @@ export default function MeetingPage() {
           </div>
         </section>
 
-        {/* =========================================================
-            [RIGHT PANEL] 데스크탑 전용 지도 영역
-        ========================================================= */}
+        {/* [RIGHT PANEL] 데스크탑 전용 지도 영역 */}
         <section className="hidden h-full flex-1 bg-gray-100 md:block">
-          {/* ★★★ [데스크탑 지도] 교체 완료 ★★★ 
-               - 기존의 배경 이미지와 절대 좌표 핀 div들을 제거하고 
-               - KakaoMap이 부모 section(flex-1)을 가득 채우도록 h-full w-full 적용
-           */}
           <KakaoMap className="h-full w-full" />
         </section>
       </div>
