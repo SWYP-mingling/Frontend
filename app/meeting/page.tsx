@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import KakaoMap from '@/components/map/kakaoMap';
-import { getChoseong, disassemble } from 'es-hangul';
 import StationSearch from '@/components/meeting/stationSearch';
+import { useModalStore } from '@/store/useModalStore';
 
 // 목 데이터 (참여자 목록)
 const MOCK_PARTICIPANTS = [
@@ -29,6 +29,7 @@ const SEARCH_STATIONS = [
 export default function MeetingPage() {
   // 선택된 역 상태 관리
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
+  const { onOpen } = useModalStore();
 
   return (
     // 전체 화면 배경 및 중앙 정렬
@@ -51,8 +52,9 @@ export default function MeetingPage() {
                 </p>
               </div>
               <button
-                className="text-blue-5 bg-blue-1 flex h-6 w-30 cursor-pointer items-center gap-0.5 rounded px-3 py-1.5 text-[11px] font-semibold transition-colors"
+                className="text-blue-5 bg-blue-1 hover:bg-blue-2 flex h-6 w-30 cursor-pointer items-center gap-0.5 rounded px-3 py-1.5 text-[11px] font-semibold transition-colors"
                 type="button"
+                onClick={() => onOpen('SHARE')}
               >
                 <Image src="/icon/share.svg" alt="공유 아이콘" width={12} height={12} />
                 참여 링크 공유하기

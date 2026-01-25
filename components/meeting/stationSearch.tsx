@@ -51,7 +51,7 @@ export default function StationSearch({
               type="button"
             >
               <Image
-                className="text-gray-6 pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 p-1.25"
+                className="text-gray-6 absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer p-1.25"
                 src="/icon/x.svg"
                 alt="취소 아이콘"
                 width={20}

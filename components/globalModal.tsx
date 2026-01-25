@@ -1,12 +1,12 @@
 'use client';
 
 import { useModalStore } from '@/store/useModalStore';
-import FeedbackModal from '@/components/feedback/feedbackModal';
-// import ShareModal from '@/components/ShareModal'; // 추후 제작 예정
+import FeedbackModal from '@/components/modal/feedbackModal';
+import ShareModal from '@/components/modal/shareModal';
 // import NudgeModal from '@/components/NudgeModal'; // 추후 제작 예정
 
 export default function GlobalModal() {
-  const { type, isOpen, onClose, props } = useModalStore();
+  const { type, isOpen, onClose } = useModalStore();
 
   // 닫혀있거나 타입이 없으면 모달 X
   if (!isOpen || !type) return null;
@@ -16,8 +16,7 @@ export default function GlobalModal() {
     case 'FEEDBACK':
       return <FeedbackModal isOpen={isOpen} onClose={onClose} />;
     case 'SHARE':
-      return null;
-    //   return <ShareModal isOpen={isOpen} onClose={onClose} {...props} />;
+      return <ShareModal isOpen={isOpen} onClose={onClose} />;
     case 'NUDGE':
       return null;
     //   return <NudgeModal isOpen={isOpen} onClose={onClose} {...props} />;
