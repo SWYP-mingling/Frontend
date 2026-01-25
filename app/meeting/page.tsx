@@ -1,47 +1,44 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Share2 } from 'lucide-react';
-import KakaoMap from '@/components/map/kakaoMap'; // 컴포넌트 임포트
+import Image from 'next/image';
+import KakaoMap from '@/components/map/kakaoMap';
 
 const MOCK_PARTICIPANTS = [
   { id: 1, name: '안', station: '홍대입구역', status: 'pending', color: 'bg-blue-500' },
   { id: 2, name: '손', station: '성수역', status: 'pending', color: 'bg-orange-400' },
   { id: 3, name: '김', station: '강남역', status: 'done', color: 'bg-red-500' },
   { id: 4, name: '이', station: '건대입구역', status: 'done', color: 'bg-purple-600' },
-  { id: 5, name: '강', station: '천호역', status: 'done', color: 'bg-yellow-500' },
-  { id: 6, name: '최', station: '사당역', status: 'done', color: 'bg-violet-600' },
-  { id: 7, name: '정', station: '고속터미널역', status: 'pending', color: 'bg-sky-500' },
 ];
 
 export default function MeetingPage() {
   const [searchValue, setSearchValue] = useState('');
 
   return (
-    // 1. 전체 화면 배경 및 중앙 정렬 (회색 배경)
+    // 1. 전체 화면 배경 및 중앙 정렬
     <div className="flex items-center justify-center p-0 md:min-h-[calc(100vh-200px)] md:py-25">
       {/* 2. 메인 컨테이너 (반응형 박스) */}
-      <div className="flex h-full w-full flex-col overflow-hidden bg-white md:h-175 md:w-215 md:flex-row md:gap-4 md:rounded-xl">
+      <div className="flex h-full w-full flex-col overflow-hidden bg-white md:h-175 md:w-174 md:flex-row md:gap-5 md:rounded-xl lg:w-215">
         {/* =========================================================
             [LEFT PANEL] 정보 영역
         ========================================================= */}
-        <section className="flex w-full flex-col border-gray-100 bg-white md:w-77.5">
+        <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5">
           {/* A. 타이머 섹션 */}
-          <div className="px-6 pt-8 pb-4">
+          <div className="px-5 pt-10">
             <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-[22px] leading-snug font-bold text-gray-900">
+              <div className="text-[22px] leading-[1.364] font-semibold tracking-[-1.948%]">
+                <h2 className="text-gray-9">
                   투표 마감 시간
                   <br />
-                  <span className="text-blue-500">03 : 45</span> 남았습니다
+                  <span className="text-blue-5">03: 45</span> 남았습니다
                 </h2>
-                <p className="mt-2 text-[13px] font-medium text-gray-500">
+                <p className="text-gray-5 mt-2 text-[15px] font-normal">
                   아직 입력 안 한 모임원 2명
                 </p>
               </div>
-              <button className="flex items-center gap-1.5 rounded bg-blue-50 px-3 py-1.5 text-[11px] font-semibold text-blue-500 transition-colors hover:bg-blue-100">
-                <Share2 size={12} />
-                공유
+              <button className="text-blue-5 bg-blue-1 flex items-center gap-0.5 rounded px-3 py-1.5 text-[11px] font-semibold transition-colors">
+                <Image src="/share.svg" alt={''} width={12} height={12} />
+                참여 링크 공유하기
               </button>
             </div>
           </div>
@@ -50,68 +47,68 @@ export default function MeetingPage() {
               - 기존 div 태그를 KakaoMap 컴포넌트로 변경
               - className은 기존 div의 것을 그대로 승계 (배경색, aspect-ratio 등 유지)
           */}
-          <KakaoMap className="relative mb-4 block aspect-video w-full bg-gray-100 md:hidden" />
+          <KakaoMap className="relative block aspect-video h-93.5 bg-gray-100 md:hidden" />
 
           {/* C. 검색창 */}
-          <div className="mb-4 px-6">
-            <h3 className="mb-3 text-[15px] font-bold text-gray-900">내 출발지</h3>
+          <div className="px-5">
+            <h3 className="text-gray-9 mb-3 text-xl font-semibold">내 출발지</h3>
             <div className="relative">
               <input
                 type="text"
                 placeholder="출발역을 검색해주세요"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                className="w-full rounded border border-gray-200 bg-gray-50 py-3 pr-10 pl-4 text-[14px] text-gray-900 transition-all outline-none placeholder:text-gray-400 focus:ring-1 focus:ring-blue-500"
+                className="bg-gray-1 placeholder:text-gray-4 border-gray-2 focus:ring-blue-5 h-10 w-full rounded border py-2 pl-3 text-[15px] text-gray-900 transition-all outline-none focus:ring-1"
               />
-              <Search
-                className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400"
-                size={18}
+              <Image
+                className="text-gray-6 absolute top-1/2 right-2.5 -translate-y-1/2"
+                src="/search.svg"
+                alt=""
+                width={20}
+                height={20}
               />
             </div>
           </div>
 
+          <div className="bg-gray-1 relative h-1 w-full md:hidden"></div>
+
           {/* D. 참여 현황 */}
-          <div className="flex flex-1 flex-col overflow-hidden pb-6">
+          <div className="flex flex-1 flex-col gap-3 overflow-hidden px-5">
             {/* [1] 상단 고정 영역 */}
-            <div className="px-6 pt-2">
-              <div className="mb-3 flex items-end justify-between bg-white">
-                <h3 className="text-[15px] font-bold text-gray-900">참여현황</h3>
-                <span className="text-[13px] text-gray-500">
-                  <span className="font-semibold text-blue-500">{MOCK_PARTICIPANTS.length}명</span>
-                  이 참여 중
+            <div className="flex items-center justify-between bg-white">
+              <h3 className="text-gray-9 text-xl font-semibold">참여현황</h3>
+              <span className="text-gray-6 text-normal text-xs">
+                <span className="text-blue-5">{MOCK_PARTICIPANTS.length}명</span>이 참여 중
+              </span>
+            </div>
+
+            {/* 재촉하기 배너 */}
+            <div className="bg-blue-5 flex w-full cursor-pointer items-center justify-between rounded px-4 py-4 text-white transition-transform active:scale-[0.98]">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-lg font-semibold">
+                  아직 입력하지 않은 친구 <br /> 재촉하기
                 </span>
               </div>
 
-              {/* 재촉하기 배너 */}
-              <div className="mb-4 flex w-full shrink-0 cursor-pointer items-center justify-between rounded bg-blue-500 px-5 py-4 text-white shadow-sm transition-transform active:scale-[0.98]">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[12px] font-medium opacity-90">
-                    아직 입력하지 않은 친구
-                  </span>
-                  <span className="text-[16px] font-bold">재촉하기</span>
-                </div>
-                <div className="h-10 w-10 rounded bg-white/20 backdrop-blur-sm"></div>
-              </div>
+              <div className="bg-gray-3 h-13 w-14"></div>
             </div>
 
             {/* [2] 하단 스크롤 영역 */}
-            <div className="scrollbar-hide flex-1 overflow-y-auto pr-2 pl-6">
-              <div className="flex flex-col gap-3">
+            <div className="scrollbar-hide mb-10 flex-1 overflow-y-auto">
+              <div className="flex flex-col gap-3.5">
                 {MOCK_PARTICIPANTS.map((user) => (
                   <div
                     key={user.id}
-                    className="flex h-14 shrink-0 items-center justify-between rounded border border-gray-100 bg-white px-4 transition-colors hover:border-blue-200"
+                    className="border-gray-2 flex h-17 items-center justify-between rounded border bg-white px-5"
                   >
-                    <span className="text-[14px] font-medium text-gray-800">{user.station}</span>
-                    <div className="flex items-center gap-2">
+                    <span className="text-gray-8 text-[17px] font-semibold">{user.station}</span>
+                    <div className="flex items-center gap-1.5">
                       <div
-                        className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white ${user.color}`}
+                        className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-normal text-white ${user.color}`}
                       >
                         {user.name}
                       </div>
-                      <span className="text-[12px] text-gray-400">
-                        {user.status === 'done' ? '만기면' : '안가연'}
-                      </span>
+                      <span className="text-gray-8 text-[15px]">안가연</span>
                     </div>
                   </div>
                 ))}
