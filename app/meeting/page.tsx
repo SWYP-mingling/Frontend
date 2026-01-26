@@ -5,26 +5,7 @@ import Image from 'next/image';
 import KakaoMap from '@/components/map/kakaoMap';
 import StationSearch from '@/components/meeting/stationSearch';
 import { useOpenModal } from '@/hooks/useOpenModal';
-
-// 목 데이터 (참여자 목록)
-const MOCK_PARTICIPANTS = [
-  { id: 1, name: '안', station: '홍대입구역', status: 'pending', color: 'bg-blue-500' },
-  { id: 2, name: '손', station: '성수역', status: 'pending', color: 'bg-orange-400' },
-  { id: 3, name: '김', station: '강남역', status: 'done', color: 'bg-red-500' },
-  { id: 4, name: '이', station: '건대입구역', status: 'done', color: 'bg-purple-600' },
-];
-
-// [NEW] 목 데이터 (검색용 역 리스트) - 실제로는 API 등에서 가져올 데이터
-const SEARCH_STATIONS = [
-  '검단오류(검단산업단지)',
-  '광교(경기대)',
-  '구의(광진구청)',
-  '굽은다리(강동구민회관앞)',
-  '금정역',
-  '강남역',
-  '홍대입구역',
-  '서울역',
-];
+import { MOCK_PARTICIPANTS, MOCK_SEARCH_STATIONS } from '@/mock/mockData';
 
 export default function MeetingPage() {
   // 선택된 역 상태 관리
@@ -63,11 +44,14 @@ export default function MeetingPage() {
           </div>
 
           {/* 모바일 전용 지도 영역 */}
-          <KakaoMap className="relative block aspect-video h-93.5 bg-gray-100 md:hidden" />
+          <KakaoMap
+            className="relative block aspect-video h-93.5 bg-gray-100 md:hidden"
+            participants={MOCK_PARTICIPANTS}
+          />
 
           {/* 출발지 검색 창 컴포넌트 */}
           <StationSearch
-            stations={SEARCH_STATIONS}
+            stations={MOCK_SEARCH_STATIONS}
             selectedStation={selectedStation}
             onSelect={setSelectedStation}
           />
@@ -127,7 +111,7 @@ export default function MeetingPage() {
 
         {/* [RIGHT PANEL] 데스크탑 전용 지도 영역 */}
         <section className="hidden h-full flex-1 bg-gray-100 md:block">
-          <KakaoMap className="h-full w-full" />
+          <KakaoMap className="h-full w-full" participants={MOCK_PARTICIPANTS} />
         </section>
       </div>
     </div>
