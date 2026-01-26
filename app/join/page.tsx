@@ -1,11 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function JoinMeetingPage() {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [isRemembered, setIsRemembered] = useState(true);
+  const router = useRouter();
 
   // 이름/비번 유효성 검사 (입력값이 있을 때만 버튼 활성화)
   const isFormValid = name.length > 0 && password.length === 4;
@@ -15,6 +17,7 @@ export default function JoinMeetingPage() {
     if (!isFormValid) return;
 
     console.log('참여 요청:', { name, password, isRemembered });
+    router.push('/meeting');
   };
 
   return (
@@ -101,7 +104,7 @@ export default function JoinMeetingPage() {
         <button
           type="submit"
           disabled={!isFormValid}
-          className={`text-gray-2 h-12 w-full rounded-sm py-4 pt-3 pb-2.5 text-lg font-semibold transition-colors md:max-w-sm ${
+          className={`text-gray-2 mt-6 h-12 w-full rounded-sm py-4 pt-3 pb-2.5 text-lg font-semibold transition-colors md:max-w-sm ${
             isFormValid
               ? 'hover:bg-blue-8 bg-blue-5' // 활성화 상태
               : 'bg-gray-4 cursor-not-allowed' // 비활성화 상태

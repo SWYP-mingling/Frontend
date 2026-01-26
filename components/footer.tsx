@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useModalStore } from '@/store/useModalStore';
+import { useOpenModal } from '@/hooks/useOpenModal';
 
 const ICON = ['threads', 'instagram'];
 
 const Footer = () => {
-  const { onOpen } = useModalStore();
+  const openModal = useOpenModal();
 
   return (
     <footer className="bg-gray-1 flex h-59 items-center md:h-35">
@@ -29,7 +29,7 @@ const Footer = () => {
               </Link>
               <button
                 type="button"
-                onClick={() => onOpen('FEEDBACK')}
+                onClick={(e) => openModal('FEEDBACK', e)}
                 className="text-gray-7 cursor-pointer text-[16px]"
               >
                 피드백남기기
@@ -40,7 +40,7 @@ const Footer = () => {
           <div className="text-gray-4 flex gap-3">
             {ICON.map((item, idx) => (
               <Link href={`https://www.${item}.com/`} key={idx}>
-                <Image src={`/${item}.svg`} alt={`${item} Logo`} width={24} height={24} />
+                <Image src={`/icon/${item}.svg`} alt={`${item} Logo`} width={24} height={24} />
               </Link>
             ))}
           </div>

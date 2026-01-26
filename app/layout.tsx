@@ -1,9 +1,10 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import localFont from 'next/font/local';
 import Header from '../components/header';
 import Footer from '../components/footer';
-import GlobalModal from '@/components/globalModal';
+import GlobalModal from '@/components/modal/globalModal';
 
 const pretendard = localFont({
   src: [
@@ -38,6 +39,10 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <GlobalModal />
+        <Script
+          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&libraries=services,clusterer&autoload=false`}
+          strategy="beforeInteractive"
+        />
       </body>
     </html>
   );

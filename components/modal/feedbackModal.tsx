@@ -65,6 +65,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               <div className="flex w-full justify-between gap-1">
                 {SCORES.map((num) => (
                   <button
+                    type="button"
                     key={num}
                     onClick={() => setScore(num)}
                     aria-pressed={score === num}
@@ -88,7 +89,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
             <label htmlFor="reason" className="text-gray-9 text-sm leading-[1.57] font-semibold">
               그렇게 느낀 가장 큰 이유는 무엇인가요?
             </label>
-            <input
+            <textarea
               id="reason"
               placeholder="플레이스 홀더"
               value={reason}
@@ -101,6 +102,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         {/* 푸터 (제출 버튼) */}
         <DialogFooter>
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={!isValid}
             className={`h-12 w-full rounded text-lg font-semibold transition-colors ${isValid ? 'hover:bg-blue-8 bg-blue-5 text-white' : 'text-gray-2 bg-gray-4'}`}
