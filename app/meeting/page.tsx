@@ -8,9 +8,31 @@ import { useOpenModal } from '@/hooks/useOpenModal';
 import { MOCK_PARTICIPANTS, MOCK_SEARCH_STATIONS } from '@/mock/mockData';
 
 export default function MeetingPage() {
-  // 선택된 역 상태 관리
+  // 선택된 역 이름 상태 관리
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
   const openModal = useOpenModal();
+
+  // 1. [좌표 찾기] 선택된 역 이름으로 MOCK 데이터에서 정보 찾기
+  const selectedStationInfo = MOCK_SEARCH_STATIONS.find(
+    (station) => station.name === selectedStation
+  );
+
+  // 2. [내 참가자 객체 생성] 선택된 역이 있을 때만 생성
+  const myParticipant = selectedStation
+    ? {
+        id: 'me', // 고유 ID (문자열)
+        name: '나',
+        station: selectedStation,
+        // 정보가 없으면 서울시청 좌표를 기본값으로 사용 (예외 처리)
+        lat: selectedStationInfo?.lat || 37.5665,
+        lng: selectedStationInfo?.lng || 126.978,
+        status: 'done',
+        hexColor: '#000000',
+      }
+    : null;
+
+  // 3. [최종 리스트 병합] 내가 있으면 맨 앞에 추가, 없으면 기존 리스트만 사용
+  const allParticipants = myParticipant ? [myParticipant, ...MOCK_PARTICIPANTS] : MOCK_PARTICIPANTS;
 
   return (
     // 전체 화면 배경 및 중앙 정렬
@@ -43,10 +65,10 @@ export default function MeetingPage() {
             </div>
           </div>
 
-          {/* 모바일 전용 지도 영역 */}
+          {/* 모바일 전용 지도 영역: allParticipants 전달 */}
           <KakaoMap
             className="relative block aspect-video h-93.5 bg-gray-100 md:hidden"
-            participants={MOCK_PARTICIPANTS}
+            participants={allParticipants}
           />
 
           {/* 출발지 검색 창 컴포넌트 */}
@@ -64,7 +86,8 @@ export default function MeetingPage() {
             <div className="flex items-center justify-between bg-white">
               <h3 className="text-gray-9 text-xl font-semibold">참여현황</h3>
               <span className="text-gray-6 text-normal text-xs">
-                <span className="text-blue-5">{MOCK_PARTICIPANTS.length}명</span>이 참여 중
+                {/* 전체 인원 수 동적 반영 */}
+                <span className="text-blue-5">{allParticipants.length}명</span>이 참여 중
               </span>
             </div>
 
@@ -81,22 +104,25 @@ export default function MeetingPage() {
                   재촉하기
                 </span>
               </div>
-
               <div className="bg-gray-3 h-13 w-14"></div>
             </button>
 
-            {/* [3] 출발지 컴포넌트 */}
+            {/* [3] 출발지 컴포넌트: 리스트 렌더링 */}
             <div className="mb-10 flex-1">
-              <div className="flex flex-col gap-3.5">
-                {MOCK_PARTICIPANTS.map((user) => (
+              <div className="[&::-webkit-scrollbar-thumb]:bg-gray-6 flex h-80 flex-col gap-3.5 overflow-y-scroll pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full">
+                {allParticipants.map((user) => (
                   <div
                     key={user.id}
-                    className="border-gray-2 flex h-17 items-center justify-between rounded border bg-white px-5"
+                    className={`flex h-17 shrink-0 items-center justify-between rounded border bg-white px-5 ${
+                      // 내가 선택한 경우, 강조하기
+                      user.id === 'me' ? 'border-blue-5' : 'border-gray-2'
+                    }`}
                   >
                     <span className="text-gray-8 text-[17px] font-semibold">{user.station}</span>
                     <div className="flex items-center gap-1.5">
                       <div
-                        className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-normal text-white ${user.color}`}
+                        className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-normal text-white"
+                        style={{ backgroundColor: `${user.hexColor}` }}
                       >
                         {user.name}
                       </div>
@@ -109,9 +135,9 @@ export default function MeetingPage() {
           </div>
         </section>
 
-        {/* [RIGHT PANEL] 데스크탑 전용 지도 영역 */}
-        <section className="hidden h-full flex-1 bg-gray-100 md:block">
-          <KakaoMap className="h-full w-full" participants={MOCK_PARTICIPANTS} />
+        {/* [RIGHT PANEL] 데스크탑 전용 지도 영역: allParticipants 전달 */}
+        <section className="bg-gray-1 hidden h-full flex-1 md:block">
+          <KakaoMap className="h-full w-full" participants={allParticipants} />
         </section>
       </div>
     </div>
