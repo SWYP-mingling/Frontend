@@ -7,11 +7,11 @@ const hsvToHex = (h: number, s: number, v: number) => {
   let r = 0,
     g = 0,
     b = 0;
-  let i = Math.floor(h / 60);
-  let f = h / 60 - i;
-  let p = v * (1 - s);
-  let q = v * (1 - f * s);
-  let t = v * (1 - (1 - f) * s);
+  const i = Math.floor(h / 60);
+  const f = h / 60 - i;
+  const p = v * (1 - s);
+  const q = v * (1 - f * s);
+  const t = v * (1 - (1 - f) * s);
 
   switch (i % 6) {
     case 0:
