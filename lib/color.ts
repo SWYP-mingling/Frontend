@@ -63,7 +63,7 @@ export const getRandomHexColor = (seed: number | string) => {
     hash = strSeed.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  // 해시값에 137(겹치지 않게 하는 숫자)을 곱해서 각도를 크게 벌립니다.
+  // 해시값에 "겹치지 않게 하는 숫자"를 곱해서 각도를 크게 벌립니다.
   const h = Math.abs((hash * 50) % 360);
 
   return hsvToHex(h, 65, 100);

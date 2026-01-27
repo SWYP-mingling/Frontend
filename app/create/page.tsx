@@ -10,7 +10,7 @@ export default function Page() {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedSocialPlace, setSelectedSocialPlace] = useState<string | null>(null);
   const [participantCount, setParticipantCount] = useState(0);
-  const [isParticipantUndecided, setIsParticipantUndecided] = useState(true);
+  const [isParticipantUndecided, setIsParticipantUndecided] = useState(false);
   const [deadlineDays, setDeadlineDays] = useState(1);
   const [isDeadlineFlexible, setIsDeadlineFlexible] = useState(false);
   const router = useRouter();
@@ -232,14 +232,11 @@ export default function Page() {
                   isParticipantUndecided ? 'bg-blue-5' : 'bg-gray-3'
                 }`}
               >
-                {isParticipantUndecided && (
-                  <Image src="/icon/whitecheck.svg" alt="check" width={10} height={10} />
-                )}
-                {!isParticipantUndecided && (
-                  <Image src="/icon/whitecheck.svg" alt="check" width={10} height={10} />
-                )}
+                <Image src="/icon/whitecheck.svg" alt="check" width={10} height={10} />
               </button>
-              <span className="text-gray-6 text-[12px] leading-[1.334] tracking-[0.3024px]">
+              <span
+                className={`text-[12px] leading-[1.334] tracking-[0.3024px] ${isParticipantUndecided ? 'text-blue-5' : 'text-gray-6'}`}
+              >
                 아직 안정해졌어요.
               </span>
             </div>
@@ -284,14 +281,11 @@ export default function Page() {
                   isDeadlineFlexible ? 'bg-blue-5' : 'bg-gray-3'
                 }`}
               >
-                {isDeadlineFlexible && (
-                  <Image src="/icon/whitecheck.svg" alt="check" width={10} height={10} />
-                )}
-                {!isDeadlineFlexible && (
-                  <Image src="/icon/whitecheck.svg" alt="check" width={10} height={10} />
-                )}
+                <Image src="/icon/whitecheck.svg" alt="check" width={10} height={10} />
               </button>
-              <span className="text-gray-6 text-[12px] leading-[1.334] tracking-[0.3024px]">
+              <span
+                className={` ${isDeadlineFlexible ? 'text-blue-5' : 'text-gray-6'} text-[12px] leading-[1.334] tracking-[0.3024px]`}
+              >
                 상관 없어요.
               </span>
             </div>

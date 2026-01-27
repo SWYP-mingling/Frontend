@@ -9,7 +9,7 @@ const RAW_PARTICIPANTS = [
   { id: 5, name: '최', station: '여의도역', lat: 37.521571, lng: 126.924292, status: 'pending' },
   { id: 6, name: '박', station: '잠실역', lat: 37.513261, lng: 127.100159, status: 'done' },
   { id: 7, name: '정', station: '혜화역', lat: 37.582236, lng: 127.001851, status: 'pending' },
-  { id: 8, name: '조', station: '용산역', lat: 37.52984, lng: 126.964803, status: 'done' },
+  { id: 8, name: '조', station: '용산역', lat: 37.529849, lng: 126.964561, status: 'done' },
 ];
 
 // 랜덤 색상을 주입하여 export
