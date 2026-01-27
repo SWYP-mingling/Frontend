@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/useToast';
 import { useState } from 'react';
 
-export default function ShareLinkPage() {
+export default function Page() {
   const [link, setLink] = useState('www.abcabc');
   const { isVisible, show } = useToast();
 

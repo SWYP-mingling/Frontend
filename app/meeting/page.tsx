@@ -8,7 +8,7 @@ import { useOpenModal } from '@/hooks/useOpenModal';
 import { MOCK_PARTICIPANTS, MOCK_SEARCH_STATIONS } from '@/mock/mockData';
 import { useRouter } from 'next/navigation';
 
-export default function MeetingPage() {
+export default function Page() {
   // 선택된 역 이름 상태 관리
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
   const openModal = useOpenModal();

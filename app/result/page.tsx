@@ -1,5 +1,3 @@
-const ResultPage = () => {
+export default function Page() {
   return <div>ResultPage</div>;
-};
-
-export default ResultPage;
+}
