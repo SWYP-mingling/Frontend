@@ -54,10 +54,6 @@ const hsvToHex = (h: number, s: number, v: number) => {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 };
 
-/**
- * [핵심] 입력받은 seed(숫자 또는 문자열)를 기반으로 고정된 랜덤 색상을 반환
- * 같은 seed를 넣으면 항상 같은 색이 나옵니다.
- */
 export const getRandomHexColor = (seed: number | string) => {
   const strSeed = String(seed);
   let hash = 0;
@@ -67,9 +63,8 @@ export const getRandomHexColor = (seed: number | string) => {
     hash = strSeed.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  // [수정된 부분]
-  // 해시값에 137(서로 겹치지 않게 하는 마법의 숫자)을 곱해서 각도를 크게 벌립니다.
-  const h = Math.abs((hash * 137) % 360);
+  // 해시값에 137(겹치지 않게 하는 숫자)을 곱해서 각도를 크게 벌립니다.
+  const h = Math.abs((hash * 50) % 360);
 
   return hsvToHex(h, 65, 100);
 };

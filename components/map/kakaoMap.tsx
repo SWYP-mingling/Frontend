@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 // [1] Participant 인터페이스 수정
@@ -49,12 +50,12 @@ export default function KakaoMap({ className, participants = [] }: KakaoMapProps
 
           const content = `
             <div class="relative flex flex-col items-center group" style="z-index: ${zIndex};">
-              <div class="absolute bottom-9 mb-1 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white shadow-md opacity-0 transition-opacity group-hover:opacity-100">
+              <div class="absolute bottom-9 mb-1 whitespace-nowrap rounded-md bg-gray-9 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
                 ${person.station} (${person.name})
               </div>
-              <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-lg" 
+              <div class="flex h-8 w-8 items-center justify-center rounded-full border border-white" 
                    style="background-color: ${person.hexColor};">
-                <span class="text-sm font-bold text-white">${person.name}</span>
+                <span class="text-sm font-semibold text-white">${person.name}</span>
               </div>
             </div>
           `;
@@ -88,47 +89,22 @@ export default function KakaoMap({ className, participants = [] }: KakaoMapProps
       <div ref={mapContainer} className="h-full w-full" />
 
       {/* 줌 컨트롤 */}
-      <div className="absolute right-4 bottom-4 z-10 flex flex-col overflow-hidden rounded-md border border-gray-200 bg-white shadow-md">
+      <div className="border-gray-4 text-gray-10 absolute right-4 bottom-4 z-10 flex flex-col overflow-hidden rounded border bg-white">
         <button
           type="button"
           onClick={zoomIn}
-          className="flex h-8 w-8 items-center justify-center border-b border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-blue-500 active:bg-gray-200"
+          className="hover:bg-gray-2 flex h-8 w-8 items-center justify-center"
           aria-label="확대"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
+          <Image src="/icon/plus.svg" alt="줌인버튼" width={12} height={12} />
         </button>
         <button
           type="button"
           onClick={zoomOut}
-          className="flex h-8 w-8 items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-500 active:bg-gray-200"
+          className="hover:bg-gray-2 flex h-8 w-8 items-center justify-center"
           aria-label="축소"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
+          <Image src="/icon/minus.svg" alt="줌아웃버튼" width={12} height={12} />
         </button>
       </div>
     </div>

@@ -6,11 +6,13 @@ import KakaoMap from '@/components/map/kakaoMap';
 import StationSearch from '@/components/meeting/stationSearch';
 import { useOpenModal } from '@/hooks/useOpenModal';
 import { MOCK_PARTICIPANTS, MOCK_SEARCH_STATIONS } from '@/mock/mockData';
+import { useRouter } from 'next/navigation';
 
 export default function MeetingPage() {
   // 선택된 역 이름 상태 관리
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
   const openModal = useOpenModal();
+  const router = useRouter();
 
   // 1. [좌표 찾기] 선택된 역 이름으로 MOCK 데이터에서 정보 찾기
   const selectedStationInfo = MOCK_SEARCH_STATIONS.find(
@@ -34,11 +36,21 @@ export default function MeetingPage() {
   // 3. [최종 리스트 병합] 내가 있으면 맨 앞에 추가, 없으면 기존 리스트만 사용
   const allParticipants = myParticipant ? [myParticipant, ...MOCK_PARTICIPANTS] : MOCK_PARTICIPANTS;
 
+  const handleSubmit = () => {
+    if (!selectedStation) {
+      alert('출발지를 선택해주세요!');
+      return;
+    }
+
+    console.log('결과 요청:', allParticipants);
+    router.push('/result');
+  };
+
   return (
     // 전체 화면 배경 및 중앙 정렬
     <div className="flex items-center justify-center p-0 md:min-h-[calc(100vh-200px)] md:py-25">
       {/* 메인 컨테이너 (반응형 박스) */}
-      <div className="flex h-full w-full flex-col overflow-hidden bg-white md:h-175 md:w-174 md:flex-row md:gap-4 md:rounded-xl lg:w-215">
+      <div className="flex h-full w-full flex-col bg-white md:h-175 md:w-174 md:flex-row md:gap-4 md:rounded-xl lg:w-215">
         {/* [LEFT PANEL] 데스크탑 전용 정보 영역 */}
         <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5 md:gap-10">
           {/* 타이머 섹션 */}
@@ -81,7 +93,7 @@ export default function MeetingPage() {
           <div className="bg-gray-1 relative h-1 w-full md:hidden"></div>
 
           {/* 참여 현황 */}
-          <div className="flex flex-1 flex-col gap-3 overflow-hidden px-5 md:gap-3.5 md:p-0">
+          <div className="relative flex flex-1 flex-col gap-3 overflow-hidden px-5 md:gap-3.5 md:p-0">
             {/* [1] 상단 고정 영역 */}
             <div className="flex items-center justify-between bg-white">
               <h3 className="text-gray-9 text-xl font-semibold">참여현황</h3>
@@ -109,7 +121,7 @@ export default function MeetingPage() {
 
             {/* [3] 출발지 컴포넌트: 리스트 렌더링 */}
             <div className="mb-10 flex-1">
-              <div className="[&::-webkit-scrollbar-thumb]:bg-gray-6 flex h-80 flex-col gap-3.5 overflow-y-scroll pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full">
+              <div className="[&::-webkit-scrollbar-thumb]:bg-gray-6 flex h-80 flex-col gap-3.5 overflow-y-scroll pr-2 pb-5 md:pb-18 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {allParticipants.map((user) => (
                   <div
                     key={user.id}
@@ -132,6 +144,12 @@ export default function MeetingPage() {
                 ))}
               </div>
             </div>
+            <button
+              onClick={handleSubmit}
+              className="bg-gray-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg text-white md:right-0 md:left-0"
+            >
+              결과보기
+            </button>
           </div>
         </section>
 
