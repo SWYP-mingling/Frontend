@@ -4,11 +4,18 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { getChoseong, disassemble } from 'es-hangul';
 
-// [NEW] Props 타입 정의
+// [NEW] 역 정보 객체 타입 정의
+interface Station {
+  name: string;
+  lat: number;
+  lng: number;
+}
+
+// Props 타입 정의 업데이트
 interface StationSearchProps {
-  stations: string[]; // 역 이름 배열
-  selectedStation: string | null; // 선택된 역 (없으면 null)
-  onSelect: (station: string | null) => void; // 선택/해제 시 실행할 함수
+  stations: Station[]; // 객체 배열로 변경
+  selectedStation: string | null; // 선택된 역 이름
+  onSelect: (stationName: string | null) => void; // 이름 전달
 }
 
 export default function StationSearch({
@@ -18,18 +25,20 @@ export default function StationSearch({
 }: StationSearchProps) {
   const [searchValue, setSearchValue] = useState<string>('');
 
-  // 3단 콤보 필터링 로직
+  // 3단 콤보 필터링 로직 (데이터 구조 변경 반영)
   const filteredStations = searchValue
-    ? stations.filter(
-        (station) =>
-          station.includes(searchValue) ||
-          getChoseong(station).includes(searchValue) ||
-          disassemble(station).includes(disassemble(searchValue))
-      )
+    ? stations.filter((station) => {
+        const name = station.name; // 객체에서 이름 추출
+        return (
+          name.includes(searchValue) ||
+          getChoseong(name).includes(searchValue) ||
+          disassemble(name).includes(disassemble(searchValue))
+        );
+      })
     : [];
 
-  const handleSelect = (station: string) => {
-    onSelect(station);
+  const handleSelect = (stationName: string) => {
+    onSelect(stationName);
     setSearchValue('');
   };
 
@@ -65,7 +74,7 @@ export default function StationSearch({
             <div className="relative">
               <input
                 type="text"
-                placeholder="출발역을 검색해주세요"
+                placeholder="출발역을 검색해주세요 (초성 가능)"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="bg-gray-1 placeholder:text-gray-4 border-gray-2 focus:border-blue-5 h-10 w-full rounded border py-2 pl-3 text-[15px] text-gray-900 transition-all outline-none"
@@ -81,14 +90,15 @@ export default function StationSearch({
 
             {/* 자동완성 드롭다운 */}
             {searchValue && filteredStations.length > 0 && (
-              <ul className="border-gray-2 absolute top-full left-0 z-50 mt-2 max-h-50 w-full overflow-y-auto rounded border bg-white p-2">
-                {filteredStations.map((station) => (
+              <ul className="border-gray-2 absolute top-full left-0 z-50 mt-2 max-h-50 w-full overflow-y-auto rounded border bg-white p-2 shadow-lg">
+                {filteredStations.map((station, index) => (
                   <li
-                    key={station}
-                    onClick={() => handleSelect(station)}
+                    // key에 index를 섞거나 고유 ID가 있다면 사용하는 것이 좋습니다.
+                    key={`${station.name}-${index}`}
+                    onClick={() => handleSelect(station.name)}
                     className="text-gray-9 hover:bg-gray-2 cursor-pointer rounded px-3 py-2.5 text-[15px] transition-colors"
                   >
-                    {station}
+                    {station.name}
                   </li>
                 ))}
               </ul>
