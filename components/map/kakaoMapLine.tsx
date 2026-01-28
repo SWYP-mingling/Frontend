@@ -6,15 +6,16 @@ interface KakaoMapProps {
   className?: string;
 }
 
-// 1. [데이터] 서울역 및 각 출발지별 "실제 정차역" 리스트 (좌표 포함)
-const SEOUL_STATION = { lat: 37.554678, lng: 126.970606 };
+// [데이터]
+const SEOUL_STATION = { name: '서울역', lat: 37.554678, lng: 126.970606 };
 
 const REAL_SUBWAY_PATHS = [
   {
     id: 1,
-    name: '길동역 출발',
+    name: '안',
+    originName: '길동역',
     time: '42분',
-    color: '#8B5CF6', // 5호선 보라색
+    color: '#8B5CF6',
     stations: [
       { name: '길동역', lat: 37.5378, lng: 127.14 },
       { name: '강동역', lat: 37.5358, lng: 127.1324 },
@@ -38,9 +39,10 @@ const REAL_SUBWAY_PATHS = [
   },
   {
     id: 2,
-    name: '월드컵경기장역 출발',
+    name: '김',
+    originName: '월드컵경기장역',
     time: '25분',
-    color: '#059669', // 공항철도/6호선
+    color: '#059669',
     stations: [
       { name: '월드컵경기장역', lat: 37.5699, lng: 126.899 },
       { name: '디지털미디어시티역', lat: 37.5772, lng: 126.9012 },
@@ -51,9 +53,10 @@ const REAL_SUBWAY_PATHS = [
   },
   {
     id: 3,
-    name: '사당역 출발',
+    name: '이',
+    originName: '사당역',
     time: '18분',
-    color: '#3B82F6', // 4호선 파란색
+    color: '#3B82F6',
     stations: [
       { name: '사당역', lat: 37.4765, lng: 126.9816 },
       { name: '이수역', lat: 37.4868, lng: 126.9819 },
@@ -69,6 +72,9 @@ const REAL_SUBWAY_PATHS = [
 
 export default function KakaoMap({ className }: KakaoMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+  const polylinesRef = useRef<{ id: number; lines: any[] }[]>([]);
+  const tooltipOverlayRef = useRef<any>(null);
 
   useEffect(() => {
     if (!window.kakao) return;
@@ -83,74 +89,135 @@ export default function KakaoMap({ className }: KakaoMapProps) {
       };
 
       const map = new window.kakao.maps.Map(container, options);
-      const bounds = new window.kakao.maps.LatLngBounds();
+      mapRef.current = map;
 
-      // 도착지(서울역) 핀 마커 표시
+      const bounds = new window.kakao.maps.LatLngBounds();
       const endPosition = new window.kakao.maps.LatLng(SEOUL_STATION.lat, SEOUL_STATION.lng);
       bounds.extend(endPosition);
-      new window.kakao.maps.Marker({ position: endPosition, map: map });
 
-      // 경로 그리기 루프
+      // 1. [도착지 마커] 서울역 - 주황색 알약
+      const destContent = `
+        <div class="flex items-center justify-center px-4 py-1.5 bg-[#F97316] border-2 border-white rounded-full shadow-md">
+          <span class="text-sm font-semibold text-white">${SEOUL_STATION.name}</span>
+        </div>
+      `;
+      new window.kakao.maps.CustomOverlay({
+        position: endPosition,
+        content: destContent,
+        yAnchor: 0.5,
+        map: map,
+        zIndex: 10,
+      });
+
+      // 2. [기능 유지] 툴팁 오버레이
+      const tooltipContent = `
+        <div class="px-2 py-1 bg-gray-8 text-white text-xs rounded whitespace-nowrap transform -translate-y-2">
+          <span id="tooltip-text"></span>
+        </div>
+      `;
+      tooltipOverlayRef.current = new window.kakao.maps.CustomOverlay({
+        content: tooltipContent,
+        position: endPosition,
+        yAnchor: 1,
+        zIndex: 10,
+        map: null,
+      });
+
+      // 3. 경로 그리기
       REAL_SUBWAY_PATHS.forEach((route) => {
-        // 1. 경로의 모든 역 좌표 변환
         const linePath = route.stations.map((station) => {
           const latlng = new window.kakao.maps.LatLng(station.lat, station.lng);
           bounds.extend(latlng);
           return latlng;
         });
 
-        // ==================[수정된 부분 시작]==================
-        // 2. 실제 경로 선 그리기 (테두리 효과 적용)
-
-        // 2-1. [배경 선] 하얗고 두꺼운 선 (테두리 역할)
-        const borderLine = new window.kakao.maps.Polyline({
+        const mainLine = new window.kakao.maps.Polyline({
           path: linePath,
-          strokeWeight: 11, // 메인 선보다 3~4px 더 두껍게
-          strokeColor: '#FFFFFF', // 흰색 테두리
+          strokeWeight: 4,
+          strokeColor: route.color,
           strokeOpacity: 1,
           strokeStyle: 'solid',
         });
-        borderLine.setMap(map);
-
-        // 2-2. [메인 선] 테두리 위에 색상 선 그리기
-        const mainLine = new window.kakao.maps.Polyline({
-          path: linePath,
-          strokeWeight: 7, // 테두리보다 얇게
-          strokeColor: route.color, // 원래 노선 색상
-          strokeOpacity: 1, // 불투명하게 (테두리 위에 올라가므로)
-          strokeStyle: 'solid',
-        });
         mainLine.setMap(map);
-        // ==================[수정된 부분 끝]==================
 
-        // 3. 중간 정차역: 작은 원(Circle)으로 표시
+        polylinesRef.current.push({ id: route.id, lines: [mainLine] });
+
+        // 정차역 점
         route.stations.forEach((station, index) => {
           if (index !== 0 && index !== route.stations.length - 1) {
-            new window.kakao.maps.Circle({
+            const circle = new window.kakao.maps.Circle({
               center: new window.kakao.maps.LatLng(station.lat, station.lng),
-              radius: 40, // 점 크기
+              radius: 40,
               strokeWeight: 1,
               strokeColor: route.color,
               strokeOpacity: 1,
               fillColor: '#FFFFFF',
               fillOpacity: 1,
               map: map,
+              zIndex: 5,
+            });
+
+            window.kakao.maps.event.addListener(circle, 'mouseover', () => {
+              const overlay = tooltipOverlayRef.current;
+              overlay.setPosition(new window.kakao.maps.LatLng(station.lat, station.lng));
+              const el = document.createElement('div');
+              el.innerHTML = tooltipContent;
+              const textSpan = el.querySelector('#tooltip-text');
+              if (textSpan) textSpan.textContent = station.name;
+              overlay.setContent(
+                el.innerHTML.replace('<span id="tooltip-text"></span>', station.name)
+              );
+              overlay.setMap(map);
+            });
+
+            window.kakao.maps.event.addListener(circle, 'mouseout', () => {
+              tooltipOverlayRef.current.setMap(null);
             });
           }
         });
 
-        // 4. 출발지 커스텀 오버레이 (말풍선 + 번호)
+        // 4. 출발지 마커 (말풍선 + 원형)
         const startStation = route.stations[0];
         const startPos = new window.kakao.maps.LatLng(startStation.lat, startStation.lng);
 
+        // 이벤트 영역
+        const hitArea = new window.kakao.maps.Circle({
+          center: startPos,
+          radius: 200,
+          strokeWeight: 0,
+          fillColor: '#000000',
+          fillOpacity: 0,
+          map: map,
+          zIndex: 30,
+        });
+
+        // 인터랙션
+        const highlightRoute = (isHover: boolean) => {
+          polylinesRef.current.forEach((p) => {
+            const opacity = isHover ? (p.id === route.id ? 1 : 0.2) : 1;
+            const zIndex = isHover && p.id === route.id ? 10 : 1;
+            p.lines.forEach((line) => line.setOptions({ strokeOpacity: opacity, zIndex: zIndex }));
+          });
+        };
+        window.kakao.maps.event.addListener(hitArea, 'mouseover', () => highlightRoute(true));
+        window.kakao.maps.event.addListener(hitArea, 'mouseout', () => highlightRoute(false));
+        window.kakao.maps.event.addListener(hitArea, 'click', () => {
+          const routeBounds = new window.kakao.maps.LatLngBounds();
+          linePath.forEach((p) => routeBounds.extend(p));
+          map.setBounds(routeBounds, 100);
+        });
+
+        // 디자인된 마커
         const markerContent = `
-          <div class="relative flex flex-col items-center group cursor-pointer" style="bottom: 5px;">
-             <div class="mb-1 whitespace-nowrap rounded-full bg-gray-900 px-3 py-1.5 text-xs font-bold text-white shadow-md transition-transform group-hover:scale-110">
-              ${startStation.name} (${route.time})
+          <div class="flex flex-col items-center group" style="transform: translateY(-30px); pointer-events: none;">
+            <div class="relative bg-gray-9 px-4.5 py-1.25 rounded mb-1 flex flex-col items-center">
+              <span class="text-[11px] text-white mb-1 whitespace-nowrap">${route.originName}에서</span>
+              <span class="text-sm font-semibold text-blue-2 whitespace-nowrap">${route.time}</span>
+              <div class="absolute -bottom-1 w-2 h-2 bg-gray-9 transform rotate-45"></div>
             </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white text-sm font-bold text-white shadow-lg" 
-                 style="background-color: ${route.color}">
-              ${route.id}
+            <div class="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 rounded-full border-2 border-white z-10"
+                 style="background-color: ${route.color};">
+              <span class="text-white font-semibold text-sm md:text-lg">${route.name}</span>
             </div>
           </div>
         `;
@@ -159,8 +226,8 @@ export default function KakaoMap({ className }: KakaoMapProps) {
           position: startPos,
           content: markerContent,
           map: map,
-          yAnchor: 1,
-          zIndex: 3,
+          yAnchor: 0.5,
+          zIndex: 15,
         });
       });
 
@@ -168,5 +235,21 @@ export default function KakaoMap({ className }: KakaoMapProps) {
     });
   }, []);
 
-  return <div ref={mapContainer} className={className} />;
+  return (
+    // [수정] relative 부모 컨테이너
+    <div className={`relative ${className}`}>
+      {/* 지도 영역 */}
+      <div ref={mapContainer} className="h-full w-full" />
+
+      {/* [NEW] 화면 상단 중앙 고정 버튼 (지도가 움직여도 고정됨) */}
+      <div className="absolute top-6 left-1/2 z-20 -translate-x-1/2 transform">
+        <button
+          className="bg-blue-5 relative flex h-9 items-center rounded-full px-4 py-1.75 text-sm font-semibold text-white"
+          onClick={() => alert('추천 장소 보기 클릭!')}
+        >
+          {SEOUL_STATION.name} 주변 장소 추천
+        </button>
+      </div>
+    </div>
+  );
 }
