@@ -8,43 +8,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { MOCK_TRANSFER_ROUTES } from '@/mock/mockData';
 
 interface TransferModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-// [MOCK DATA] 환승 경로 데이터 (시안 기반)
-const MOCK_TRANSFER_ROUTES = [
-  {
-    id: 1,
-    name: '안가연',
-    startStation: '홍대입구역',
-    lines: ['1', '2'], // 1호선 -> 2호선
-    time: '30분',
-  },
-  {
-    id: 2,
-    name: '안가연',
-    startStation: '홍대입구역',
-    lines: ['1', '2'],
-    time: '30분',
-  },
-  {
-    id: 3,
-    name: '안가연',
-    startStation: '홍대입구역',
-    lines: ['1', '2'],
-    time: '30분',
-  },
-  {
-    id: 4,
-    name: '안가연',
-    startStation: '홍대입구역',
-    lines: ['1', '2'],
-    time: '30분',
-  },
-];
 
 export default function TransferModal({ isOpen, onClose }: TransferModalProps) {
   // 호선별 뱃지 색상 (필요시 추가)

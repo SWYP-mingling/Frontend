@@ -1,75 +1,12 @@
 'use client';
 
+import { REAL_SUBWAY_PATHS, SEOUL_STATION } from '@/mock/mockData';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
 interface KakaoMapProps {
   className?: string;
 }
-
-// [데이터]
-const SEOUL_STATION = { name: '서울역', lat: 37.554678, lng: 126.970606 };
-
-const REAL_SUBWAY_PATHS = [
-  {
-    id: 1,
-    name: '안',
-    originName: '길동역',
-    time: '42분',
-    color: '#8B5CF6',
-    stations: [
-      { name: '길동역', lat: 37.5378, lng: 127.14 },
-      { name: '강동역', lat: 37.5358, lng: 127.1324 },
-      { name: '천호역', lat: 37.5385, lng: 127.1239 },
-      { name: '광나루역', lat: 37.5453, lng: 127.1035 },
-      { name: '아차산역', lat: 37.552, lng: 127.0895 },
-      { name: '군자역', lat: 37.5571, lng: 127.0794 },
-      { name: '장한평역', lat: 37.5614, lng: 127.0646 },
-      { name: '답십리역', lat: 37.5669, lng: 127.0527 },
-      { name: '마장역', lat: 37.5661, lng: 127.0429 },
-      { name: '왕십리역', lat: 37.5612, lng: 127.0374 },
-      { name: '행당역', lat: 37.5574, lng: 127.0296 },
-      { name: '신금호역', lat: 37.5545, lng: 127.0207 },
-      { name: '청구역', lat: 37.5602, lng: 127.0138 },
-      { name: '동대문역사문화공원역', lat: 37.5651, lng: 127.0078 },
-      { name: '충무로역', lat: 37.5612, lng: 126.9942 },
-      { name: '명동역', lat: 37.5609, lng: 126.9864 },
-      { name: '회현역', lat: 37.5585, lng: 126.9782 },
-      { name: '서울역', lat: 37.554678, lng: 126.970606 },
-    ],
-  },
-  {
-    id: 2,
-    name: '김',
-    originName: '월드컵경기장역',
-    time: '25분',
-    color: '#059669',
-    stations: [
-      { name: '월드컵경기장역', lat: 37.5699, lng: 126.899 },
-      { name: '디지털미디어시티역', lat: 37.5772, lng: 126.9012 },
-      { name: '홍대입구역', lat: 37.5574, lng: 126.927 },
-      { name: '공덕역', lat: 37.5432, lng: 126.9516 },
-      { name: '서울역', lat: 37.554678, lng: 126.970606 },
-    ],
-  },
-  {
-    id: 3,
-    name: '이',
-    originName: '사당역',
-    time: '18분',
-    color: '#3B82F6',
-    stations: [
-      { name: '사당역', lat: 37.4765, lng: 126.9816 },
-      { name: '이수역', lat: 37.4868, lng: 126.9819 },
-      { name: '동작역', lat: 37.5028, lng: 126.9803 },
-      { name: '이촌역', lat: 37.5226, lng: 126.9734 },
-      { name: '신용산역', lat: 37.5292, lng: 126.9678 },
-      { name: '삼각지역', lat: 37.5348, lng: 126.9735 },
-      { name: '숙대입구역', lat: 37.5447, lng: 126.9721 },
-      { name: '서울역', lat: 37.554678, lng: 126.970606 },
-    ],
-  },
-];
 
 export default function KakaoMap({ className }: KakaoMapProps) {
   const router = useRouter();

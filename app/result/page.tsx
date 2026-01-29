@@ -5,31 +5,7 @@ import Image from 'next/image';
 import { useOpenModal } from '@/hooks/useOpenModal';
 import { useRouter } from 'next/navigation';
 import KakaoMapLine from '@/components/map/kakaoMapLine';
-
-// [NEW] 결과 페이지용 목업 데이터 (Top 3)
-const MOCK_RESULTS = [
-  {
-    id: 1,
-    station: '합정역',
-    time: '30분',
-    lines: ['1', '2'], // 1호선, 2호선
-    isSelected: true, // 현재 선택된 상태 시뮬레이션
-  },
-  {
-    id: 2,
-    station: '합정역',
-    time: '30분',
-    lines: ['1', '2'], // 1호선, 2호선
-    isSelected: true, // 현재 선택된 상태 시뮬레이션
-  },
-  {
-    id: 3,
-    station: '합정역',
-    time: '30분',
-    lines: ['1', '2'], // 1호선, 2호선
-    isSelected: true, // 현재 선택된 상태 시뮬레이션
-  },
-];
+import { MOCK_LOCATION_RESULTS } from '@/mock/mockData';
 
 export default function Page() {
   const openModal = useOpenModal();
@@ -87,7 +63,7 @@ export default function Page() {
             {/* 리스트 스크롤 영역 */}
             <div className="mb-15 flex-1 overflow-auto">
               <div className="flex h-125 min-h-0 flex-col gap-3 pr-1">
-                {MOCK_RESULTS.map((result) => (
+                {MOCK_LOCATION_RESULTS.map((result) => (
                   <div
                     key={result.id}
                     onClick={() => setSelectedResultId(result.id)}
