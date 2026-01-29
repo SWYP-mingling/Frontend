@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
 interface KakaoMapProps {
@@ -71,10 +72,16 @@ const REAL_SUBWAY_PATHS = [
 ];
 
 export default function KakaoMap({ className }: KakaoMapProps) {
+  const router = useRouter();
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const polylinesRef = useRef<{ id: number; lines: any[] }[]>([]);
   const tooltipOverlayRef = useRef<any>(null);
+
+  const handleLink = () => {
+    console.log(`${SEOUL_STATION.name} 맛집으로 이동`);
+    router.push('/recommend');
+  };
 
   useEffect(() => {
     if (!window.kakao) return;
@@ -244,8 +251,8 @@ export default function KakaoMap({ className }: KakaoMapProps) {
       {/* [NEW] 화면 상단 중앙 고정 버튼 (지도가 움직여도 고정됨) */}
       <div className="absolute top-6 left-1/2 z-20 -translate-x-1/2 transform">
         <button
-          className="bg-blue-5 relative flex h-9 items-center rounded-full px-4 py-1.75 text-sm font-semibold text-white"
-          onClick={() => alert('추천 장소 보기 클릭!')}
+          className="bg-blue-5 hover:bg-blue-8 relative flex h-9 cursor-pointer items-center rounded-full px-4 py-1.75 text-sm font-semibold text-white"
+          onClick={handleLink}
         >
           {SEOUL_STATION.name} 주변 장소 추천
         </button>
