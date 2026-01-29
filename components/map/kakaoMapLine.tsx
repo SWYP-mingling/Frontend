@@ -1,6 +1,6 @@
 'use client';
 
-import { REAL_SUBWAY_PATHS, SEOUL_STATION } from '@/mock/mockData';
+import { REAL_SUBWAY_PATHS, HAPJUNG_STATION } from '@/mock/mockData';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
@@ -16,7 +16,7 @@ export default function KakaoMap({ className }: KakaoMapProps) {
   const tooltipOverlayRef = useRef<any>(null);
 
   const handleLink = () => {
-    console.log(`${SEOUL_STATION.name} 맛집으로 이동`);
+    console.log(`${HAPJUNG_STATION.name} 맛집으로 이동`);
     router.push('/recommend');
   };
 
@@ -28,7 +28,7 @@ export default function KakaoMap({ className }: KakaoMapProps) {
       if (!container) return;
 
       const options = {
-        center: new window.kakao.maps.LatLng(SEOUL_STATION.lat, SEOUL_STATION.lng),
+        center: new window.kakao.maps.LatLng(HAPJUNG_STATION.lat, HAPJUNG_STATION.lng),
         level: 8,
       };
 
@@ -36,13 +36,13 @@ export default function KakaoMap({ className }: KakaoMapProps) {
       mapRef.current = map;
 
       const bounds = new window.kakao.maps.LatLngBounds();
-      const endPosition = new window.kakao.maps.LatLng(SEOUL_STATION.lat, SEOUL_STATION.lng);
+      const endPosition = new window.kakao.maps.LatLng(HAPJUNG_STATION.lat, HAPJUNG_STATION.lng);
       bounds.extend(endPosition);
 
-      // 1. [도착지 마커] 서울역 - 주황색 알약
+      // 1. [도착지 마커] 합정역 - 주황색 알약
       const destContent = `
-        <div class="flex items-center justify-center px-4 py-1.5 bg-[#F97316] border-2 border-white rounded-full shadow-md">
-          <span class="text-sm font-semibold text-white">${SEOUL_STATION.name}</span>
+        <div class="flex items-center justify-center px-4 py-1.5 bg-[#A95623] border border-white rounded-full">
+          <span class="text-sm font-semibold text-white">${HAPJUNG_STATION.name}</span>
         </div>
       `;
       new window.kakao.maps.CustomOverlay({
@@ -191,7 +191,7 @@ export default function KakaoMap({ className }: KakaoMapProps) {
           className="bg-blue-5 hover:bg-blue-8 relative flex h-9 cursor-pointer items-center rounded-full px-4 py-1.75 text-sm font-semibold text-white"
           onClick={handleLink}
         >
-          {SEOUL_STATION.name} 주변 장소 추천
+          {HAPJUNG_STATION.name} 주변 장소 추천
         </button>
       </div>
     </div>

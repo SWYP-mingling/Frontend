@@ -79,7 +79,7 @@ export default function Page() {
 
           {/* 모바일 전용 지도 영역: allParticipants 전달 */}
           <KakaoMap
-            className="relative block aspect-video h-93.5 bg-gray-100 md:hidden"
+            className="bg-gray-1 relative block aspect-video h-93.5 md:hidden"
             participants={allParticipants}
           />
 
