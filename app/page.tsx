@@ -7,7 +7,7 @@ import { Tooltip, TooltipProvider, TooltipTrigger } from '@/components/ui/toolti
 export default function HomePage() {
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
+   
       <section className="flex flex-col items-center justify-center mx-[71.73px] md:px-[101px] lg:mx-42.5 mt-30">
 
  
@@ -28,18 +28,27 @@ export default function HomePage() {
             모임 만들기
           </Link>
           <div className='mt-[74px] md:mt-[74px] lg:mt-10'>
+
+            <Image 
+              src="/images/iphone.jpg" 
+              alt="image" 
+              width={860} 
+              height={635} 
+              className="block md:hidden max-w-[216.54px] h-auto"
+            />
+         
             <Image 
               src="/images/light.png" 
               alt="image" 
               width={860} 
               height={635} 
-              className=" lg:max-w-[860px] md:max-w-[658px] max-w-[216.54px] h-auto"
+              className="hidden md:block lg:max-w-[860px] md:max-w-[658px] h-auto"
             />
           </div>
         </div>
       </section>
 
-      {/* Concerns Section */}
+
       <section
       style={{
         background:
@@ -94,7 +103,7 @@ export default function HomePage() {
                     </TooltipTrigger>
                   </Tooltip>
 
-                  {/* 중복된 아이템들로 무한 스크롤 효과 */}
+         
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="bg-white px-6.25 py-3.5 rounded-[10px] cursor-pointer shrink-0">
@@ -141,7 +150,7 @@ export default function HomePage() {
 
 
           <div className="flex flex-col md:flex-row gap-2.25 items-center justify-center mb-[72px] px-5 md:px-0">
-            <div className="bg-white border-2 border-gray-2 h-[236px] rounded-[20px] lg:max-w-[280px] max-w-[247px] md:max-w-[247px] flex flex-col items-center justify-center gap-7.75 px-5">
+            <div className="bg-white border-2 border-gray-2 h-[236px] rounded-[20px] lg:max-w-[280px] max-w-[247px] md:max-w-[247px] lg:max-w-[280px] flex flex-col items-center justify-center gap-7.75 px-5">
               <h3 className="text-gray-10 text-[22px] font-semibold leading-[1.364] tracking-[-0.4268px] text-center">
                 참석자별 이동시간 계산
               </h3>
@@ -151,7 +160,7 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
-            <div className="bg-white border-2 border-gray-2 h-[236px] rounded-[20px] w-full max-w-[247px] md:max-w-[280px] flex flex-col items-center justify-center gap-7.75 px-5">
+            <div className="bg-white border-2 border-gray-2 h-[236px] rounded-[20px] w-full max-w-[247px] md:max-w-[247px] lg:max-w-[280px] flex flex-col items-center justify-center gap-7.75 px-5">
               <h3 className="text-gray-10 text-[22px] font-semibold leading-[1.364] tracking-[-0.4268px] text-center">
                 적합한 위치 탐색
               </h3>
@@ -161,7 +170,8 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
-            <div className="bg-white border-2 border-gray-2 h-[236px] rounded-[20px] w-full max-w-[247px] md:max-w-[280px] flex flex-col items-center justify-center gap-7.75 px-5">
+
+            <div className="bg-white border-2 border-gray-2 h-[236px] rounded-[20px] w-full max-w-[247px] md:max-w-[247px] lg:max-w-[280px] flex flex-col items-center justify-center gap-7.75 px-5">
               <h3 className="text-gray-10 text-[22px] font-semibold leading-[1.364] tracking-[-0.4268px] text-center">
                 모임 목적에 맞는 공간은?
               </h3>
@@ -171,6 +181,7 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
+
           </div>
         </div>
 
@@ -187,21 +198,21 @@ export default function HomePage() {
        
       </section>
 
-      {/* Solution Section */}
+
       <section className="flex flex-col items-center gap-4 md:py-30 py-20 px-5 md:px-12.5 lg:px-42.5">
-        <h2 className="text-gray-8 text-[32px] md:text-[38px] lg:text-[40px] font-bold leading-[1.3] tracking-[-1.128px] text-center">
+        <h2 className="text-gray-8 text-[24px] md:text-[28px] lg:text-[40px] font-bold leading-[1.3] tracking-[-1.128px] text-center">
           밍글링이 제안하는 새로운 방법
         </h2>
         <div className="flex flex-col items-center gap-0 max-w-[320px] md:max-w-[429px] lg:max-w-full">
-          <p className="text-gray-5 text-[18px] md:text-[22px] font-semibold leading-[1.364] tracking-[-0.4268px] text-center">
+          <p className="text-gray-5 text-[13px] md:text-[18px] lg:text-[22px] font-semibold leading-[1.364] tracking-[-0.4268px] text-center">
             복잡한 계산은 우리가 할게요. 각자의 출발역을 넣고, 제안받은 번화가 중에서 선택만 하세요!
           </p>
         </div>
       </section>
 
-      {/* Features Section */}
+ 
       <section className="flex flex-col items-center gap-20 py-20 px-5 md:px-12.5 lg:px-42.5">
-        {/* Feature 1: 공평한 중간지점 계산 */}
+       
         <div className="flex gap-10 md:gap-39.25 items-center justify-center max-w-[1200px] w-full flex-col md:flex-row">
           <div className="flex flex-col gap-6 md:gap-11 items-start w-full max-w-[320px] md:max-w-[354px]">
             <div className="flex flex-col gap-1.25 items-start w-full">
@@ -227,14 +238,14 @@ export default function HomePage() {
           </div>
 
           <div className="w-full max-w-[360px] md:w-[360px] h-auto md:h-[360px]">
-          <Image src="/images/Rendering1.jpg" alt="map" width={360} height={360} className="w-full h-auto" />       
+          <Image src="/images/Rendering1.jpg" alt="map" width={360} height={360} className="md:max-w-[360px] h-auto" />       
           </div>
         </div>
 
-        {/* Feature 2: 즐겁게 밍글링할 위치 추천 */}
+       
         <div className="flex gap-10 md:gap-37.75 items-center justify-center max-w-[1200px] w-full flex-col md:flex-row">
         <div className="w-full max-w-[320px] md:w-[360px] h-auto md:h-[360px] order-2 md:order-1">
-          <Image src="/images/Rendering2.jpg" alt="map" width={360} height={360} className="w-full h-auto" />       
+          <Image src="/images/Rendering2.jpg" alt="map" width={360} height={360} className="md-max-w-[360px] h-auto" />       
           </div>
           <div className="flex flex-col gap-6.25 items-start w-full max-w-[320px] md:max-w-[277px] order-1 md:order-2">
             <div className="flex flex-col gap-1.25 items-start">
@@ -253,7 +264,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Feature 3: 모임 목적별 장소 추천 */}
+    
         <div className="flex gap-10 md:gap-10.75 items-center justify-center max-w-[1200px] w-full flex-col md:flex-row">
           <div className="flex flex-col gap-6 md:gap-11 items-start w-full max-w-[320px] md:max-w-[450px]">
             <div className="flex flex-col gap-1.25 items-start w-full md:w-[271px]">
@@ -278,13 +289,13 @@ export default function HomePage() {
             </div>
           </div>
           <div className="w-full max-w-[320px] md:w-[360px] h-auto md:h-[360px]">
-          <Image src="/images/Rendering3.jpg" alt="map" width={360} height={360} className="w-full h-auto" />       
+          <Image src="/images/Rendering3.jpg" alt="map" width={360} height={360} className="md-max-w-[360px] h-auto" />       
           </div>
         </div>
         
       </section>
 
-      {/* CTA Section */}
+    
       <section className="flex flex-col items-center py-30 px-5 md:px-12.5 lg:px-42.5">
         <div
           className="border-2 border-blue-3 flex flex-col items-start overflow-hidden px-5 md:px-12 py-8.25 rounded-[10px] w-full max-w-[320px] md:max-w-[720px] lg:max-w-[860px] relative"
@@ -295,16 +306,16 @@ export default function HomePage() {
         >
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between w-full relative z-10 gap-4 md:gap-0">
             <div className="flex flex-col gap-0.75 items-start w-full md:w-[331px]">
-              <p className="text-gray-2 text-[18px] font-semibold leading-[1.445] tracking-[-0.0036px]">
+              <p className="text-gray-2 md:text-[18px] text-[14px] font-semibold leading-[1.445] tracking-[-0.0036px]">
                 오프라인 모임을 더욱 간편하게!
               </p>
-              <p className="text-white text-[28px] font-bold leading-[1.358] tracking-[-0.6608px]">
+              <p className="text-white md:text-[28px] text-[20px] font-bold leading-[1.358] tracking-[-0.6608px]">
                 지금, 밍글링과 함께 시작하세요
               </p>
             </div>
             <Link
               href="/create"
-              className="bg-white h-12 rounded-[46px] w-full md:w-[142px] flex items-center justify-center text-blue-5 text-[20px] font-semibold leading-[1.4] tracking-[-0.24px] hover:bg-gray-1 transition-colors"
+              className="bg-white md:h-12 h-[38px] rounded-[46px]  md:w-[142px] w-[106px] flex items-center justify-center text-blue-5 md:text-[20px] text-[14px] font-semibold leading-[1.4] tracking-[-0.24px] hover:bg-gray-1 transition-colors"
             >
               지금 시작하기
             </Link>
