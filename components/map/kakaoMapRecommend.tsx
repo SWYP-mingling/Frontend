@@ -1,6 +1,6 @@
 'use client';
 
-import { HAPJUNG_STATION } from '@/mock/mockData';
+import { HAPJUNG_STATION, MOCK_RECOMMEND_PLACES } from '@/mock/mockData';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
@@ -102,7 +102,10 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
       });
 
       // 2. [장소 마커] 파란색 핀 (이미지 참고)
-      MOCK_PLACES.forEach((place) => {
+      const filteredPlaces = MOCK_RECOMMEND_PLACES.filter(
+        (place) => place.category === activeCategory
+      );
+      filteredPlaces.forEach((place) => {
         const position = new window.kakao.maps.LatLng(place.lat, place.lng);
         // [수정] 서비스 로고를 활용한 커스텀 핀 디자인
         const pinContent = `

@@ -18,7 +18,7 @@ export default function RecommendPage() {
 
   const handleOpenKakaoMap = (e: React.MouseEvent) => {
     e.stopPropagation(); // 카드 클릭 이벤트 버블링 방지
-    window.open('https://map.kakao.com', '_blank');
+    window.open('https://map.kakao.com', '_blank', 'noopener,noreferrer');
   };
 
   return (

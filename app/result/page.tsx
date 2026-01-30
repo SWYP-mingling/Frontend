@@ -115,7 +115,10 @@ export default function Page() {
 
                     {/* 모임원 경로 보기 버튼 (카드 내부) */}
                     <button
-                      onClick={(e) => openModal('TRANSFER', e)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openModal('TRANSFER', e);
+                      }}
                       className="bg-gray-8 h-8 w-full cursor-pointer rounded py-1 text-[15px] font-normal text-white"
                     >
                       모임원 환승경로 보기

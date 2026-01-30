@@ -16,7 +16,6 @@ export default function KakaoMap({ className }: KakaoMapProps) {
   const tooltipOverlayRef = useRef<any>(null);
 
   const handleLink = () => {
-    console.log(`${HAPJUNG_STATION.name} 맛집으로 이동`);
     router.push('/recommend');
   };
 

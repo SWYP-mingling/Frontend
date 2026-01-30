@@ -78,14 +78,14 @@ export const MOCK_LOCATION_RESULTS = [
     station: '합정역',
     time: '30분',
     lines: ['1', '2'], // 1호선, 2호선
-    isSelected: true, // 현재 선택된 상태 시뮬레이션
+    isSelected: false, // 현재 선택된 상태 시뮬레이션
   },
   {
     id: 3,
     station: '합정역',
     time: '30분',
     lines: ['1', '2'], // 1호선, 2호선
-    isSelected: true, // 현재 선택된 상태 시뮬레이션
+    isSelected: false, // 현재 선택된 상태 시뮬레이션
   },
 ];
 
@@ -205,7 +205,7 @@ export const MOCK_RECOMMEND_PLACES = [
   {
     id: 1,
     name: '조선옥',
-    category: '한식',
+    category: '식당',
     description: '연탄불 한우갈비 전문점',
     phone: '0507-1327-3659',
     address: '서울특별시 중구 을지로 3가 229-1',
