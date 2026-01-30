@@ -139,7 +139,9 @@ export default function KakaoMap({ className }: KakaoMapProps) {
           polylinesRef.current.forEach((p) => {
             const opacity = isHover ? (p.id === route.id ? 1 : 0.2) : 1;
             const zIndex = isHover && p.id === route.id ? 10 : 1;
-            p.lines.forEach((line) => line.setOptions({ strokeOpacity: opacity, zIndex: zIndex }));
+            p.lines.forEach((line) => {
+              line.setOptions({ strokeOpacity: opacity, zIndex: zIndex });
+            });
           });
         };
         window.kakao.maps.event.addListener(hitArea, 'mouseover', () => highlightRoute(true));

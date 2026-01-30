@@ -49,7 +49,7 @@ export default function TestPage() {
       // 2단계: GET 요청 (데이터 확인하기)
       // --------------------------------------------------------
       // 아까 테스트했던 GET 주소 사용
-      const getResponse = await fetch('/sample/get?userId=1');
+      const getResponse = await fetch('/api/sample/get?userId=1');
 
       if (!getResponse.ok) {
         throw new Error(`GET 실패: ${getResponse.status}`);
@@ -80,7 +80,7 @@ export default function TestPage() {
         setError(err.message);
         setLoading(false);
       });
-  }, [API_URL]);
+  }, []);
 
   // 로딩 상태 디자인
   if (loading) {

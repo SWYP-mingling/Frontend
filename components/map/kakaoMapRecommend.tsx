@@ -9,45 +9,6 @@ interface KakaoMapRecommendProps {
   onSelectPlace?: (placeId: number) => void; // 장소 클릭 시 부모에게 알림 (선택사항)
 }
 
-// [MOCK] 합정역 주변 추천 장소 데이터
-const MOCK_PLACES = [
-  {
-    id: 1,
-    name: '오레노라멘',
-    category: '식당',
-    lat: 37.5478,
-    lng: 126.9158,
-  }, // 합정 미슐랭 라멘 맛집
-  {
-    id: 2,
-    name: '빈브라더스',
-    category: '카페',
-    lat: 37.5465,
-    lng: 126.9125,
-  }, // 분위기 좋은 로스터리 카페
-  {
-    id: 3,
-    name: '메세나폴리스',
-    category: '놀거리',
-    lat: 37.5505,
-    lng: 126.9135,
-  }, // 복합 쇼핑 문화 공간
-  {
-    id: 4,
-    name: '포비 베이직',
-    category: '카페',
-    lat: 37.5502,
-    lng: 126.9145,
-  }, // 베이글이 맛있는 대형 카페 (노트북하기 좋음)
-  {
-    id: 5,
-    name: '크레이지카츠',
-    category: '식당',
-    lat: 37.5508,
-    lng: 126.9105,
-  }, // 유명 돈카츠 맛집
-];
-
 const CATEGORIES = [
   { id: '식당', label: '식당', icon: '/icon/place/restaurant' },
   { id: '놀거리', label: '놀거리', icon: '/icon/place/play' },
