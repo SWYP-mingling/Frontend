@@ -81,3 +81,19 @@
 
 @layer base {
 }
+
+/* 부드러운 무한 스크롤 애니메이션 */
+@layer utilities {
+  .animate-slide-smooth {
+    animation: slide-smooth 30s linear infinite;
+  }
+}
+
+@keyframes slide-smooth {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
