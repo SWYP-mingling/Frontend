@@ -170,7 +170,7 @@ const SolutionIntroSection = () => (
     <h2 className="text-gray-8 text-center text-[24px] leading-[1.3] font-bold tracking-[-1.128px] md:text-[28px] lg:text-[40px]">
       밍글링이 제안하는 새로운 방법
     </h2>
-    <div className="flex w-[320px] flex-col items-center gap-0 md:w-[429px] lg:w-[510px]">
+    <div className="flex w-[320px] flex-col items-center gap-0 md:w-[429px] lg:w-[520px]">
       <p className="text-gray-5 text-center text-[13px] leading-[1.444] font-normal tracking-[-0.2px] md:text-[18px] md:font-semibold lg:text-[22px]">
         복잡한 계산은 우리가 할게요. <br /> 각자의 출발역을 넣고, 제안받은 번화가 중에서 선택만
         하세요!
@@ -222,7 +222,7 @@ const DetailFeaturesSection = () => (
         height={360}
         className="flex h-auto justify-center md:justify-start"
       />
-      <div className="order-1 flex w-[320px] w-full flex-col items-center gap-6.25 text-start md:order-2 md:w-[277px]">
+      <div className="order-1 flex w-[320px] flex-col items-center gap-6.25 text-start md:order-2 md:w-[277px]">
         <div className="flex flex-col items-start justify-start gap-1.25">
           <h3 className="text-gray-8 text-[30px] leading-[1.358] font-bold tracking-[-0.6608px] md:text-[28px]">
             즐겁게 밍글링할 위치 추천
