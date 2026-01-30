@@ -4,6 +4,7 @@ import { useModalStore } from '@/store/useModalStore';
 import FeedbackModal from '@/components/modal/feedbackModal';
 import ShareModal from '@/components/modal/shareModal';
 import NudgeModal from '@/components/modal/nudgeModal';
+import TransferModal from './transferModal';
 
 export default function GlobalModal() {
   const { type, isOpen, onClose } = useModalStore();
@@ -19,6 +20,8 @@ export default function GlobalModal() {
       return <ShareModal isOpen={isOpen} onClose={onClose} />;
     case 'NUDGE':
       return <NudgeModal isOpen={isOpen} onClose={onClose} />;
+    case 'TRANSFER':
+      return <TransferModal isOpen={isOpen} onClose={onClose} />;
     default:
       return null;
   }
