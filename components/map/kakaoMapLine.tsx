@@ -27,7 +27,7 @@ export default function KakaoMap({ className }: KakaoMapProps) {
       if (!container) return;
 
       const options = {
-        center: new window.kakao.maps.LatLng(HAPJUNG_STATION.lat, HAPJUNG_STATION.lng),
+        center: new window.kakao.maps.LatLng(HAPJUNG_STATION.latitude, HAPJUNG_STATION.longitude),
         level: 8,
       };
 
@@ -35,7 +35,10 @@ export default function KakaoMap({ className }: KakaoMapProps) {
       mapRef.current = map;
 
       const bounds = new window.kakao.maps.LatLngBounds();
-      const endPosition = new window.kakao.maps.LatLng(HAPJUNG_STATION.lat, HAPJUNG_STATION.lng);
+      const endPosition = new window.kakao.maps.LatLng(
+        HAPJUNG_STATION.latitude,
+        HAPJUNG_STATION.longitude
+      );
       bounds.extend(endPosition);
 
       // 1. [도착지 마커] 합정역 - 주황색 알약
@@ -69,7 +72,7 @@ export default function KakaoMap({ className }: KakaoMapProps) {
       // 3. 경로 그리기
       REAL_SUBWAY_PATHS.forEach((route) => {
         const linePath = route.stations.map((station) => {
-          const latlng = new window.kakao.maps.LatLng(station.lat, station.lng);
+          const latlng = new window.kakao.maps.LatLng(station.latitude, station.longitude);
           bounds.extend(latlng);
           return latlng;
         });
@@ -89,7 +92,7 @@ export default function KakaoMap({ className }: KakaoMapProps) {
         route.stations.forEach((station, index) => {
           if (index !== 0 && index !== route.stations.length - 1) {
             const circle = new window.kakao.maps.Circle({
-              center: new window.kakao.maps.LatLng(station.lat, station.lng),
+              center: new window.kakao.maps.LatLng(station.latitude, station.longitude),
               radius: 40,
               strokeWeight: 1,
               strokeColor: route.color,
@@ -102,7 +105,9 @@ export default function KakaoMap({ className }: KakaoMapProps) {
 
             window.kakao.maps.event.addListener(circle, 'mouseover', () => {
               const overlay = tooltipOverlayRef.current;
-              overlay.setPosition(new window.kakao.maps.LatLng(station.lat, station.lng));
+              overlay.setPosition(
+                new window.kakao.maps.LatLng(station.latitude, station.longitude)
+              );
               const el = document.createElement('div');
               el.innerHTML = tooltipContent;
               const textSpan = el.querySelector('#tooltip-text');
@@ -121,7 +126,10 @@ export default function KakaoMap({ className }: KakaoMapProps) {
 
         // 4. 출발지 마커 (말풍선 + 원형)
         const startStation = route.stations[0];
-        const startPos = new window.kakao.maps.LatLng(startStation.lat, startStation.lng);
+        const startPos = new window.kakao.maps.LatLng(
+          startStation.latitude,
+          startStation.longitude
+        );
 
         // 이벤트 영역
         const hitArea = new window.kakao.maps.Circle({
