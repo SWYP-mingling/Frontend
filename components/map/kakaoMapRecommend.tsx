@@ -83,7 +83,7 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
       </Map>
 
       {/* [UI 1] 상단 카테고리 필터 (Floating) */}
-      <div className="scrollbar-hide absolute top-4 right-0 left-0 z-20 flex justify-start gap-2 overflow-x-auto px-4">
+      <div className="scrollbar-hide absolute top-4 right-0 left-0 z-20 flex justify-start gap-2 overflow-x-hidden px-4">
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}

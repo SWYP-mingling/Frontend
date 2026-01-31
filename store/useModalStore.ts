@@ -10,11 +10,10 @@ export const useModalStore = create(
       {
         type: null as ModalType | null,
         isOpen: false,
-        props: null as any,
       },
       (set) => ({
-        onOpen: (type: ModalType, props: any = null) => {
-          set({ isOpen: true, type, props });
+        onOpen: (type: ModalType) => {
+          set({ isOpen: true, type });
         },
         onClose: () => {
           set({ isOpen: false });
