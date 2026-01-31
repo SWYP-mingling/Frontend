@@ -128,7 +128,7 @@ export default function Page() {
               </div>
             </div>
 
-            {/* [수정됨] 하단 버튼: 내 출발지 수정하기 (파란색) */}
+            {/* 하단 버튼: 내 출발지 수정하기 (파란색) */}
             <button
               onClick={handleModifyStart}
               className="bg-blue-5 hover:bg-blue-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg font-semibold text-white transition-transform active:scale-[0.98] md:right-0 md:left-0"

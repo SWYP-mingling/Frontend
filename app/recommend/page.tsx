@@ -26,7 +26,7 @@ export default function RecommendPage() {
       <div className="flex h-full w-full flex-col bg-white md:h-175 md:w-174 md:flex-row md:gap-2 lg:w-215">
         {/* [LEFT PANEL] 장소 리스트 영역 */}
         <section className="border-gray-1 flex w-full flex-col bg-white md:w-81 md:gap-0">
-          {/* 1. 헤더 (뒤로가기 + 타이틀) */}
+          {/* 헤더 (뒤로가기 + 타이틀) */}
           <div className="flex items-center gap-3 p-5 md:p-0">
             <button onClick={handleBack} className="flex h-6 w-6 items-center justify-center">
               <Image src="/icon/left_chevron.svg" alt="왼쪽 꺾쇠 기호" width={24} height={24} />
@@ -39,7 +39,7 @@ export default function RecommendPage() {
             <KakaoMapRecommend className="h-full w-full" />
           </div>
 
-          {/* 2. 리스트 스크롤 영역 */}
+          {/* 리스트 스크롤 영역 */}
           <div className="scrollbar-hide flex-1 overflow-y-auto px-5 pt-5 pb-10 md:px-0 md:pb-0">
             <div className="flex flex-col gap-4 md:gap-5">
               {MOCK_RECOMMEND_PLACES.map((place) => (

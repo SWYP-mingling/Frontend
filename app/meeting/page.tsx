@@ -50,9 +50,7 @@ export default function Page() {
   };
 
   return (
-    // 전체 화면 배경 및 중앙 정렬
     <div className="flex items-center justify-center p-0 md:min-h-[calc(100vh-200px)] md:py-25">
-      {/* 메인 컨테이너 (반응형 박스) */}
       <div className="flex h-full w-full flex-col bg-white md:h-175 md:w-174 md:flex-row md:gap-4 md:rounded-xl lg:w-215">
         {/* [LEFT PANEL] 데스크탑 전용 정보 영역 */}
         <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5 md:gap-10">
@@ -97,7 +95,7 @@ export default function Page() {
 
           {/* 참여 현황 */}
           <div className="relative flex flex-1 flex-col gap-3 overflow-hidden px-5 md:gap-3.5 md:p-0">
-            {/* [1] 상단 고정 영역 */}
+            {/* 상단 고정 영역 */}
             <div className="flex items-center justify-between bg-white">
               <h3 className="text-gray-9 text-xl font-semibold">참여현황</h3>
               <span className="text-gray-6 text-normal text-xs">
@@ -106,7 +104,7 @@ export default function Page() {
               </span>
             </div>
 
-            {/* [2] 재촉하기 배너 */}
+            {/* 재촉하기 배너 */}
             <button
               type="button"
               className="bg-blue-5 hover:bg-blue-8 flex h-21 w-full cursor-pointer items-center justify-between rounded p-4 text-left text-white transition-transform active:scale-[0.98]"
@@ -122,7 +120,7 @@ export default function Page() {
               <div className="bg-gray-3 h-13 w-14"></div>
             </button>
 
-            {/* [3] 출발지 컴포넌트: 리스트 렌더링 */}
+            {/* 출발지 컴포넌트: 리스트 렌더링 */}
             <div className="mb-10 flex-1">
               <div className="[&::-webkit-scrollbar-thumb]:bg-gray-6 flex h-80 flex-col gap-3.5 overflow-y-scroll pr-2 pb-5 md:pb-18 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {allParticipants.map((user) => (

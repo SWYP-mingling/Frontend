@@ -26,10 +26,10 @@ export default function StationSearch({
 }: StationSearchProps) {
   const [searchValue, setSearchValue] = useState<string>('');
 
-  // 3단 콤보 필터링 로직 (데이터 구조 변경 반영)
+  // 검색어 자동 완성 기능 구현
   const filteredStations = searchValue
     ? stations.filter((station) => {
-        const name = station.name; // 객체에서 이름 추출
+        const name = station.name;
         return name.includes(searchValue) || getChoseong(name).includes(searchValue);
       })
     : [];

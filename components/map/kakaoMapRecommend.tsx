@@ -56,14 +56,12 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
             yAnchor={1}
             zIndex={5}
           >
-            {/* 마커 디자인 (기존 HTML 문자열 -> JSX 변환) */}
             <div
               className="group relative flex cursor-pointer flex-col items-center"
               onClick={() => onSelectPlace?.(place.id)} // 클릭 시 부모에게 알림
             >
               {/* 핀 아이콘 */}
               <div className="z-10 flex h-15 w-15 items-center justify-center overflow-hidden rounded-full transition-transform group-hover:scale-110">
-                {/* 지도 위에서는 next/image보다 일반 img 태그가 레이아웃 잡기 편할 때가 많습니다 */}
                 <Image
                   src="/icon/location.svg"
                   alt={place.name}
@@ -82,7 +80,7 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
         ))}
       </Map>
 
-      {/* [UI 1] 상단 카테고리 필터 (Floating) */}
+      {/* 상단 카테고리 필터 (Floating) */}
       <div className="scrollbar-hide absolute top-4 right-0 left-0 z-20 flex justify-start gap-2 overflow-x-hidden px-4">
         {CATEGORIES.map((cat) => (
           <button
@@ -99,8 +97,6 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
           </button>
         ))}
       </div>
-
-      {/* [UI 2] 우측 하단 커스텀 줌 컨트롤 */}
       <ZoomControl map={map} />
     </div>
   );
