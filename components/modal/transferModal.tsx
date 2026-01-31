@@ -59,9 +59,6 @@ export default function TransferModal({ isOpen, onClose }: TransferModalProps) {
                 </span>
               </div>
 
-              {/* 구분선 */}
-              {/* <div className="bg-gray-1 mt-4 mb-5 h-px w-full"></div> */}
-
               {/* 하단: 호선 정보 및 시간 */}
               <div className="border-t-gray-1 flex items-center justify-between border-t py-5">
                 {/* 호선 뱃지 */}

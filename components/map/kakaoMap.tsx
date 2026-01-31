@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Map, CustomOverlayMap, ZoomControl } from 'react-kakao-maps-sdk';
+import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
+import ZoomControl from './zoomControl';
 
 interface Participant {
   id: number | string;
@@ -38,14 +39,11 @@ export default function KakaoMap({ className, participants = [] }: KakaoMapProps
   return (
     <div className={`relative ${className}`}>
       <Map
-        center={{ lat: 37.5563, lng: 126.9224 }} // 초기 중심 좌표 (데이터 없으면 여기 보임)
+        center={{ lat: 37.5563, lng: 126.9224 }}
         style={{ width: '100%', height: '100%' }}
         level={8}
-        onCreate={setMap} // 지도가 생성되면 map 객체를 state에 저장
+        onCreate={setMap}
       >
-        {/* 라이브러리 내장 줌 컨트롤러 (우측 배치) */}
-        <ZoomControl position={'RIGHT'} />
-
         {/* 참가자 마커(오버레이) 렌더링 */}
         {participants.map((person) => {
           const isMe = person.id === 'me';
@@ -55,10 +53,9 @@ export default function KakaoMap({ className, participants = [] }: KakaoMapProps
             <CustomOverlayMap
               key={person.id}
               position={{ lat: person.latitude, lng: person.longitude }}
-              yAnchor={1} // 마커의 밑부분이 좌표에 찍히도록 설정
+              yAnchor={1}
               zIndex={zIndex}
             >
-              {/* 기존 HTML 문자열을 JSX로 변환 */}
               <div className="group relative flex flex-col items-center">
                 {/* 호버 시 나오는 말풍선 (역 이름) */}
                 <div className="bg-gray-9 absolute bottom-9 mb-1 rounded-md px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity group-hover:opacity-100">
@@ -67,7 +64,7 @@ export default function KakaoMap({ className, participants = [] }: KakaoMapProps
 
                 {/* 원형 마커 */}
                 <div
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white shadow-md"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white"
                   style={{ backgroundColor: person.hexColor }}
                 >
                   <span className="text-sm font-semibold text-white">{person.name}</span>
@@ -77,6 +74,7 @@ export default function KakaoMap({ className, participants = [] }: KakaoMapProps
           );
         })}
       </Map>
+      <ZoomControl map={map} />
     </div>
   );
 }

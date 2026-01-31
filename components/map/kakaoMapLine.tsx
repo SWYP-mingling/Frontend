@@ -1,14 +1,13 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { Map, Polyline, CustomOverlayMap, Circle } from 'react-kakao-maps-sdk';
 import { REAL_SUBWAY_PATHS, HAPJUNG_STATION } from '@/mock/mockData';
 import { useRouter } from 'next/navigation';
-import { useState, useMemo } from 'react';
+import ZoomControl from './zoomControl';
 
 export default function KakaoMapLine({ className }: { className?: string }) {
   const router = useRouter();
-
-  // [상태 관리]
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [hoveredRouteId, setHoveredRouteId] = useState<number | null>(null);
   const [tooltipStation, setTooltipStation] = useState<{
@@ -17,7 +16,7 @@ export default function KakaoMapLine({ className }: { className?: string }) {
     name: string;
   } | null>(null);
 
-  // [초기 범위 설정] 데이터가 로드되면 지도의 범위를 모든 경로가 보이도록 조정
+  // 데이터가 로드되면 지도의 범위를 모든 경로가 보이도록 조정
   const initBounds = useMemo(() => {
     if (typeof kakao === 'undefined') return null;
     const bounds = new kakao.maps.LatLngBounds();
@@ -34,7 +33,7 @@ export default function KakaoMapLine({ className }: { className?: string }) {
     return bounds;
   }, []);
 
-  // [핸들러] 특정 경로 클릭 시 해당 경로로 줌인
+  // 특정 경로 클릭 시 해당 경로로 줌인
   const handleRouteClick = (route: (typeof REAL_SUBWAY_PATHS)[0]) => {
     if (!map) return;
     const bounds = new kakao.maps.LatLngBounds();
@@ -53,35 +52,33 @@ export default function KakaoMapLine({ className }: { className?: string }) {
           if (initBounds) mapInstance.setBounds(initBounds);
         }}
       >
-        {/* 1. 도착지(합정역) 마커 */}
+        {/* 도착지(합정역) 마커 */}
         <CustomOverlayMap
           position={{ lat: HAPJUNG_STATION.latitude, lng: HAPJUNG_STATION.longitude }}
           yAnchor={0.5}
           zIndex={20}
         >
-          <div className="flex items-center justify-center rounded-full border border-white bg-[#A95623] px-4 py-1.5 shadow-md">
+          <div className="flex items-center justify-center rounded-full border border-white bg-[#A95623] px-4 py-1.5">
             <span className="text-sm font-semibold text-white">{HAPJUNG_STATION.name}</span>
           </div>
         </CustomOverlayMap>
 
-        {/* 2. 경로 루프 */}
+        {/* 경로 루프 */}
         {REAL_SUBWAY_PATHS.map((route) => {
           const isHovered = hoveredRouteId === route.id;
-          const isDimmed = hoveredRouteId !== null && !isHovered; // 다른게 호버되면 나는 흐려짐
 
           return (
             <div key={route.id}>
-              {/* (1) 지하철 경로 선 */}
+              {/*지하철 경로 선 */}
               <Polyline
                 path={route.stations.map((s) => ({ lat: s.latitude, lng: s.longitude }))}
                 strokeWeight={4}
                 strokeColor={route.color}
-                strokeOpacity={isDimmed ? 0.2 : 1}
                 strokeStyle={'solid'}
                 zIndex={isHovered ? 50 : 1}
               />
 
-              {/* (2) 정차역 점 (Circle) & 툴팁 이벤트 */}
+              {/* 정차역 점 (Circle) & 툴팁 이벤트 */}
               {route.stations.slice(1, -1).map((station, idx) => (
                 <Circle
                   key={`${route.id}-station-${idx}`}
@@ -89,7 +86,6 @@ export default function KakaoMapLine({ className }: { className?: string }) {
                   radius={40}
                   strokeWeight={1}
                   strokeColor={route.color}
-                  strokeOpacity={isDimmed ? 0.2 : 1}
                   fillColor={'#FFFFFF'}
                   fillOpacity={1}
                   zIndex={5}
@@ -104,7 +100,7 @@ export default function KakaoMapLine({ className }: { className?: string }) {
                 />
               ))}
 
-              {/* (3) 출발지 마커 & 인터랙션 영역 */}
+              {/* 출발지 마커 & 인터랙션 영역 */}
               <CustomOverlayMap
                 position={{ lat: route.stations[0].latitude, lng: route.stations[0].longitude }}
                 yAnchor={0.5}
@@ -139,16 +135,15 @@ export default function KakaoMapLine({ className }: { className?: string }) {
                     </span>
                   </div>
 
-                  {/* (4) 클릭/호버 감지 범위 확장용 투명 원 (Click Hit Area) */}
-                  {/* CustomOverlay 내부에 투명 div를 둬서 클릭 범위를 넓힘 */}
-                  <div className="absolute top-1/2 left-1/2 z-0 h-[100px] w-[100px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
+                  {/* 클릭/호버 감지 범위 확장용 투명 원 (Click Hit Area) */}
+                  <div className="absolute top-1/2 left-1/2 z-0 h-25 w-25 -translate-x-1/2 -translate-y-1/2 rounded-full" />
                 </div>
               </CustomOverlayMap>
             </div>
           );
         })}
 
-        {/* 3. 툴팁 오버레이 (조건부 렌더링) */}
+        {/* 툴팁 오버레이 (조건부 렌더링) */}
         {tooltipStation && (
           <CustomOverlayMap
             position={{ lat: tooltipStation.lat, lng: tooltipStation.lng }}
@@ -162,15 +157,17 @@ export default function KakaoMapLine({ className }: { className?: string }) {
         )}
       </Map>
 
-      {/* 4. 상단 고정 버튼 (지도 밖) */}
+      {/* 상단 고정 버튼 (지도 밖) */}
       <div className="absolute top-6 left-1/2 z-20 -translate-x-1/2 transform">
         <button
-          className="bg-blue-5 hover:bg-blue-8 relative flex h-9 cursor-pointer items-center rounded-full px-4 py-1.75 text-sm font-semibold text-white shadow-md transition-colors"
+          className="bg-blue-5 hover:bg-blue-8 relative flex h-9 cursor-pointer items-center rounded-full px-4 py-1.75 text-sm font-semibold text-white transition-colors"
           onClick={() => router.push('/recommend')}
         >
           {HAPJUNG_STATION.name} 주변 장소 추천
         </button>
       </div>
+
+      <ZoomControl map={map} />
     </div>
   );
 }
