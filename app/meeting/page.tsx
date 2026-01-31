@@ -5,19 +5,21 @@ import Image from 'next/image';
 import KakaoMap from '@/components/map/kakaoMap';
 import StationSearch from '@/components/meeting/stationSearch';
 import { useOpenModal } from '@/hooks/useOpenModal';
-import { MOCK_PARTICIPANTS, MOCK_SEARCH_STATIONS } from '@/mock/mockData';
+import { MOCK_PARTICIPANTS } from '@/mock/mockData';
+import StationData from '@/database/stations_info.json';
 import { useRouter } from 'next/navigation';
+
+const STATION_DATA = StationData;
 
 export default function Page() {
   // 선택된 역 이름 상태 관리
+
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
   const openModal = useOpenModal();
   const router = useRouter();
 
   // 1. [좌표 찾기] 선택된 역 이름으로 MOCK 데이터에서 정보 찾기
-  const selectedStationInfo = MOCK_SEARCH_STATIONS.find(
-    (station) => station.name === selectedStation
-  );
+  const selectedStationInfo = STATION_DATA.find((station) => station.name === selectedStation);
 
   // 2. [내 참가자 객체 생성] 선택된 역이 있을 때만 생성
   const myParticipant = selectedStation
@@ -25,9 +27,10 @@ export default function Page() {
         id: 'me', // 고유 ID (문자열)
         name: '나',
         station: selectedStation,
+        line: '2호선',
         // 정보가 없으면 서울시청 좌표를 기본값으로 사용 (예외 처리)
-        lat: selectedStationInfo?.lat || 37.5665,
-        lng: selectedStationInfo?.lng || 126.978,
+        latitude: selectedStationInfo?.latitude || 37.5665,
+        longitude: selectedStationInfo?.longitude || 126.978,
         status: 'done',
         hexColor: '#000000',
       }
@@ -85,7 +88,7 @@ export default function Page() {
 
           {/* 출발지 검색 창 컴포넌트 */}
           <StationSearch
-            stations={MOCK_SEARCH_STATIONS}
+            stations={STATION_DATA}
             selectedStation={selectedStation}
             onSelect={setSelectedStation}
           />

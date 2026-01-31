@@ -40,7 +40,7 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
       if (!container) return;
 
       const options = {
-        center: new window.kakao.maps.LatLng(HAPJUNG_STATION.lat, HAPJUNG_STATION.lng),
+        center: new window.kakao.maps.LatLng(HAPJUNG_STATION.latitude, HAPJUNG_STATION.longitude),
         level: 4,
       };
 
@@ -48,7 +48,10 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
       mapRef.current = map;
 
       // 1. [중심지 마커] 합정역
-      const centerPosition = new window.kakao.maps.LatLng(HAPJUNG_STATION.lat, HAPJUNG_STATION.lng);
+      const centerPosition = new window.kakao.maps.LatLng(
+        HAPJUNG_STATION.latitude,
+        HAPJUNG_STATION.longitude
+      );
       const centerContent = `
         <div class="flex items-center justify-center px-4 py-1.5 bg-[#A95623] border border-white rounded-full ">
           <span class="text-sm font-semibold text-white">${HAPJUNG_STATION.name}</span>
@@ -67,7 +70,7 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
         (place) => place.category === activeCategory
       );
       filteredPlaces.forEach((place) => {
-        const position = new window.kakao.maps.LatLng(place.lat, place.lng);
+        const position = new window.kakao.maps.LatLng(place.latitude, place.longitude);
         // [수정] 서비스 로고를 활용한 커스텀 핀 디자인
         const pinContent = `
             <div class="group cursor-pointer relative flex flex-col items-center">

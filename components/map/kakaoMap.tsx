@@ -6,10 +6,11 @@ import ZoomControl from './zoomControl';
 // [1] Participant 인터페이스 수정
 interface Participant {
   id: number | string; // 'me'는 string, 나머지는 number이므로 유니온 타입으로 변경
+  line: string;
   name: string;
   station: string;
-  lat: number;
-  lng: number;
+  latitude: number;
+  longitude: number;
   hexColor: string;
 }
 
@@ -41,7 +42,7 @@ export default function KakaoMap({ className, participants = [] }: KakaoMapProps
 
       if (participants.length > 0) {
         participants.forEach((person) => {
-          const position = new window.kakao.maps.LatLng(person.lat, person.lng);
+          const position = new window.kakao.maps.LatLng(person.latitude, person.longitude);
           bounds.extend(position);
 
           // [2] '나'일 경우 z-index를 높여서 맨 위에 표시

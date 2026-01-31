@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { getChoseong, disassemble } from 'es-hangul';
+import { getChoseong } from 'es-hangul';
 
 // [NEW] 역 정보 객체 타입 정의
 interface Station {
+  line: string;
   name: string;
-  lat: number;
-  lng: number;
+  latitude: number;
+  longitude: number;
 }
 
 // Props 타입 정의 업데이트
@@ -29,11 +30,7 @@ export default function StationSearch({
   const filteredStations = searchValue
     ? stations.filter((station) => {
         const name = station.name; // 객체에서 이름 추출
-        return (
-          name.includes(searchValue) ||
-          getChoseong(name).includes(searchValue) ||
-          disassemble(name).includes(disassemble(searchValue))
-        );
+        return name.includes(searchValue) || getChoseong(name).includes(searchValue);
       })
     : [];
 
