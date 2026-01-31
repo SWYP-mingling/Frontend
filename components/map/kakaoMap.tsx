@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import ZoomControl from './zoomControl';
+import { useEffect, useState } from 'react';
+import { Map, CustomOverlayMap, ZoomControl } from 'react-kakao-maps-sdk';
 
-// [1] Participant 인터페이스 수정
 interface Participant {
-  id: number | string; // 'me'는 string, 나머지는 number이므로 유니온 타입으로 변경
+  id: number | string;
   line: string;
   name: string;
   station: string;
@@ -20,65 +19,64 @@ interface KakaoMapProps {
 }
 
 export default function KakaoMap({ className, participants = [] }: KakaoMapProps) {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<any>(null);
+  // 지도 객체를 담을 state (범위 재설정용)
+  const [map, setMap] = useState<kakao.maps.Map | null>(null);
 
+  // [핵심 로직] 참가자 목록이 변경되면 지도의 범위(Bounds)를 재설정
   useEffect(() => {
-    if (!window.kakao) return;
+    if (!map || participants.length === 0) return;
 
-    window.kakao.maps.load(() => {
-      const container = mapContainer.current;
-      if (!container) return;
-
-      const options = {
-        center: new window.kakao.maps.LatLng(37.5563, 126.9224),
-        level: 8,
-      };
-
-      const kakaoMap = new window.kakao.maps.Map(container, options);
-      setMap(kakaoMap);
-
-      const bounds = new window.kakao.maps.LatLngBounds();
-
-      if (participants.length > 0) {
-        participants.forEach((person) => {
-          const position = new window.kakao.maps.LatLng(person.latitude, person.longitude);
-          bounds.extend(position);
-
-          // [2] '나'일 경우 z-index를 높여서 맨 위에 표시
-          const isMe = person.id === 'me';
-          const zIndex = isMe ? 2 : 1;
-
-          const content = `
-            <div class="relative flex flex-col items-center group" style="z-index: ${zIndex};">
-              <div class="absolute bottom-9 mb-1 whitespace-nowrap rounded-md bg-gray-9 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                ${person.station} (${person.name})
-              </div>
-              <div class="flex h-8 w-8 items-center justify-center rounded-full border border-white" 
-                   style="background-color: ${person.hexColor};">
-                <span class="text-sm font-semibold text-white">${person.name}</span>
-              </div>
-            </div>
-          `;
-
-          new window.kakao.maps.CustomOverlay({
-            position: position,
-            content: content,
-            yAnchor: 1,
-            zIndex: zIndex, // [3] 카카오 오버레이 옵션에도 zIndex 적용
-            map: kakaoMap,
-          });
-        });
-
-        kakaoMap.setBounds(bounds);
-      }
+    const bounds = new kakao.maps.LatLngBounds();
+    participants.forEach((person) => {
+      bounds.extend(new kakao.maps.LatLng(person.latitude, person.longitude));
     });
-  }, [participants]);
+
+    // 모든 참가자가 보이도록 지도 범위 조정 (여백 포함)
+    map.setBounds(bounds);
+  }, [map, participants]);
 
   return (
     <div className={`relative ${className}`}>
-      <div ref={mapContainer} className="h-full w-full" />
-      <ZoomControl map={map} />
+      <Map
+        center={{ lat: 37.5563, lng: 126.9224 }} // 초기 중심 좌표 (데이터 없으면 여기 보임)
+        style={{ width: '100%', height: '100%' }}
+        level={8}
+        onCreate={setMap} // 지도가 생성되면 map 객체를 state에 저장
+      >
+        {/* 라이브러리 내장 줌 컨트롤러 (우측 배치) */}
+        <ZoomControl position={'RIGHT'} />
+
+        {/* 참가자 마커(오버레이) 렌더링 */}
+        {participants.map((person) => {
+          const isMe = person.id === 'me';
+          const zIndex = isMe ? 2 : 1; // '나'는 더 위에 표시
+
+          return (
+            <CustomOverlayMap
+              key={person.id}
+              position={{ lat: person.latitude, lng: person.longitude }}
+              yAnchor={1} // 마커의 밑부분이 좌표에 찍히도록 설정
+              zIndex={zIndex}
+            >
+              {/* 기존 HTML 문자열을 JSX로 변환 */}
+              <div className="group relative flex flex-col items-center">
+                {/* 호버 시 나오는 말풍선 (역 이름) */}
+                <div className="bg-gray-9 absolute bottom-9 mb-1 rounded-md px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity group-hover:opacity-100">
+                  {person.station} ({person.name})
+                </div>
+
+                {/* 원형 마커 */}
+                <div
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white shadow-md"
+                  style={{ backgroundColor: person.hexColor }}
+                >
+                  <span className="text-sm font-semibold text-white">{person.name}</span>
+                </div>
+              </div>
+            </CustomOverlayMap>
+          );
+        })}
+      </Map>
     </div>
   );
 }
