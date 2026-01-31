@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-const ZoomControl = ({ map }: any) => {
+const ZoomControl = ({ map }: { map: kakao.maps.Map | null }) => {
   const zoomIn = () => {
     if (!map) return;
     map.setLevel(map.getLevel() - 1, { animate: true });
@@ -10,6 +10,7 @@ const ZoomControl = ({ map }: any) => {
     if (!map) return;
     map.setLevel(map.getLevel() + 1, { animate: true });
   };
+
   return (
     <div className="border-gray-4 text-gray-10 absolute right-4 bottom-4 z-10 flex flex-col overflow-hidden rounded border bg-white">
       <button

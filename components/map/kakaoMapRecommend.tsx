@@ -1,9 +1,10 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import { HAPJUNG_STATION, MOCK_RECOMMEND_PLACES } from '@/mock/mockData';
 import Image from 'next/image';
-import { useState, useMemo } from 'react';
+import ZoomControl from './zoomControl';
 
 interface KakaoMapRecommendProps {
   className?: string;
@@ -27,10 +28,6 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
     () => MOCK_RECOMMEND_PLACES.filter((place) => place.category === activeCategory),
     [activeCategory]
   );
-
-  // 3. 줌 핸들러 (map 객체 사용)
-  const zoomIn = () => map?.setLevel(map.getLevel() - 1, { animate: true });
-  const zoomOut = () => map?.setLevel(map.getLevel() + 1, { animate: true });
 
   return (
     <div className={`relative ${className}`}>
@@ -67,10 +64,12 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
               {/* 핀 아이콘 */}
               <div className="z-10 flex h-15 w-15 items-center justify-center overflow-hidden rounded-full transition-transform group-hover:scale-110">
                 {/* 지도 위에서는 next/image보다 일반 img 태그가 레이아웃 잡기 편할 때가 많습니다 */}
-                <img
+                <Image
                   src="/icon/location.svg"
                   alt={place.name}
-                  className="h-15 w-15 object-contain"
+                  className="object-contain"
+                  width={60}
+                  height={60}
                 />
               </div>
 
@@ -89,7 +88,7 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
-            className={`flex flex-shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium whitespace-nowrap shadow-md transition-all ${
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all ${
               activeCategory === cat.id
                 ? 'bg-blue-5 text-white'
                 : 'text-gray-7 bg-white hover:bg-gray-50'
@@ -102,45 +101,7 @@ export default function KakaoMapRecommend({ className, onSelectPlace }: KakaoMap
       </div>
 
       {/* [UI 2] 우측 하단 커스텀 줌 컨트롤 */}
-      <div className="absolute right-4 bottom-6 z-20 flex flex-col overflow-hidden rounded border border-gray-200 shadow-lg">
-        <button
-          onClick={zoomIn}
-          className="flex h-10 w-10 items-center justify-center border-b border-gray-200 bg-white text-gray-600 hover:bg-gray-50 active:bg-gray-100"
-          aria-label="확대"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
-        <button
-          onClick={zoomOut}
-          className="flex h-10 w-10 items-center justify-center bg-white text-gray-600 hover:bg-gray-50 active:bg-gray-100"
-          aria-label="축소"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
-      </div>
+      <ZoomControl map={map} />
     </div>
   );
 }
