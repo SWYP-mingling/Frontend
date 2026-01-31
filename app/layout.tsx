@@ -5,6 +5,7 @@ import localFont from 'next/font/local';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import GlobalModal from '@/components/modal/globalModal';
+import QueryProvider from '@/components/providers/queryProvider';
 
 const pretendard = localFont({
   src: [
@@ -35,10 +36,12 @@ export default function RootLayout({
   return (
     <html lang="ko" className={pretendard.variable}>
       <body className="flex min-h-screen flex-col">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <GlobalModal />
+        <QueryProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <GlobalModal />
+        </QueryProvider>
         <Script
           src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services,clusterer&autoload=false`}
           strategy="beforeInteractive"
