@@ -1,65 +1,33 @@
-'use client';
+import { notFound } from 'next/navigation';
+import ShareClient from './shareClient';
+import { apiGet } from '@/lib/api'; // 아까 만든 API 유틸
 
-import Toast from '@/components/ui/toast';
-import Link from 'next/link';
-import { useToast } from '@/hooks/useToast';
-import { useState } from 'react';
+// UUID 형식 검사 정규식
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function Page() {
-  const [link, setLink] = useState('www.abcabc');
-  const { isVisible, show } = useToast();
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(link);
-      show();
-    } catch (error) {
-      console.error('복사 실패: ', error);
-      alert('복사에 실패했습니다. 링크를 직접 복사해주세요.');
-    }
-  };
+// Next.js Server Component
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
 
-  return (
-    <div className="flex flex-col items-center justify-center bg-white px-5 py-10 md:py-25">
-      <h2 className="text-gray-10 mb-9 text-center text-2xl leading-[1.334] font-bold md:text-4xl">
-        모임이 만들어졌어요!
-        <br />
-        링크를 공유해주세요
-      </h2>
+  // 1. [1차 방어] 형식이 UUID가 아니면 바로 404 (DB 찌를 필요도 없음)
+  if (!UUID_REGEX.test(id)) {
+    notFound();
+  }
 
-      <section className="mb-9 flex h-70 w-80 max-w-sm items-center justify-center rounded-2xl bg-gray-200 md:w-90">
-        <div className="text-gray-10 text-center font-semibold">
-          <p className="text-lg">이미지</p>
-          <p className="text-lg">(빵빠레~)</p>
-        </div>
-      </section>
+  // // 2. [2차 방어] 실제 DB에 존재하는 모임인지 확인
+  // try {
+  //   // 모임 상세 조회 API를 호출해봅니다. (엔드포인트는 실제 서버 API에 맞게 수정)
+  //   // 데이터가 없거나 에러가 나면 catch로 넘어갑니다.
+  //   await apiGet(`/meeting/${id}/status`);
+  // } catch (error) {
+  //   // 존재하지 않는 모임 ID라면 404 페이지로 보냄
+  //   notFound();
+  // }
 
-      <div className="relative z-10 mb-9 flex w-full rounded-sm md:w-90">
-        <Toast message="주소가 복사되었습니다" isVisible={isVisible} />
-
-        <input
-          type="text"
-          name="shareLink"
-          aria-label="모임 공유 링크"
-          value={link}
-          readOnly
-          className="border-gray-1 grow rounded-l-sm border border-r-0 bg-white p-2.5 text-[15px] font-normal text-black focus:outline-none"
-        />
-        <button
-          type="button"
-          onClick={handleCopyLink}
-          className="bg-gray-1 text-gray-6 border-gray-1 hover:bg-gray-2 cursor-pointer rounded-r-sm border px-3.5 py-3 text-sm font-semibold whitespace-nowrap transition-colors"
-        >
-          복사
-        </button>
-      </div>
-
-      <Link
-        href="/join"
-        className="bg-blue-5 hover:bg-blue-8 h-12 w-full rounded-sm py-2.5 pt-3 text-center text-lg font-normal text-white transition-colors md:w-90"
-      >
-        내 출발지 등록하기
-      </Link>
-    </div>
-  );
+  // 3. 검증 통과 시 UI 렌더링
+  return <ShareClient meetingId={id} />;
 }
