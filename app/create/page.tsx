@@ -209,7 +209,7 @@ export default function Page() {
                   어떤 장소를 원하시나요? <span className="leading-[1.385]">(선택)</span>
                 </p>
                 <div className="flex w-full flex-col gap-2">
-                  {['스터디 카페', '장소 대여', '공공 서비스'].map((location) => {
+                  {['스터디 카페', '장소 대여'].map((location) => {
                     const isSelected = selectedLocation === location;
                     return (
                       <button
