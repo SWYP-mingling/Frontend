@@ -1,23 +1,54 @@
 'use client';
 
-import Toast from '@/components/ui/toast';
+import { useEffect, useState } from 'react';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Toast from '@/components/ui/toast';
 import { useToast } from '@/hooks/useToast';
-import { useState } from 'react';
+import { apiGet } from '@/lib/api';
 
-export default function Page() {
-  const [link, setLink] = useState('www.abcabc');
+export default function SharePage() {
+  const params = useParams();
+  const id = params?.id as string;
+  const router = useRouter();
   const { isVisible, show } = useToast();
 
+  const [shareUrl, setShareUrl] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const checkMeeting = async () => {
+      try {
+        // 모임이 존재하는지 확인
+        await apiGet(`${process.env.NEXT_PUBLIC_API_BASE_URL}/meeting/result/${id}`);
+
+        // 존재하면 URL 생성 (window 객체 사용 가능)
+        setShareUrl(`${window.location.origin}/meeting/${id}`);
+        setLoading(false);
+      } catch (error) {
+        console.error('실패:', error);
+        setIsError(true);
+      }
+    };
+
+    checkMeeting();
+  }, [id, router]);
+
   const handleCopyLink = async () => {
+    if (!shareUrl) return;
     try {
-      await navigator.clipboard.writeText(link);
+      await navigator.clipboard.writeText(shareUrl);
       show();
     } catch (error) {
-      console.error('복사 실패: ', error);
-      alert('복사에 실패했습니다. 링크를 직접 복사해주세요.');
+      alert('복사 실패');
     }
   };
+
+  if (isError) notFound();
+  if (loading) return null;
 
   return (
     <div className="flex flex-col items-center justify-center bg-white px-5 py-10 md:py-25">
@@ -36,12 +67,9 @@ export default function Page() {
 
       <div className="relative z-10 mb-9 flex w-full rounded-sm md:w-90">
         <Toast message="주소가 복사되었습니다" isVisible={isVisible} />
-
         <input
           type="text"
-          name="shareLink"
-          aria-label="모임 공유 링크"
-          value={link}
+          value={shareUrl}
           readOnly
           className="border-gray-1 grow rounded-l-sm border border-r-0 bg-white p-2.5 text-[15px] font-normal text-black focus:outline-none"
         />
@@ -55,7 +83,7 @@ export default function Page() {
       </div>
 
       <Link
-        href="/join"
+        href={`/meeting/${id}`}
         className="bg-blue-5 hover:bg-blue-8 h-12 w-full rounded-sm py-2.5 pt-3 text-center text-lg font-normal text-white transition-colors md:w-90"
       >
         내 출발지 등록하기
