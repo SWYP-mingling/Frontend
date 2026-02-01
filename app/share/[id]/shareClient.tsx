@@ -6,16 +6,16 @@ import { useToast } from '@/hooks/useToast';
 import { useEffect, useState } from 'react';
 
 export default function ShareClient({ meetingId }: { meetingId: string }) {
-  const [shareUrl, setShareUrl] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
   const { isVisible, show } = useToast();
 
-  // 컴포넌트가 마운트되면 현재 도메인을 파악해 URL 생성
   useEffect(() => {
-    if (typeof window !== 'undefined' && meetingId) {
-      const origin = window.location.origin;
-      setShareUrl(`${origin}/meeting/${meetingId}`);
-    }
-  }, [meetingId]);
+    setIsMounted(true);
+  }, []);
+
+  // 마운트된 직후만 URL 계산
+  const origin = typeof window !== 'undefined' && isMounted ? window.location.origin : '';
+  const shareUrl = isMounted ? `${origin}/meeting/${meetingId}` : '';
 
   const handleCopyLink = async () => {
     if (!shareUrl) return;
@@ -50,7 +50,7 @@ export default function ShareClient({ meetingId }: { meetingId: string }) {
           type="text"
           name="shareLink"
           aria-label="모임 공유 링크"
-          value={shareUrl} // 동적으로 생성된 URL 바인딩
+          value={shareUrl} // 계산된 값을 바로 사용
           readOnly
           className="border-gray-1 grow rounded-l-sm border border-r-0 bg-white p-2.5 text-[15px] font-normal text-black focus:outline-none"
         />
@@ -63,7 +63,6 @@ export default function ShareClient({ meetingId }: { meetingId: string }) {
         </button>
       </div>
 
-      {/* '내 출발지 등록하기' 버튼 클릭 시 해당 모임 입장 페이지로 이동 */}
       <Link
         href={`/meeting/${meetingId}`}
         className="bg-blue-5 hover:bg-blue-8 h-12 w-full rounded-sm py-2.5 pt-3 text-center text-lg font-normal text-white transition-colors md:w-90"
