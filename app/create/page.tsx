@@ -13,7 +13,7 @@ export default function Page() {
   const [meetingType, setMeetingType] = useState<'회의' | '친목' | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedSocialPlace, setSelectedSocialPlace] = useState<string | null>(null);
-  const [participantCount, setParticipantCount] = useState(0);
+  const [participantCount, setParticipantCount] = useState(2);
   const [isParticipantUndecided, setIsParticipantUndecided] = useState(false);
   const [deadlineDays, setDeadlineDays] = useState(1);
   const [isDeadlineFlexible, setIsDeadlineFlexible] = useState(false);
@@ -294,7 +294,7 @@ export default function Page() {
               <button
                 type="button"
                 onClick={handleDecreaseParticipants}
-                disabled={isParticipantUndecided || participantCount === 0}
+                disabled={isParticipantUndecided || participantCount === 2}
                 className="bg-gray-1 absolute -top-px -left-px flex h-[44px] w-[44px] items-center justify-center rounded-tl-[4px] rounded-bl-[4px] disabled:opacity-50 sm:h-[44px] sm:w-[44px]"
               >
                 <Image src="/icon/minus.svg" alt="minus" width={20} height={20} />
