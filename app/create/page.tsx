@@ -27,7 +27,9 @@ export default function Page() {
     meetingName.trim().length > 0 &&
     // meetingType의 경우에 따라서 하위 카테고리가 반드시 선택되어야 한다.
     ((meetingType === '회의' && !!selectedLocation) ||
-      (meetingType === '친목' && !!selectedSocialPlace));
+      (meetingType === '친목' && !!selectedSocialPlace)) &&
+    // 인원이 정해지지 않은 경우가 아니라면 참여자가 반드시 있어야 한다.
+    (participantCount > 0 || isParticipantUndecided);
 
   const getDeadlineDate = () => {
     const date = new Date();
