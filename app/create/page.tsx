@@ -22,7 +22,10 @@ export default function Page() {
   const createMeeting = useCreateMeeting();
   const { isVisible, show } = useToast();
 
-  const isFormValid = meetingName.length > 0 && !!meetingType;
+  const isFormValid = 
+    meetingName.length > 0 && 
+    !!meetingType && 
+    (meetingType === '회의' ? !!selectedLocation : !!selectedSocialPlace);
 
   const getDeadlineDate = () => {
     const date = new Date();
@@ -174,7 +177,10 @@ export default function Page() {
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => setMeetingType('회의')}
+                onClick={() => {
+                  setMeetingType('회의');
+                  setSelectedSocialPlace(null);
+                }}
                 className={`flex-1 rounded-[4px] py-2.5 text-[15px] leading-[1.6] tracking-[0.144px] transition-colors sm:py-2 ${
                   meetingType === '회의'
                     ? 'bg-blue-5 text-white'
@@ -185,7 +191,10 @@ export default function Page() {
               </button>
               <button
                 type="button"
-                onClick={() => setMeetingType('친목')}
+                onClick={() => {
+                  setMeetingType('친목');
+                  setSelectedLocation(null);
+                }}
                 className={`flex-1 rounded-[4px] py-2.5 text-[15px] leading-[1.6] tracking-[0.144px] transition-colors sm:py-2 ${
                   meetingType === '친목'
                     ? 'bg-blue-5 text-white'
@@ -199,7 +208,7 @@ export default function Page() {
             {meetingType === '회의' && (
               <>
                 <p className="text-gray-7 text-[13px] leading-[1.385] font-normal tracking-[0.2522px]">
-                  어떤 장소를 원하시나요? <span className="leading-[1.385]">(선택)</span>
+                  어떤 장소를 원하시나요? 
                 </p>
                 <div className="flex w-full flex-col gap-2">
                   {['스터디 카페', '장소 대여'].map((location) => {
@@ -239,7 +248,7 @@ export default function Page() {
             {meetingType === '친목' && (
               <>
                 <p className="text-gray-7 text-[13px] leading-[1.385] font-normal tracking-[0.2522px]">
-                  어떤 장소를 원하시나요? <span className="leading-[1.385]">(선택)</span>
+                  어떤 장소를 원하시나요?
                 </p>
                 <div className="flex w-full flex-col gap-2">
                   {['식당', '술집', '카페', '놀거리'].map((place) => {
