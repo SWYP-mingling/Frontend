@@ -1,10 +1,5 @@
-
-
 // Fetch 래퍼 함수
-async function apiFetch<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
+async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...options?.headers,
@@ -16,7 +11,6 @@ async function apiFetch<T>(
   });
 
   if (!response.ok) {
-
     let errorData: unknown;
     try {
       errorData = await response.json();
@@ -67,4 +61,3 @@ export async function apiPut<T>(endpoint: string, data?: unknown): Promise<T> {
 export async function apiDelete<T>(endpoint: string): Promise<T> {
   return apiFetch<T>(endpoint, { method: 'DELETE' });
 }
-  

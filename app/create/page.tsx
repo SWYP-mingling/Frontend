@@ -22,10 +22,12 @@ export default function Page() {
   const createMeeting = useCreateMeeting();
   const { isVisible, show } = useToast();
 
-  const isFormValid = 
-    meetingName.length > 0 && 
-    !!meetingType && 
-    (meetingType === '회의' ? !!selectedLocation : !!selectedSocialPlace);
+  const isFormValid =
+    // 모임 이름이 있어야 한다.
+    meetingName.trim().length > 0 &&
+    // meetingType의 경우에 따라서 하위 카테고리가 반드시 선택되어야 한다.
+    ((meetingType === '회의' && !!selectedLocation) ||
+      (meetingType === '친목' && !!selectedSocialPlace));
 
   const getDeadlineDate = () => {
     const date = new Date();
@@ -71,21 +73,17 @@ export default function Page() {
     setIsDeadlineFlexible((prev) => !prev);
   };
 
-
   const getPurposes = (): string[] => {
     const purposes: string[] = [];
 
-   
     if (meetingType) {
       purposes.push(meetingType);
     }
 
-    
     if (meetingType === '회의' && selectedLocation) {
       purposes.push(selectedLocation);
     }
 
-  
     if (meetingType === '친목' && selectedSocialPlace) {
       purposes.push(selectedSocialPlace);
     }
@@ -93,12 +91,10 @@ export default function Page() {
     return purposes;
   };
 
-  
   const getDeadlineISO = (): string => {
     let date: Date;
 
     if (isDeadlineFlexible) {
-     
       date = new Date();
       date.setDate(date.getDate() + 60);
     } else {
@@ -106,9 +102,8 @@ export default function Page() {
       date.setDate(date.getDate() + deadlineDays);
     }
 
-    date.setHours(23, 59, 59, 0); 
+    date.setHours(23, 59, 59, 0);
 
-    
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -139,12 +134,17 @@ export default function Page() {
 
     try {
       const result = await createMeeting.mutateAsync(requestData);
+      console.log('전체 응답:', result);
 
-     
-      if (result.meetingUrl) {
-        router.push(result.meetingUrl);
+      if (result.success && result.data?.meetingId) {
+        const { meetingId } = result.data;
+        console.log('생성된 ID:', meetingId);
+
+        // 링크 공유 페이지 이동
+        router.push(`/share/${meetingId}`);
       } else {
-        router.push('/share');
+        // success가 false거나 데이터가 없을 때
+        alert('모임 생성 응답에 문제가 있습니다.');
       }
     } catch {
       setErrorMessage('모임 생성에 실패했습니다. 다시 시도해주세요.');
@@ -208,7 +208,7 @@ export default function Page() {
             {meetingType === '회의' && (
               <>
                 <p className="text-gray-7 text-[13px] leading-[1.385] font-normal tracking-[0.2522px]">
-                  어떤 장소를 원하시나요? 
+                  어떤 장소를 원하시나요?
                 </p>
                 <div className="flex w-full flex-col gap-2">
                   {['스터디 카페', '장소 대여'].map((location) => {
