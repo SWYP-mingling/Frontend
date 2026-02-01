@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useCreateMeeting } from '@/hooks/api/useMeeting';
+import type { MeetingCreateRequest } from '@/types/api';
 
 export default function Page() {
   const [meetingName, setMeetingName] = useState('');
@@ -14,6 +16,7 @@ export default function Page() {
   const [deadlineDays, setDeadlineDays] = useState(1);
   const [isDeadlineFlexible, setIsDeadlineFlexible] = useState(false);
   const router = useRouter();
+  const createMeeting = useCreateMeeting();
 
   const isFormValid = meetingName.length > 0 && !!meetingType;
 
@@ -61,13 +64,96 @@ export default function Page() {
     setIsDeadlineFlexible((prev) => !prev);
   };
 
-  const handleGenerateMeeting = () => {
+
+  const getPurposes = (): string[] => {
+    const purposes: string[] = [];
+
+   
+    if (meetingType) {
+      purposes.push(meetingType);
+    }
+
+    
+    if (meetingType === '회의' && selectedLocation) {
+      purposes.push(selectedLocation);
+    }
+
+  
+    if (meetingType === '친목' && selectedSocialPlace) {
+      purposes.push(selectedSocialPlace);
+    }
+
+    return purposes;
+  };
+
+  
+  const getDeadlineISO = (): string => {
+    let date: Date;
+
+    if (isDeadlineFlexible) {
+     
+      date = new Date();
+      date.setDate(date.getDate() + 60);
+    } else {
+      date = new Date();
+      date.setDate(date.getDate() + deadlineDays);
+    }
+
+    date.setHours(23, 59, 59, 0); 
+
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  };
+
+  const handleGenerateMeeting = async () => {
     if (!isFormValid) {
       alert('약속의 필수 요건을 만족시켜주세요.');
       return;
     }
 
-    router.push('/share');
+    const purposes = getPurposes();
+
+    // capacity 처리: "아직 안정해졌어요" 체크 시 30으로 설정
+    const capacity = isParticipantUndecided ? 30 : participantCount || 1;
+
+    const requestData: MeetingCreateRequest = {
+      meetingName,
+      purposes,
+      purposeCount: purposes.length,
+      capacity,
+      deadline: getDeadlineISO(),
+    };
+
+    try {
+      const result = await createMeeting.mutateAsync(requestData);
+
+     
+      if (result.meetingUrl) {
+        router.push(result.meetingUrl);
+      } else {
+        router.push('/share');
+      }
+    } catch (error) {
+      const apiError = error as Error & { status?: number; data?: unknown };
+      
+      if (apiError?.data) {
+        const errorMessage = typeof apiError.data === 'object'
+          ? JSON.stringify(apiError.data, null, 2)
+          : String(apiError.data);
+        alert(`모임 생성에 실패했습니다:\n${errorMessage}`);
+      } else if (apiError?.message) {
+        alert(`모임 생성에 실패했습니다: ${apiError.message}`);
+      } else {
+        alert('모임 생성에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
   };
 
   return (
@@ -293,10 +379,10 @@ export default function Page() {
 
           <button
             type="button"
-            disabled={!isFormValid}
+            disabled={!isFormValid || createMeeting.isPending}
             onClick={handleGenerateMeeting}
             className={`h-12 w-full rounded-[4px] text-[16px] leading-[1.445] font-semibold tracking-[-0.0036px] transition-colors sm:text-[17px] md:text-[18px] ${
-              isFormValid
+              isFormValid && !createMeeting.isPending
                 ? 'bg-blue-5 hover:bg-blue-8 text-white'
                 : 'bg-gray-4 text-gray-2 cursor-not-allowed'
             }`}
