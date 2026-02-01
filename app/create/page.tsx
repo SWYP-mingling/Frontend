@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCreateMeeting } from '@/hooks/api/useMeeting';
 import type { MeetingCreateRequest } from '@/types/api';
+import { useToast } from '@/hooks/useToast';
+import Toast from '@/components/ui/toast';
 
 export default function Page() {
   const [meetingName, setMeetingName] = useState('');
@@ -15,8 +17,10 @@ export default function Page() {
   const [isParticipantUndecided, setIsParticipantUndecided] = useState(false);
   const [deadlineDays, setDeadlineDays] = useState(1);
   const [isDeadlineFlexible, setIsDeadlineFlexible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
   const createMeeting = useCreateMeeting();
+  const { isVisible, show } = useToast();
 
   const isFormValid = meetingName.length > 0 && !!meetingType;
 
@@ -114,7 +118,6 @@ export default function Page() {
 
   const handleGenerateMeeting = async () => {
     if (!isFormValid) {
-      alert('약속의 필수 요건을 만족시켜주세요.');
       return;
     }
 
@@ -140,19 +143,9 @@ export default function Page() {
       } else {
         router.push('/share');
       }
-    } catch (error) {
-      const apiError = error as Error & { status?: number; data?: unknown };
-      
-      if (apiError?.data) {
-        const errorMessage = typeof apiError.data === 'object'
-          ? JSON.stringify(apiError.data, null, 2)
-          : String(apiError.data);
-        alert(`모임 생성에 실패했습니다:\n${errorMessage}`);
-      } else if (apiError?.message) {
-        alert(`모임 생성에 실패했습니다: ${apiError.message}`);
-      } else {
-        alert('모임 생성에 실패했습니다. 다시 시도해주세요.');
-      }
+    } catch {
+      setErrorMessage('모임 생성에 실패했습니다. 다시 시도해주세요.');
+      show();
     }
   };
 
@@ -209,7 +202,7 @@ export default function Page() {
                   어떤 장소를 원하시나요? <span className="leading-[1.385]">(선택)</span>
                 </p>
                 <div className="flex w-full flex-col gap-2">
-                  {['스터디 카페', '장소 대여', '공공 서비스'].map((location) => {
+                  {['스터디 카페', '장소 대여'].map((location) => {
                     const isSelected = selectedLocation === location;
                     return (
                       <button
@@ -377,18 +370,21 @@ export default function Page() {
             </div>
           </div>
 
-          <button
-            type="button"
-            disabled={!isFormValid || createMeeting.isPending}
-            onClick={handleGenerateMeeting}
-            className={`h-12 w-full rounded-[4px] text-[16px] leading-[1.445] font-semibold tracking-[-0.0036px] transition-colors sm:text-[17px] md:text-[18px] ${
-              isFormValid && !createMeeting.isPending
-                ? 'bg-blue-5 hover:bg-blue-8 text-white'
-                : 'bg-gray-4 text-gray-2 cursor-not-allowed'
-            }`}
-          >
-            모임 만들기
-          </button>
+          <div className="relative w-full">
+            <button
+              type="button"
+              disabled={!isFormValid || createMeeting.isPending}
+              onClick={handleGenerateMeeting}
+              className={`h-12 w-full rounded-[4px] text-[16px] leading-[1.445] font-semibold tracking-[-0.0036px] transition-colors sm:text-[17px] md:text-[18px] ${
+                isFormValid && !createMeeting.isPending
+                  ? 'bg-blue-5 hover:bg-blue-8 text-white'
+                  : 'bg-gray-4 text-gray-2 cursor-not-allowed'
+              }`}
+            >
+              모임 만들기
+            </button>
+            <Toast message={errorMessage} isVisible={isVisible} />
+          </div>
         </div>
       </div>
     </div>
