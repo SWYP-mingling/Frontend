@@ -11,7 +11,7 @@ import type {
 export function useCreateMeeting() {
   return useMutation<MeetingCreateResponse, Error, MeetingCreateRequest>({
     mutationFn: async (data: MeetingCreateRequest) => {
-      return apiPost<MeetingCreateResponse>('/meeting', data);
+      return apiPost<MeetingCreateResponse>('/api/meeting', data);
     },
   });
 }
