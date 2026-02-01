@@ -9,6 +9,7 @@ export default function ShareClient({ meetingId }: { meetingId: string }) {
   const [shareUrl, setShareUrl] = useState('');
   const { isVisible, show } = useToast();
 
+  // 컴포넌트가 마운트되면 현재 도메인을 파악해 URL 생성
   useEffect(() => {
     if (typeof window !== 'undefined' && meetingId) {
       const origin = window.location.origin;
@@ -49,7 +50,7 @@ export default function ShareClient({ meetingId }: { meetingId: string }) {
           type="text"
           name="shareLink"
           aria-label="모임 공유 링크"
-          value={shareUrl} // [3] 동적으로 생성된 URL 바인딩
+          value={shareUrl} // 동적으로 생성된 URL 바인딩
           readOnly
           className="border-gray-1 grow rounded-l-sm border border-r-0 bg-white p-2.5 text-[15px] font-normal text-black focus:outline-none"
         />

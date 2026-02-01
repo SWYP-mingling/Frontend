@@ -69,7 +69,7 @@ const FeatureCard = ({ title, desc }: { title: string; desc: string }) => (
 // --- Sections ---
 
 const HeroSection = () => (
-  <section className="mx-[71.73px] mt-30 flex flex-col items-center justify-center md:px-[101px] lg:mx-42.5">
+  <section className="mx-[71.73px] mt-30 flex flex-col items-center justify-center md:px-[101px]">
     <div className="flex flex-col items-center">
       <h1 className="text-gray-8 max-w-[209px] text-center text-[28px] leading-[1.3] font-bold tracking-[-1.128px] break-keep md:max-w-full md:text-[40px]">
         모임 장소 선정, 출발역만 넣으면 끝!
