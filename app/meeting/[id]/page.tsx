@@ -25,7 +25,6 @@ export default function Page() {
   // 선택된 역 이름 상태 관리
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
   // 내 이름 관리 (로컬 스토리지에서 가져옴)
-  const [myName, setMyName] = useState<string>('');
 
   const params = useParams();
   const id = params?.id as string;
@@ -36,13 +35,10 @@ export default function Page() {
   // [API Hook] 모임 정보 조회 & 출발지 등록
   const { data: meetingData } = useCheckMeeting(id);
   const { mutate: setDeparture } = useSetDeparture(id);
-
-  // 1. 컴포넌트 마운트 시 내 이름 가져오기
-  useEffect(() => {
-    // 로그인/입장 페이지에서 저장했던 키값 사용 (userId 혹은 name)
-    const storedName = localStorage.getItem('userId') || sessionStorage.getItem('userId');
-    if (storedName) setMyName(storedName);
-  }, []);
+  const [myName, setMyName] = useState<string>(() => {
+       if (typeof window === 'undefined') return '';
+       return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
+     });
 
   // 2. 역 선택 시 실행될 로직 (상태 변경 + API 전송)
   const handleSelectStation = (stationName: string | null) => {
@@ -101,10 +97,10 @@ export default function Page() {
         status: 'done',
         hexColor: getRandomHexColor(id), // 다른 사람은 파란색 (혹은 랜덤)
       }));
-
+ 
     // 내가 선택했으면 [나, ...다른사람들], 아니면 [...다른사람들]
     return myParticipant ? [myParticipant, ...others] : others;
-  }, [meetingData, myParticipant, myName]);
+  }, [meetingData, myParticipant, myName, id]);
 
   const handleSubmit = () => {
     if (!selectedStation) {
