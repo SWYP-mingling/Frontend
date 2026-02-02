@@ -1,23 +1,54 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useState } from 'react';
+import { useParticipantEnter } from '@/hooks/api/useParticipant';
+import { useToast } from '@/hooks/useToast';
+import Toast from '@/components/ui/toast';
 
 export default function Page() {
+  const params = useParams();
+  const meetingId = params?.id as string;
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [isRemembered, setIsRemembered] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
+  const participantEnter = useParticipantEnter();
+  const { isVisible, show } = useToast();
 
   // 이름/비번 유효성 검사 (입력값이 있을 때만 버튼 활성화)
   const isFormValid = name.length > 0 && password.length === 4;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFormValid) return;
+    if (!isFormValid || !meetingId) return;
 
-    console.log('참여 요청:', { name, password, isRemembered });
-    router.push('/meeting');
+    try {
+      const result = await participantEnter.mutateAsync({
+        meetingId,
+        data: {
+          userId: name,
+          password,
+        },
+      });
+
+      if (result.success) {
+        if (isRemembered) {
+          localStorage.setItem('userId', name);
+        } else {
+          sessionStorage.setItem('userId', name);
+        }
+
+        router.push(`/meeting/${meetingId}`);
+      } else {
+        setErrorMessage('모임 참여에 실패했습니다. 다시 시도해주세요.');
+        show();
+      }
+    } catch {
+      setErrorMessage('모임 참여에 실패했습니다. 이름과 비밀번호를 확인해주세요.');
+      show();
+    }
   };
 
   return (
@@ -101,17 +132,20 @@ export default function Page() {
           </div>
         </div>
         {/* 하단 버튼 */}
-        <button
-          type="submit"
-          disabled={!isFormValid}
-          className={`text-gray-2 mt-6 h-12 w-full rounded-sm py-4 pt-3 pb-2.5 text-lg font-semibold transition-colors md:max-w-sm ${
-            isFormValid
-              ? 'hover:bg-blue-8 bg-blue-5' // 활성화 상태
-              : 'bg-gray-4 cursor-not-allowed' // 비활성화 상태
-          }`}
-        >
-          모임 참여하기
-        </button>
+        <div className="relative w-full md:max-w-sm">
+          <button
+            type="submit"
+            disabled={!isFormValid || participantEnter.isPending}
+            className={`text-gray-2 mt-6 h-12 w-full rounded-sm py-4 pt-3 pb-2.5 text-lg font-semibold transition-colors ${
+              isFormValid && !participantEnter.isPending
+                ? 'hover:bg-blue-8 bg-blue-5' // 활성화 상태
+                : 'bg-gray-4 cursor-not-allowed' // 비활성화 상태
+            }`}
+          >
+            모임 참여하기
+          </button>
+          <Toast message={errorMessage} isVisible={isVisible} />
+        </div>
       </form>
     </div>
   );

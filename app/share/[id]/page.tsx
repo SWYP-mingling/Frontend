@@ -83,7 +83,7 @@ export default function SharePage() {
       </div>
 
       <Link
-        href={`/meeting/${id}`}
+        href={`/join/${id}`}
         className="bg-blue-5 hover:bg-blue-8 h-12 w-full rounded-sm py-2.5 pt-3 text-center text-lg font-normal text-white transition-colors md:w-90"
       >
         내 출발지 등록하기

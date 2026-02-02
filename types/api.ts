@@ -21,3 +21,15 @@ export interface MeetingCreateData {
 
 // 모임 생성 API 조립 (ApiResponse에 MeetingCreateData를 담기)
 export type MeetingCreateResponse = ApiResponse<MeetingCreateData>;
+
+// 참여자 입장 API 요청 타입
+export interface ParticipantEnterRequest {
+  userId: string;
+  password: string;
+}
+
+// 참여자 입장 API 응답 데이터 타입 (데이터 없음, success만 확인)
+export type ParticipantEnterData = Record<string, never>;
+
+// 참여자 입장 API 조립
+export type ParticipantEnterResponse = ApiResponse<ParticipantEnterData>;
