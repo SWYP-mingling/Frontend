@@ -2,7 +2,7 @@
 
 import { useRouter, useParams } from 'next/navigation';
 import { useState } from 'react';
-import { useParticipantEnter } from '@/hooks/api/useParticipant';
+import { useEnterParticipant } from '@/hooks/api/mutation/useEnterParticipant';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
 
@@ -14,7 +14,7 @@ export default function Page() {
   const [isRemembered, setIsRemembered] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
-  const participantEnter = useParticipantEnter();
+  const participantEnter = useEnterParticipant();
   const { isVisible, show } = useToast();
 
   // 이름/비번 유효성 검사 (입력값이 있을 때만 버튼 활성화)
