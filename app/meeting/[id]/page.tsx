@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import KakaoMap from '@/components/map/kakaoMap';
 import StationSearch from '@/components/meeting/stationSearch';
@@ -35,7 +35,7 @@ export default function Page() {
   // [API Hook] 모임 정보 조회 & 출발지 등록
   const { data: meetingData } = useCheckMeeting(id);
   const { mutate: setDeparture } = useSetDeparture(id);
-  const [myName, setMyName] = useState<string>(() => {
+  const [myName] = useState<string>(() => {
        if (typeof window === 'undefined') return '';
        return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
      });
@@ -85,22 +85,25 @@ export default function Page() {
     const serverParticipants = meetingData?.data.participants || [];
 
     // 지도 표시용 포맷으로 변환
-    const others = serverParticipants
-      .filter((p) => p.userName !== myName) // 혹시 모를 중복 방지 (내 이름 제외)
-      .map((p, index) => ({
-        id: `other-${index}`,
-        name: p.userName,
-        station: p.stationName,
-        line: '2호선', // 서버에서 호선 정보가 없다면 임의값 혹은 추가 로직 필요
-        latitude: p.latitude,
-        longitude: p.longitude,
-        status: 'done',
-        hexColor: getRandomHexColor(id), // 다른 사람은 파란색 (혹은 랜덤)
-      }));
- 
+       const others = serverParticipants
+        .filter((p) => p.userName !== myName) // 혹시 모를 중복 방지 (내 이름 제외)
+        .map((p, index) => {
+           const stationInfo = STATION_DATA.find((s) => s.name === p.stationName);
+           return {
+            id: `other-${index}`,
+            name: p.userName,
+            station: p.stationName,
+            line: stationInfo?.line ?? '미확인',
+            latitude: p.latitude,
+            longitude: p.longitude,
+            status: 'done',
+            hexColor: getRandomHexColor(p.userName || p.stationName || `user-${index}`),
+           };
+        });
+
     // 내가 선택했으면 [나, ...다른사람들], 아니면 [...다른사람들]
     return myParticipant ? [myParticipant, ...others] : others;
-  }, [meetingData, myParticipant, myName, id]);
+  }, [meetingData, myParticipant, myName]); 
 
   const handleSubmit = () => {
     if (!selectedStation) {
