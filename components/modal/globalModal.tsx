@@ -7,7 +7,7 @@ import NudgeModal from '@/components/modal/nudgeModal';
 import TransferModal from './transferModal';
 
 export default function GlobalModal() {
-  const { type, isOpen, onClose } = useModalStore();
+  const { type, isOpen, onClose, data } = useModalStore();
 
   // 닫혀있거나 타입이 없으면 모달 X
   if (!isOpen || !type) return null;
@@ -17,9 +17,9 @@ export default function GlobalModal() {
     case 'FEEDBACK':
       return <FeedbackModal isOpen={isOpen} onClose={onClose} />;
     case 'SHARE':
-      return <ShareModal isOpen={isOpen} onClose={onClose} />;
+      return <ShareModal isOpen={isOpen} onClose={onClose} meetingId={data?.meetingId || ''} />;
     case 'NUDGE':
-      return <NudgeModal isOpen={isOpen} onClose={onClose} />;
+      return <NudgeModal isOpen={isOpen} onClose={onClose} meetingId={data?.meetingId || ''} />;
     case 'TRANSFER':
       return <TransferModal isOpen={isOpen} onClose={onClose} />;
     default:
