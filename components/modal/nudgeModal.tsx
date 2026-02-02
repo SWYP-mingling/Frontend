@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import Toast from '../ui/toast';
 import { useShareMeeting } from '@/hooks/api/query/useShareMeeting';
+import Image from 'next/image';
 
 interface NudgeModalProps {
   isOpen: boolean;
@@ -44,7 +45,14 @@ export default function NudgeModal({ isOpen, onClose, meetingId }: NudgeModalPro
         </DialogHeader>
 
         {/* 이미지 영역 */}
-        <div className="bg-gray-2 flex h-55.5 w-68 items-center justify-center rounded-2xl md:w-77.5"></div>
+        <div className="bg-gray-2 flex h-55.5 w-68 items-center justify-center rounded-2xl md:w-77.5">
+          <Image
+            src="/images/nudge_modal.jpg"
+            width={310}
+            height={222}
+            alt="모임 링크를 공유해주세요"
+          />
+        </div>
 
         {/* 주소창 복사 영역 */}
         <DialogFooter>

@@ -131,16 +131,20 @@ const PainPointsSection = () => (
     {/* Tooltip Slider */}
     <div className="flex w-full max-w-full flex-col items-center overflow-hidden">
       <TooltipProvider>
-        <div className="w-max overflow-hidden opacity-80 md:mt-[62px] md:mb-[62px]">
-          <div className="animate-slide-smooth flex items-center gap-7.5">
-            {PAIN_POINTS.map((text, index) => (
-              <PainPointTooltip key={`original-${index}`} text={text} />
-            ))}
-
-            {/* 두 번째 세트 (이어달리기용) */}
-            {PAIN_POINTS.map((text, index) => (
-              <PainPointTooltip key={`copy-${index}`} text={text} />
-            ))}
+        <div className="w-full overflow-hidden opacity-80 md:mt-[62px] md:mb-[62px]">
+          <div className="animate-slide-smooth hover:paused] flex w-max items-center will-change-transform">
+            {/* 첫 번째 세트 */}
+            <div className="flex shrink-0 gap-7.5 pr-7.5">
+              {PAIN_POINTS.map((text, index) => (
+                <PainPointTooltip key={`original-${index}`} text={text} />
+              ))}
+            </div>
+            {/* 두 번째 세트 */}
+            <div className="flex shrink-0 gap-7.5 pr-7.5">
+              {PAIN_POINTS.map((text, index) => (
+                <PainPointTooltip key={`copy-${index}`} text={text} />
+              ))}
+            </div>
           </div>
         </div>
       </TooltipProvider>

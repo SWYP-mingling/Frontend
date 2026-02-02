@@ -1,19 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import KakaoMap from '@/components/map/kakaoMap';
 import StationSearch from '@/components/meeting/stationSearch';
 import { useOpenModal } from '@/hooks/useOpenModal';
-import { MOCK_PARTICIPANTS } from '@/mock/mockData';
-import StationData from '@/database/stations_info.json';
 import { useParams, useRouter } from 'next/navigation';
+import { useSetDeparture } from '@/hooks/api/mutation/useSetDeparture';
+import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting'; // [추가] 조회 훅
+import StationDataRaw from '@/database/stations_info.json';
+import { getRandomHexColor } from '@/lib/color';
 
-const STATION_DATA = StationData;
+// 로컬 데이터 타입 정의
+interface StationInfo {
+  line: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
+const STATION_DATA = StationDataRaw as StationInfo[];
 
 export default function Page() {
   // 선택된 역 이름 상태 관리
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
+  // 내 이름 관리 (로컬 스토리지에서 가져옴)
 
   const params = useParams();
   const id = params?.id as string;
@@ -21,35 +32,86 @@ export default function Page() {
   const openModal = useOpenModal();
   const router = useRouter();
 
-  // 1. [좌표 찾기] 선택된 역 이름으로 MOCK 데이터에서 정보 찾기
-  const selectedStationInfo = STATION_DATA.find((station) => station.name === selectedStation);
+  // [API Hook] 모임 정보 조회 & 출발지 등록
+  const { data: meetingData } = useCheckMeeting(id);
+  const { mutate: setDeparture } = useSetDeparture(id);
+  const [myName] = useState<string>(() => {
+       if (typeof window === 'undefined') return '';
+       return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
+     });
 
-  // 2. [내 참가자 객체 생성] 선택된 역이 있을 때만 생성
-  const myParticipant = selectedStation
-    ? {
-        id: 'me', // 고유 ID (문자열)
-        name: '나',
-        station: selectedStation,
-        line: '2호선',
-        // 정보가 없으면 서울시청 좌표를 기본값으로 사용 (예외 처리)
-        latitude: selectedStationInfo?.latitude || 37.5665,
-        longitude: selectedStationInfo?.longitude || 126.978,
-        status: 'done',
-        hexColor: '#000000',
-      }
-    : null;
+  // 2. 역 선택 시 실행될 로직 (상태 변경 + API 전송)
+  const handleSelectStation = (stationName: string | null) => {
+    // 화면 UI 즉시 업데이트
+    setSelectedStation(stationName);
 
-  // 3. [최종 리스트 병합] 내가 있으면 맨 앞에 추가, 없으면 기존 리스트만 사용
-  const allParticipants = myParticipant ? [myParticipant, ...MOCK_PARTICIPANTS] : MOCK_PARTICIPANTS;
+    if (!stationName) return;
+
+    const stationInfo = STATION_DATA.find((s) => s.name === stationName);
+
+    if (stationInfo) {
+      // API 전송 (백엔드 스펙: { departure: "역이름" })
+      setDeparture({
+        departure: stationInfo.name,
+      });
+    } else {
+      console.error('역 정보를 찾을 수 없습니다.');
+    }
+  };
+
+  // 3. '나' 객체 생성 (로컬 데이터 기반 즉시 반영)
+  const myParticipant = useMemo(() => {
+    if (!selectedStation) return null;
+
+    // 로컬 JSON에서 좌표 즉시 조회 (API 응답 대기 X -> 속도 UP)
+    const info = STATION_DATA.find((s) => s.name === selectedStation);
+    if (!info) return null;
+
+    return {
+      id: 'me',
+      name: myName || '나', // 로컬 스토리지 이름 사용
+      station: info.name,
+      line: info.line,
+      latitude: info.latitude,
+      longitude: info.longitude,
+      status: 'done',
+      hexColor: '#000000', // 나는 검정색 고정
+    };
+  }, [selectedStation, myName]);
+
+  // 4. [최종 리스트 병합] 서버 데이터(남) + 로컬 데이터(나)
+  const allParticipants = useMemo(() => {
+    // 서버에서 받은 '이미 등록한 참가자들'
+    const serverParticipants = meetingData?.data.participants || [];
+
+    // 지도 표시용 포맷으로 변환
+       const others = serverParticipants
+        .filter((p) => p.userName !== myName) // 혹시 모를 중복 방지 (내 이름 제외)
+        .map((p, index) => {
+           const stationInfo = STATION_DATA.find((s) => s.name === p.stationName);
+           return {
+            id: `other-${index}`,
+            name: p.userName,
+            station: p.stationName,
+            line: stationInfo?.line ?? '미확인',
+            latitude: p.latitude,
+            longitude: p.longitude,
+            status: 'done',
+            hexColor: getRandomHexColor(p.userName || p.stationName || `user-${index}`),
+           };
+        });
+
+    // 내가 선택했으면 [나, ...다른사람들], 아니면 [...다른사람들]
+    return myParticipant ? [myParticipant, ...others] : others;
+  }, [meetingData, myParticipant, myName]); 
 
   const handleSubmit = () => {
     if (!selectedStation) {
-      alert('출발지를 선택해주세요!');
+      alert('출발지를 먼저 선택해주세요!');
       return;
     }
-
-    console.log('결과 요청:', allParticipants);
-    router.push('/result');
+    // 결과 페이지로 이동
+    router.push(`/result/${id}`);
   };
 
   return (
@@ -64,10 +126,12 @@ export default function Page() {
                 <h2 className="text-gray-9">
                   투표 마감 시간
                   <br />
+                  {/* 마감 시간은 API 데이터가 있으면 그것을 활용하거나 기존대로 유지 */}
                   <span className="text-blue-5">03: 45</span> 남았습니다
                 </h2>
                 <p className="text-gray-5 mt-2 text-[15px] font-normal">
-                  아직 입력 안 한 모임원 2명
+                  {/* API 데이터로 '안 한 사람' 수 계산 */}
+                  아직 입력 안 한 모임원 {meetingData?.data.pendingParticipantCount ?? 0}명
                 </p>
               </div>
               <button
@@ -81,7 +145,7 @@ export default function Page() {
             </div>
           </div>
 
-          {/* 모바일 전용 지도 영역: allParticipants 전달 */}
+          {/* 모바일 전용 지도 영역 */}
           <KakaoMap
             className="bg-gray-1 relative block aspect-video h-93.5 md:hidden"
             participants={allParticipants}
@@ -91,7 +155,7 @@ export default function Page() {
           <StationSearch
             stations={STATION_DATA}
             selectedStation={selectedStation}
-            onSelect={setSelectedStation}
+            onSelect={handleSelectStation}
           />
 
           <div className="bg-gray-1 relative h-1 w-full md:hidden"></div>
@@ -102,8 +166,11 @@ export default function Page() {
             <div className="flex items-center justify-between bg-white">
               <h3 className="text-gray-9 text-xl font-semibold">참여현황</h3>
               <span className="text-gray-6 text-normal text-xs">
-                {/* 전체 인원 수 동적 반영 */}
-                <span className="text-blue-5">{allParticipants.length}명</span>이 참여 중
+                {/* 전체 인원 수 동적 반영 (API) */}
+                <span className="text-blue-5">
+                  {meetingData?.data.totalParticipantCount ?? 0}명
+                </span>
+                이 참여 중
               </span>
             </div>
 
@@ -120,7 +187,12 @@ export default function Page() {
                   재촉하기
                 </span>
               </div>
-              <div className="bg-gray-3 h-13 w-14"></div>
+              <Image
+                src="/images/nudge_meeting.png"
+                width={84}
+                height={52}
+                alt="아직 입력하지 않은 친구 재촉하기"
+              />
             </button>
 
             {/* 출발지 컴포넌트: 리스트 렌더링 */}
@@ -130,7 +202,7 @@ export default function Page() {
                   <div
                     key={user.id}
                     className={`flex h-17 shrink-0 items-center justify-between rounded border bg-white px-5 ${
-                      // 내가 선택한 경우, 강조하기
+                      // 내가 선택한 경우, 강조하기 (ID가 'me'이거나 이름이 내 이름일 때)
                       user.id === 'me' ? 'border-blue-5' : 'border-gray-2'
                     }`}
                   >
@@ -142,12 +214,13 @@ export default function Page() {
                       >
                         {user.name}
                       </div>
-                      <span className="text-gray-8 text-[15px]">안가연</span>
+                      <span className="text-gray-8 text-[15px]">{user.name}</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+
             <button
               onClick={handleSubmit}
               className="bg-gray-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg text-white md:right-0 md:left-0"
@@ -157,7 +230,7 @@ export default function Page() {
           </div>
         </section>
 
-        {/* [RIGHT PANEL] 데스크탑 전용 지도 영역: allParticipants 전달 */}
+        {/* [RIGHT PANEL] 데스크탑 전용 지도 영역 */}
         <section className="bg-gray-1 hidden h-full flex-1 md:block">
           <KakaoMap className="h-full w-full" participants={allParticipants} />
         </section>

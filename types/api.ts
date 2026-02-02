@@ -5,6 +5,14 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+// 모임 URL 조회 요청 타입
+export interface MeetingLinkData {
+  meetingUrl: string;
+}
+
+// 모임 URL 조회 API 조립
+export type MeetingLinkResponse = ApiResponse<MeetingLinkData>;
+
 // 모임 생성 API 요청 타입
 export interface MeetingCreateRequest {
   meetingName: string;
@@ -33,3 +41,27 @@ export type ParticipantEnterData = Record<string, never>;
 
 // 참여자 입장 API 조립
 export type ParticipantEnterResponse = ApiResponse<ParticipantEnterData>;
+
+// 출발지 등록 API 응답 데이터 타입
+export interface SetDepartureData {
+  userName: string;
+  stationName: string;
+  latitude: number;
+  longitude: number;
+}
+
+// 출발지 등록 API 조립
+export type SetDepartureResponse = ApiResponse<SetDepartureData>;
+
+// 모임 참여 현황 조회 API 응답 데이터 타입
+export interface MeetingStatusData {
+  totalParticipantCount: number;
+  currentParticipantCount: number;
+  pendingParticipantCount: number;
+  deadlineAt: string;
+  // 출발지 등록한 참여자 리스트
+  participants: SetDepartureData[];
+}
+
+// 모임 참여 현황 조회 API 조립
+export type MeetingStatusResponse = ApiResponse<MeetingStatusData>;

@@ -4,6 +4,7 @@ import { notFound, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Toast from '@/components/ui/toast';
 import { useShareMeeting } from '@/hooks/api/query/useShareMeeting';
+import Image from 'next/image';
 
 export default function SharePage() {
   const params = useParams();
@@ -22,11 +23,13 @@ export default function SharePage() {
         링크를 공유해주세요
       </h2>
 
-      <section className="mb-9 flex h-70 w-80 max-w-sm items-center justify-center rounded-2xl bg-gray-200 md:w-90">
-        <div className="text-gray-10 text-center font-semibold">
-          <p className="text-lg">이미지</p>
-          <p className="text-lg">(빵빠레~)</p>
-        </div>
+      <section className="mb-9 flex h-70 w-80 max-w-sm items-center justify-center rounded-2xl md:w-90">
+        <Image
+          src="/images/create_meeting.jpg"
+          width={360}
+          height={257}
+          alt="모임이 만들어졌어요"
+        />
       </section>
 
       <div className="relative z-10 mb-9 flex w-full rounded-sm md:w-90">

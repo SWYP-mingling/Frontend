@@ -4,10 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { apiGet } from '@/lib/api';
 import { useToast } from '@/hooks/useToast';
 import { useSyncExternalStore } from 'react';
+import { MeetingLinkResponse } from '@/types/api';
 
 // API Fetcher
 const fetchMeetingResult = async (id: string) => {
-  return apiGet(`${process.env.NEXT_PUBLIC_API_BASE_URL}/meeting/result/${id}`);
+  return apiGet<MeetingLinkResponse>(`/api/meeting/result/${id}`);
 };
 
 // (URL origin은 변하지 않으므로 구독 함수는 빈 함수가 된다.)
