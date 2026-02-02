@@ -1,54 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { notFound, useParams, useRouter } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Toast from '@/components/ui/toast';
-import { useToast } from '@/hooks/useToast';
-import { apiGet } from '@/lib/api';
+import { useShareMeeting } from '@/hooks/api/query/useShareMeeting';
 
 export default function SharePage() {
   const params = useParams();
   const id = params?.id as string;
-  const router = useRouter();
-  const { isVisible, show } = useToast();
 
-  const [shareUrl, setShareUrl] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-
-  useEffect(() => {
-    if (!id) return;
-
-    const checkMeeting = async () => {
-      try {
-        // 모임이 존재하는지 확인
-        await apiGet(`${process.env.NEXT_PUBLIC_API_BASE_URL}/meeting/result/${id}`);
-
-        // 존재하면 URL 생성 (window 객체 사용 가능)
-        setShareUrl(`${window.location.origin}/meeting/${id}`);
-        setLoading(false);
-      } catch (error) {
-        console.error('실패:', error);
-        setIsError(true);
-      }
-    };
-
-    checkMeeting();
-  }, [id, router]);
-
-  const handleCopyLink = async () => {
-    if (!shareUrl) return;
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      show();
-    } catch (error) {
-      alert('복사 실패');
-    }
-  };
+  const { shareUrl, isError, isLoading, handleCopyLink, isVisible } = useShareMeeting(id);
 
   if (isError) notFound();
-  if (loading) return null;
+  if (isLoading) return null;
 
   return (
     <div className="flex flex-col items-center justify-center bg-white px-5 py-10 md:py-25">
@@ -83,7 +47,7 @@ export default function SharePage() {
       </div>
 
       <Link
-        href={`/meeting/${id}`}
+        href={`/join/${id}`}
         className="bg-blue-5 hover:bg-blue-8 h-12 w-full rounded-sm py-2.5 pt-3 text-center text-lg font-normal text-white transition-colors md:w-90"
       >
         내 출발지 등록하기
