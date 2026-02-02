@@ -1,8 +1,12 @@
 import { create } from 'zustand';
 import { combine, devtools } from 'zustand/middleware';
 
-// 관리할 모달의 종류 정의 (피드백남기기, 링크 공유하기, 재촉하기, 환승경로 보기)
+// 관리할 모달의 종류 정의
 export type ModalType = 'FEEDBACK' | 'SHARE' | 'NUDGE' | 'TRANSFER';
+
+export interface ModalData {
+  meetingId?: string; // SHARE, NUDGE 모달에서 사용
+}
 
 export const useModalStore = create(
   devtools(
@@ -10,13 +14,14 @@ export const useModalStore = create(
       {
         type: null as ModalType | null,
         isOpen: false,
+        data: null as ModalData | null,
       },
       (set) => ({
-        onOpen: (type: ModalType) => {
-          set({ isOpen: true, type });
+        onOpen: (type: ModalType, data?: ModalData) => {
+          set({ isOpen: true, type, data });
         },
         onClose: () => {
-          set({ isOpen: false });
+          set({ isOpen: false, data: null });
         },
       })
     ),

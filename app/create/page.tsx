@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useCreateMeeting } from '@/hooks/api/useMeeting';
+import { useCreateMeeting } from '@/hooks/api/mutation/useCreateMeeting';
 import type { MeetingCreateRequest } from '@/types/api';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
@@ -167,7 +167,7 @@ export default function Page() {
               value={meetingName}
               onChange={(e) => setMeetingName(e.target.value)}
               placeholder="플레이스 홀더"
-              className="border-gray-2 placeholder:text-gray-3 w-full rounded-[4px] border px-3 py-2 text-[15px] leading-[1.6] tracking-[0.144px] focus:outline-none"
+              className="border-gray-2 placeholder:text-gray-3 w-full rounded border px-3 py-2 text-[15px] leading-[1.6] tracking-[0.144px] focus:outline-none"
             />
           </div>
 
@@ -183,7 +183,7 @@ export default function Page() {
                   setMeetingType('회의');
                   setSelectedSocialPlace(null);
                 }}
-                className={`flex-1 rounded-[4px] py-2.5 text-[15px] leading-[1.6] tracking-[0.144px] transition-colors sm:py-2 ${
+                className={`flex-1 rounded py-2.5 text-[15px] leading-[1.6] tracking-[0.144px] transition-colors sm:py-2 ${
                   meetingType === '회의'
                     ? 'bg-blue-5 text-white'
                     : 'bg-gray-1 text-gray-7 hover:bg-gray-2'
@@ -197,7 +197,7 @@ export default function Page() {
                   setMeetingType('친목');
                   setSelectedLocation(null);
                 }}
-                className={`flex-1 rounded-[4px] py-2.5 text-[15px] leading-[1.6] tracking-[0.144px] transition-colors sm:py-2 ${
+                className={`flex-1 rounded py-2.5 text-[15px] leading-[1.6] tracking-[0.144px] transition-colors sm:py-2 ${
                   meetingType === '친목'
                     ? 'bg-blue-5 text-white'
                     : 'bg-gray-1 text-gray-7 hover:bg-gray-2'
@@ -220,7 +220,7 @@ export default function Page() {
                         key={location}
                         type="button"
                         onClick={() => setSelectedLocation(isSelected ? null : location)}
-                        className={`flex h-[43px] w-full items-center gap-[14px] rounded-[4px] border px-3 py-1 transition-colors ${
+                        className={`flex h-10.75 w-full items-center gap-3.5 rounded border px-3 py-1 transition-colors ${
                           isSelected
                             ? 'border-gray-1 bg-white'
                             : 'border-gray-1 hover:bg-gray-1 bg-white'
@@ -260,7 +260,7 @@ export default function Page() {
                         key={place}
                         type="button"
                         onClick={() => setSelectedSocialPlace(isSelected ? null : place)}
-                        className={`flex h-[43px] w-full items-center gap-[14px] rounded-[4px] border px-3 py-1 transition-colors ${
+                        className={`flex h-10.75 w-full items-center gap-3.5 rounded border px-3 py-1 transition-colors ${
                           isSelected
                             ? 'border-gray-1 bg-white'
                             : 'border-gray-1 hover:bg-gray-1 bg-white'
@@ -292,16 +292,16 @@ export default function Page() {
             <label className="text-gray-9 text-[14px] leading-[1.571] font-semibold tracking-[0.203px] sm:text-[15px] md:text-[14px]">
               참여 인원을 알려주세요.
             </label>
-            <div className="border-gray-2 relative flex h-[44px] items-center rounded-[4px] border bg-white">
+            <div className="border-gray-2 relative flex h-11 items-center rounded border bg-white">
               <button
                 type="button"
                 onClick={handleDecreaseParticipants}
                 disabled={isParticipantUndecided || participantCount === 2}
-                className="bg-gray-1 absolute -top-px -left-px flex h-[44px] w-[44px] items-center justify-center rounded-tl-[4px] rounded-bl-[4px] disabled:opacity-50 sm:h-[44px] sm:w-[44px]"
+                className="bg-gray-1 absolute -top-px -left-px flex h-11 w-11 items-center justify-center rounded-tl-lg rounded-bl-lg disabled:opacity-50 sm:h-11 sm:w-11"
               >
                 <Image src="/icon/minus.svg" alt="minus" width={20} height={20} />
               </button>
-              <div className="text-gray-8 absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-[2px] text-[15px] leading-[1.6] tracking-[0.144px]">
+              <div className="text-gray-8 absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 text-[15px] leading-[1.6] tracking-[0.144px]">
                 <span>{participantCount}</span>
                 <span>명</span>
               </div>
@@ -309,16 +309,16 @@ export default function Page() {
                 type="button"
                 onClick={handleIncreaseParticipants}
                 disabled={isParticipantUndecided}
-                className="bg-gray-1 absolute -top-px -right-px flex h-[44px] w-[44px] items-center justify-center rounded-tr-[4px] rounded-br-[4px] disabled:opacity-50 sm:h-[44px] sm:w-[44px]"
+                className="bg-gray-1 absolute -top-px -right-px flex h-11 w-11 items-center justify-center rounded-tr-lg rounded-br-lg disabled:opacity-50 sm:h-11 sm:w-11"
               >
                 <Image src="/icon/plus.svg" alt="plus" width={20} height={20} />
               </button>
             </div>
-            <div className="flex items-center gap-[10px]">
+            <div className="flex items-center gap-2.5">
               <button
                 type="button"
                 onClick={handleParticipantCheckbox}
-                className={`flex h-5 w-5 items-center justify-center rounded-[4px] transition-colors ${
+                className={`flex h-5 w-5 items-center justify-center rounded transition-colors ${
                   isParticipantUndecided ? 'bg-blue-5' : 'bg-gray-3'
                 }`}
               >
@@ -336,12 +336,12 @@ export default function Page() {
             <label className="text-gray-9 text-[14px] leading-[1.571] font-semibold tracking-[0.203px] sm:text-[15px] md:text-[14px]">
               참여 기한을 정해주세요.
             </label>
-            <div className="border-gray-2 relative flex h-[60px] items-center rounded-[4px] border bg-white">
+            <div className="border-gray-2 relative flex h-15 items-center rounded border bg-white">
               <button
                 type="button"
                 onClick={handleDecreaseDeadline}
                 disabled={isDeadlineFlexible || deadlineDays === 1}
-                className="bg-gray-1 absolute -top-px -left-px flex h-[60px] w-[44px] items-center justify-center rounded-tl-[4px] rounded-bl-[4px] disabled:opacity-50 sm:h-[60px] sm:w-[44px]"
+                className="bg-gray-1 absolute -top-px -left-px flex h-15 w-11 items-center justify-center rounded-tl-lg rounded-bl-lg disabled:opacity-50 sm:h-15 sm:w-11"
               >
                 <Image src="/icon/minus.svg" alt="minus" width={20} height={20} />
               </button>
@@ -349,7 +349,7 @@ export default function Page() {
                 <span className="text-blue-5 text-[12px] leading-[1.334] tracking-[0.3024px]">
                   {getDeadlineDate()}
                 </span>
-                <div className="text-gray-8 flex items-center gap-[2px] text-[15px] leading-[1.6] tracking-[0.144px]">
+                <div className="text-gray-8 flex items-center gap-0.5 text-[15px] leading-[1.6] tracking-[0.144px]">
                   <span>{deadlineDays}</span>
                   <span>일</span>
                 </div>
@@ -358,16 +358,16 @@ export default function Page() {
                 type="button"
                 onClick={handleIncreaseDeadline}
                 disabled={isDeadlineFlexible}
-                className="bg-gray-1 absolute -top-px -right-px flex h-[60px] w-[44px] items-center justify-center rounded-tr-[4px] rounded-br-[4px] disabled:opacity-50 sm:h-[60px] sm:w-[44px]"
+                className="bg-gray-1 absolute -top-px -right-px flex h-15 w-11 items-center justify-center rounded-tr-lg rounded-br-lg disabled:opacity-50 sm:h-15 sm:w-11"
               >
                 <Image src="/icon/plus.svg" alt="plus" width={20} height={20} />
               </button>
             </div>
-            <div className="flex items-center gap-[10px]">
+            <div className="flex items-center gap-2.5">
               <button
                 type="button"
                 onClick={handleDeadlineCheckbox}
-                className={`flex h-5 w-5 items-center justify-center rounded-[4px] border transition-colors ${
+                className={`flex h-5 w-5 items-center justify-center rounded border transition-colors ${
                   isDeadlineFlexible ? 'bg-blue-5' : 'bg-gray-3'
                 }`}
               >
@@ -386,7 +386,7 @@ export default function Page() {
               type="button"
               disabled={!isFormValid || createMeeting.isPending}
               onClick={handleGenerateMeeting}
-              className={`h-12 w-full rounded-[4px] text-[16px] leading-[1.445] font-semibold tracking-[-0.0036px] transition-colors sm:text-[17px] md:text-[18px] ${
+              className={`h-12 w-full rounded text-[16px] leading-[1.445] font-semibold tracking-[-0.0036px] transition-colors sm:text-[17px] md:text-[18px] ${
                 isFormValid && !createMeeting.isPending
                   ? 'bg-blue-5 hover:bg-blue-8 text-white'
                   : 'bg-gray-4 text-gray-2 cursor-not-allowed'

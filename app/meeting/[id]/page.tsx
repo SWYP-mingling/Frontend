@@ -7,14 +7,17 @@ import StationSearch from '@/components/meeting/stationSearch';
 import { useOpenModal } from '@/hooks/useOpenModal';
 import { MOCK_PARTICIPANTS } from '@/mock/mockData';
 import StationData from '@/database/stations_info.json';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 const STATION_DATA = StationData;
 
 export default function Page() {
   // 선택된 역 이름 상태 관리
-
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
+
+  const params = useParams();
+  const id = params?.id as string;
+
   const openModal = useOpenModal();
   const router = useRouter();
 
@@ -70,7 +73,7 @@ export default function Page() {
               <button
                 className="text-blue-5 bg-blue-1 hover:bg-blue-2 flex h-6 w-30 cursor-pointer items-center gap-0.5 rounded px-3 py-1.5 text-[11px] font-semibold transition-colors"
                 type="button"
-                onClick={(e) => openModal('SHARE', e)}
+                onClick={(e) => openModal('SHARE', { meetingId: id }, e)}
               >
                 <Image src="/icon/share.svg" alt="공유 아이콘" width={12} height={12} />
                 참여 링크 공유하기
@@ -108,7 +111,7 @@ export default function Page() {
             <button
               type="button"
               className="bg-blue-5 hover:bg-blue-8 flex h-21 w-full cursor-pointer items-center justify-between rounded p-4 text-left text-white transition-transform active:scale-[0.98]"
-              onClick={(e) => openModal('NUDGE', e)}
+              onClick={(e) => openModal('NUDGE', { meetingId: id }, e)}
             >
               <div className="flex flex-col gap-0.5">
                 <span className="text-lg leading-[1.44] font-semibold">

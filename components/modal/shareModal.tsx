@@ -8,28 +8,23 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
-import { useToast } from '@/hooks/useToast';
 import Toast from '../ui/toast';
+import { useShareMeeting } from '@/hooks/api/query/useShareMeeting';
 
 interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
+  meetingId: string;
 }
 
-export default function ShareModal({ isOpen, onClose }: ShareModalProps) {
-  const [link, setLink] = useState('www.abcabc');
-  const { isVisible, show } = useToast();
+export default function ShareModal({ isOpen, onClose, meetingId }: ShareModalProps) {
+  const { shareUrl, isError, isLoading, handleCopyLink, isVisible } = useShareMeeting(meetingId);
 
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(link);
-      show();
-    } catch (error) {
-      console.error('복사 실패: ', error);
-      alert('복사에 실패했습니다. 링크를 직접 복사해주세요.');
-    }
-  };
+  const displayValue = isError
+    ? '유효하지 않은 모임입니다.'
+    : isLoading
+      ? '링크 생성 중...'
+      : shareUrl;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -59,13 +54,15 @@ export default function ShareModal({ isOpen, onClose }: ShareModalProps) {
               type="text"
               name="shareLink"
               aria-label="모임 공유 링크"
-              value={link}
+              value={displayValue}
               readOnly
+              disabled={isLoading || isError}
               className="border-gray-1 grow rounded-l-sm border border-r-0 bg-white p-2.5 text-[15px] font-normal text-black focus:outline-none"
             />
             <button
               type="button"
               onClick={handleCopyLink}
+              disabled={isLoading || isError || !shareUrl}
               className="bg-gray-1 text-gray-6 border-gray-1 hover:bg-gray-2 cursor-pointer rounded-r-sm border px-3.5 py-3 text-sm font-semibold whitespace-nowrap transition-colors"
             >
               복사
