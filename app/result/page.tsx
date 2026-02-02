@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useOpenModal } from '@/hooks/useOpenModal';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import KakaoMapLine from '@/components/map/kakaoMapLine';
 import { MOCK_LOCATION_RESULTS } from '@/mock/mockData';
 
 export default function Page() {
   const openModal = useOpenModal();
   const router = useRouter();
+  const params = useParams();
+  const id = params?.id as string;
 
   // 현재 선택된 결과 카드 관리 (기본값: 첫 번째)
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
@@ -47,7 +49,7 @@ export default function Page() {
               <button
                 className="text-blue-5 bg-blue-1 hover:bg-blue-2 flex h-7 cursor-pointer items-center gap-1 rounded px-2.5 text-[11px] font-semibold transition-colors"
                 type="button"
-                onClick={(e) => openModal('SHARE', e)}
+                onClick={(e) => openModal('SHARE', { meetingId: id }, e)}
               >
                 <Image src="/icon/share.svg" alt="공유 아이콘" width={12} height={12} />
                 결과 공유하기
@@ -117,7 +119,7 @@ export default function Page() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        openModal('TRANSFER', e);
+                        openModal('TRANSFER', undefined, e);
                       }}
                       className="bg-gray-8 h-8 w-full cursor-pointer rounded py-1 text-[15px] font-normal text-white"
                     >

@@ -19,7 +19,7 @@ const Header = () => {
           </Link>
           <button
             type="button"
-            onClick={(e) => openModal('FEEDBACK', e)}
+            onClick={(e) => openModal('FEEDBACK', undefined, e)}
             className="text-gray-5 p-2 text-[16px] transition-colors hover:text-gray-900"
           >
             피드백남기기

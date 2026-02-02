@@ -29,7 +29,7 @@ const Footer = () => {
               </Link>
               <button
                 type="button"
-                onClick={(e) => openModal('FEEDBACK', e)}
+                onClick={(e) => openModal('FEEDBACK', undefined, e)}
                 className="text-gray-7 cursor-pointer text-[16px]"
               >
                 피드백남기기
