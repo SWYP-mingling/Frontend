@@ -132,7 +132,7 @@ const PainPointsSection = () => (
     <div className="flex w-full max-w-full flex-col items-center overflow-hidden">
       <TooltipProvider>
         <div className="w-full overflow-hidden opacity-80 md:mt-[62px] md:mb-[62px]">
-          <div className="animate-slide-smooth flex w-max items-center will-change-transform hover:[animation-play-state:paused]">
+          <div className="animate-slide-smooth hover:paused] flex w-max items-center will-change-transform">
             {/* 첫 번째 세트 */}
             <div className="flex shrink-0 gap-7.5 pr-7.5">
               {PAIN_POINTS.map((text, index) => (
