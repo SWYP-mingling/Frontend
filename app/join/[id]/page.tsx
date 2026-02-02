@@ -36,8 +36,10 @@ export default function Page() {
       if (result.success) {
         if (isRemembered) {
           localStorage.setItem('userId', name);
+          sessionStorage.removeItem('userId');
         } else {
           sessionStorage.setItem('userId', name);
+          localStorage.removeItem('userId');
         }
 
         router.push(`/meeting/${meetingId}`);
