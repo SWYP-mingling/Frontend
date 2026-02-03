@@ -166,7 +166,7 @@ export default function Page() {
               type="text"
               value={meetingName}
               onChange={(e) => setMeetingName(e.target.value)}
-              placeholder="플레이스 홀더"
+              placeholder="최대 20자 이내로 입력해주세요"
               className="border-gray-2 placeholder:text-gray-3 w-full rounded border px-3 py-2 text-[15px] leading-[1.6] tracking-[0.144px] focus:outline-none"
             />
           </div>
@@ -301,8 +301,8 @@ export default function Page() {
               >
                 <Image src="/icon/minus.svg" alt="minus" width={20} height={20} />
               </button>
-              <div className="text-gray-8 absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 text-[15px] leading-[1.6] tracking-[0.144px]">
-                <span>{participantCount}</span>
+              <div className={`absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 text-[15px] leading-[1.6] tracking-[0.144px] ${isParticipantUndecided ? 'text-gray-3' : 'text-gray-8'}`}>
+                <span>{participantCount}</span> 
                 <span>명</span>
               </div>
               <button
@@ -346,10 +346,10 @@ export default function Page() {
                 <Image src="/icon/minus.svg" alt="minus" width={20} height={20} />
               </button>
               <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-                <span className="text-blue-5 text-[12px] leading-[1.334] tracking-[0.3024px]">
+                <span className={`text-[12px] leading-[1.334] tracking-[0.3024px] ${isDeadlineFlexible ? 'text-gray-3' : 'text-blue-5'}`}>
                   {getDeadlineDate()}
                 </span>
-                <div className="text-gray-8 flex items-center gap-0.5 text-[15px] leading-[1.6] tracking-[0.144px]">
+                <div className={`flex items-center gap-0.5 text-[15px] leading-[1.6] tracking-[0.144px] ${isDeadlineFlexible ? 'text-gray-3' : 'text-gray-8'}`}>
                   <span>{deadlineDays}</span>
                   <span>일</span>
                 </div>
