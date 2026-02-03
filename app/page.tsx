@@ -25,15 +25,18 @@ const PAIN_POINTS = [
 const FEATURES = [
   {
     title: '참석자별 이동시간 계산',
-    desc: '출발지에서 후보 장소까지 이동시간을 일일이 확인하기',
+    desc: '출발지에서 후보 장소까지  ',
+    desc2: '이동시간을 일일이 확인하기',
   },
   {
     title: '적합한 위치 탐색',
-    desc: '위치가 중간인 것보다 중요한건 공평함인데!',
+    desc: '위치가 중간인 것보다 ',
+    desc2: '중요한건 공평함인데!',
   },
   {
     title: '모임 목적에 맞는 공간은?',
-    desc: '장소만 중간이면 안돼. 먹을 것, 놀거리가 있어야 해!',
+    desc: '장소만 중간이면 안돼.',
+    desc2: '먹을 것, 놀거리가 있어야 해!',
   },
 ];
 
@@ -53,14 +56,17 @@ const PainPointTooltip = ({ text }: { text: string }) => (
 );
 
 // 2. 반복되는 특징 카드 컴포넌트
-const FeatureCard = ({ title, desc }: { title: string; desc: string }) => (
-  <div className="border-gray-2 flex h-[236px] w-full max-w-[247px] flex-col items-center justify-center gap-7.75 rounded-[20px] border-2 bg-white px-5 md:max-w-[247px] lg:max-w-[280px]">
+const FeatureCard = ({ title, desc, desc2 }: { title: string; desc: string; desc2: string }) => (
+  <div className="border-gray-2 flex h-[236px]  flex-col items-center justify-center gap-7.75 rounded-[20px] border-2 bg-white  w-[247px] lg:w-[280px]">
     <h3 className="text-gray-10 text-center text-[22px] leading-[1.364] font-semibold tracking-[-0.4268px]">
       {title}
     </h3>
     <div className="flex flex-col items-center gap-0">
       <p className="text-gray-9 text-center text-[16px] leading-[1.625] font-normal tracking-[0.0912px]">
         {desc}
+      </p>
+      <p className="text-gray-9 text-center text-[16px] leading-[1.625] font-normal tracking-[0.0912px]">
+        {desc2}
       </p>
     </div>
   </div>
@@ -76,7 +82,10 @@ const HeroSection = () => (
       </h1>
       <div className="mt-4 flex flex-col items-center">
         <p className="text-gray-5 max-w-[240px] text-center text-[16px] leading-[1.364] font-semibold tracking-[-0.4268px] break-keep md:max-w-[530px] md:text-[22px]">
-          참석자들이 지하철 출발역을 입력하면, 이동시간과 편차를 분석해 서울 내 최적의 번화가를
+          참석자들이 지하철 출발역을 입력하면, 
+        </p>
+        <p className="text-gray-5 max-w-[240px] text-center text-[16px] leading-[1.364] font-semibold tracking-[-0.4268px] break-keep md:max-w-[530px] md:text-[22px]">
+          이동시간과 편차를 분석해 서울 내 최적의 번화가를
           추천합니다
         </p>
       </div>
@@ -153,7 +162,7 @@ const PainPointsSection = () => (
     {/* Feature Cards */}
     <div className="mb-[72px] flex flex-col items-center justify-center gap-2.5 px-5 md:flex-row md:px-0">
       {FEATURES.map((feature, index) => (
-        <FeatureCard key={index} title={feature.title} desc={feature.desc} />
+        <FeatureCard key={index} title={feature.title} desc={feature.desc} desc2={feature.desc2} />
       ))}
     </div>
 
