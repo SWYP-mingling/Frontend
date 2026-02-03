@@ -65,3 +65,19 @@ export interface MeetingStatusData {
 
 // 모임 참여 현황 조회 API 조립
 export type MeetingStatusResponse = ApiResponse<MeetingStatusData>;
+
+// 중간지점 조회 API 응답 데이터 타입
+export interface MidpointData {
+  name: string;
+  latitude: number;
+  longitude: number;
+  avgTravelTime: number;
+  transferPath: string;
+}
+
+export interface MidpointResponseData {
+  midpoints: MidpointData[];
+}
+
+// 중간지점 조회 API 조립
+export type MidpointResponse = ApiResponse<MidpointResponseData>;

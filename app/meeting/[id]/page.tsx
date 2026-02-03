@@ -8,9 +8,12 @@ import { useOpenModal } from '@/hooks/useOpenModal';
 import { useParams, useRouter } from 'next/navigation';
 import { useSetDeparture } from '@/hooks/api/mutation/useSetDeparture';
 import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting'; // [추가] 조회 훅
+import { useMidpoint } from '@/hooks/api/query/useMidpoint';
 import StationDataRaw from '@/database/stations_info.json';
 import { getRandomHexColor } from '@/lib/color';
 import MeetingInfoSection from '@/components/meeting/MeetingInfoSection';
+import { useToast } from '@/hooks/useToast';
+import Toast from '@/components/ui/toast';
 
 // 로컬 데이터 타입 정의
 interface StationInfo {
@@ -36,6 +39,9 @@ export default function Page() {
   // [API Hook] 모임 정보 조회 & 출발지 등록
   const { data: meetingData } = useCheckMeeting(id);
   const { mutate: setDeparture } = useSetDeparture(id);
+  const { refetch: fetchMidpoint } = useMidpoint(id);
+  const { isVisible, show } = useToast();
+  const [errorMessage, setErrorMessage] = useState('');
   const [myName] = useState<string>(() => {
     if (typeof window === 'undefined') return '';
     return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
@@ -111,13 +117,27 @@ export default function Page() {
     return myParticipant ? [myParticipant, ...others] : others;
   }, [meetingData, myParticipant, myName]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedStation) {
-      alert('출발지를 먼저 선택해주세요!');
+      setErrorMessage('출발지를 먼저 선택해주세요!');
+      show();
       return;
     }
-    // 결과 페이지로 이동
-    router.push(`/result/${id}`);
+
+    try {
+      // 중간지점 조회 API 호출
+      const result = await fetchMidpoint();
+      if (result.data?.success) {
+        // 결과 페이지로 이동
+        router.push(`/result/${id}`);
+      } else {
+        setErrorMessage('중간지점 조회에 실패했습니다. 다시 시도해주세요.');
+        show();
+      }
+    } catch {
+      setErrorMessage('중간지점 조회에 실패했습니다. 다시 시도해주세요.');
+      show();
+    }
   };
 
   return (
@@ -212,10 +232,11 @@ export default function Page() {
 
             <button
               onClick={handleSubmit}
-              className="bg-gray-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg text-white md:right-0 md:left-0"
+              className="bg-gray-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg text-white md:right-0 md:left-0 cursor-pointer"
             >
               결과보기
             </button>
+            <Toast message={errorMessage} isVisible={isVisible} />
           </div>
         </section>
 
