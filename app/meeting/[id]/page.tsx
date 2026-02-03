@@ -10,6 +10,7 @@ import { useSetDeparture } from '@/hooks/api/mutation/useSetDeparture';
 import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting'; // [추가] 조회 훅
 import StationDataRaw from '@/database/stations_info.json';
 import { getRandomHexColor } from '@/lib/color';
+import MeetingInfoSection from '@/components/meeting/MeetingInfoSection';
 
 // 로컬 데이터 타입 정의
 interface StationInfo {
@@ -36,9 +37,14 @@ export default function Page() {
   const { data: meetingData } = useCheckMeeting(id);
   const { mutate: setDeparture } = useSetDeparture(id);
   const [myName] = useState<string>(() => {
-       if (typeof window === 'undefined') return '';
-       return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
-     });
+    if (typeof window === 'undefined') return '';
+    return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
+  });
+
+  const handleShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // 'SHARE' 타입의 모달을 열면서 meetingId를 전달
+    openModal('SHARE', { meetingId: id }, e);
+  };
 
   // 2. 역 선택 시 실행될 로직 (상태 변경 + API 전송)
   const handleSelectStation = (stationName: string | null) => {
@@ -85,25 +91,25 @@ export default function Page() {
     const serverParticipants = meetingData?.data.participants || [];
 
     // 지도 표시용 포맷으로 변환
-       const others = serverParticipants
-        .filter((p) => p.userName !== myName) // 혹시 모를 중복 방지 (내 이름 제외)
-        .map((p, index) => {
-           const stationInfo = STATION_DATA.find((s) => s.name === p.stationName);
-           return {
-            id: `other-${index}`,
-            name: p.userName,
-            station: p.stationName,
-            line: stationInfo?.line ?? '미확인',
-            latitude: p.latitude,
-            longitude: p.longitude,
-            status: 'done',
-            hexColor: getRandomHexColor(p.userName || p.stationName || `user-${index}`),
-           };
-        });
+    const others = serverParticipants
+      .filter((p) => p.userName !== myName) // 혹시 모를 중복 방지 (내 이름 제외)
+      .map((p, index) => {
+        const stationInfo = STATION_DATA.find((s) => s.name === p.stationName);
+        return {
+          id: `other-${index}`,
+          name: p.userName,
+          station: p.stationName,
+          line: stationInfo?.line ?? '미확인',
+          latitude: p.latitude,
+          longitude: p.longitude,
+          status: 'done',
+          hexColor: getRandomHexColor(p.userName || p.stationName || `user-${index}`),
+        };
+      });
 
     // 내가 선택했으면 [나, ...다른사람들], 아니면 [...다른사람들]
     return myParticipant ? [myParticipant, ...others] : others;
-  }, [meetingData, myParticipant, myName]); 
+  }, [meetingData, myParticipant, myName]);
 
   const handleSubmit = () => {
     if (!selectedStation) {
@@ -119,31 +125,16 @@ export default function Page() {
       <div className="flex h-full w-full flex-col bg-white md:h-175 md:w-174 md:flex-row md:gap-4 md:rounded-xl lg:w-215">
         {/* [LEFT PANEL] 데스크탑 전용 정보 영역 */}
         <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5 md:gap-10">
-          {/* 타이머 섹션 */}
-          <div className="px-5 pt-10 md:p-0">
-            <div className="flex items-start justify-between">
-              <div className="text-[22px] leading-[1.364] font-semibold tracking-[-1.948%]">
-                <h2 className="text-gray-9">
-                  투표 마감 시간
-                  <br />
-                  {/* 마감 시간은 API 데이터가 있으면 그것을 활용하거나 기존대로 유지 */}
-                  <span className="text-blue-5">03: 45</span> 남았습니다
-                </h2>
-                <p className="text-gray-5 mt-2 text-[15px] font-normal">
-                  {/* API 데이터로 '안 한 사람' 수 계산 */}
-                  아직 입력 안 한 모임원 {meetingData?.data.pendingParticipantCount ?? 0}명
-                </p>
-              </div>
-              <button
-                className="text-blue-5 bg-blue-1 hover:bg-blue-2 flex h-6 w-30 cursor-pointer items-center gap-0.5 rounded px-3 py-1.5 text-[11px] font-semibold transition-colors"
-                type="button"
-                onClick={(e) => openModal('SHARE', { meetingId: id }, e)}
-              >
-                <Image src="/icon/share.svg" alt="공유 아이콘" width={12} height={12} />
-                참여 링크 공유하기
-              </button>
-            </div>
-          </div>
+          {meetingData?.data && (
+            <MeetingInfoSection
+              deadline={meetingData.data.deadlineAt} // "2026-01-23T18:00:00"
+              totalCapacity={meetingData.data.totalParticipantCount} // 10
+              currentParticipants={meetingData.data.currentParticipantCount} // 2
+              isDeadlineFlexible={false}
+              isParticipantUndecided={false}
+              onShare={handleShareClick}
+            />
+          )}
 
           {/* 모바일 전용 지도 영역 */}
           <KakaoMap
@@ -167,10 +158,8 @@ export default function Page() {
               <h3 className="text-gray-9 text-xl font-semibold">참여현황</h3>
               <span className="text-gray-6 text-normal text-xs">
                 {/* 전체 인원 수 동적 반영 (API) */}
-                <span className="text-blue-5">
-                  {meetingData?.data.totalParticipantCount ?? 0}명
-                </span>
-                이 참여 중
+                <span className="text-blue-5">{meetingData?.data.currentParticipantCount}명</span>이
+                참여 중
               </span>
             </div>
 
