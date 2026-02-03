@@ -2,19 +2,31 @@
 
 import { useState, useEffect } from 'react';
 
+// 커스텀 이벤트로 로그인 상태 변경 알림
+export const notifyLoginStateChange = () => {
+  window.dispatchEvent(new Event('loginStateChange'));
+};
+
 export const useIsLoggedIn = () => {
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(() => {
+    // 초기값을 lazy initialization으로 설정
+    if (typeof window !== 'undefined') {
+      return document.cookie.includes('accessToken');
+    }
+    return false;
+  });
 
   useEffect(() => {
-    // 1. 쿠키에서 확인하는 경우 (가장 추천, 아까 쿠키 세팅 하셨으니까요!)
-    // 'accessToken'이나 'JSESSIONID' 등 실제 사용하는 쿠키 이름이 포함되어 있는지 확인
-    const hasCookie = document.cookie.includes('accessToken');
+    const checkLoginState = () => {
+      setIsLogin(document.cookie.includes('accessToken'));
+    };
 
-    // 2. 혹은 로컬스토리지/세션스토리지에서 확인하는 경우
-    // const hasToken = !!localStorage.getItem('accessToken');
-    // const hasSession = !!sessionStorage.getItem('accessToken');
+    // 커스텀 이벤트 리스너 등록
+    window.addEventListener('loginStateChange', checkLoginState);
 
-    setIsLogin(hasCookie); // 조건에 따라 true/false 설정
+    return () => {
+      window.removeEventListener('loginStateChange', checkLoginState);
+    };
   }, []);
 
   return isLogin;
