@@ -41,7 +41,7 @@ export default function Page() {
   };
 
   const handleIncreaseParticipants = () => {
-    if (!isParticipantUndecided) {
+    if (!isParticipantUndecided && participantCount < 10) {
       setParticipantCount((prev) => prev + 1);
     }
   };
@@ -53,7 +53,7 @@ export default function Page() {
   };
 
   const handleIncreaseDeadline = () => {
-    if (!isDeadlineFlexible) {
+    if (!isDeadlineFlexible && deadlineDays < 180) {
       setDeadlineDays((prev) => prev + 1);
     }
   };
@@ -124,7 +124,7 @@ export default function Page() {
     const purposes = getPurposes();
 
     // capacity 처리: "아직 안정해졌어요" 체크 시 30으로 설정
-    const capacity = isParticipantUndecided ? 30 : participantCount || 1;
+    const capacity = isParticipantUndecided ? 10 : participantCount || 1;
 
     const requestData: MeetingCreateRequest = {
       meetingName,
@@ -308,7 +308,7 @@ export default function Page() {
               <button
                 type="button"
                 onClick={handleIncreaseParticipants}
-                disabled={isParticipantUndecided}
+                disabled={isParticipantUndecided || participantCount >= 10}
                 className="bg-gray-1 absolute -top-px -right-px flex h-11 w-11 items-center justify-center rounded-tr-lg rounded-br-lg disabled:opacity-50 sm:h-11 sm:w-11"
               >
                 <Image src="/icon/plus.svg" alt="plus" width={20} height={20} />
@@ -357,7 +357,7 @@ export default function Page() {
               <button
                 type="button"
                 onClick={handleIncreaseDeadline}
-                disabled={isDeadlineFlexible}
+                disabled={isDeadlineFlexible || deadlineDays >= 180}
                 className="bg-gray-1 absolute -top-px -right-px flex h-15 w-11 items-center justify-center rounded-tr-lg rounded-br-lg disabled:opacity-50 sm:h-15 sm:w-11"
               >
                 <Image src="/icon/plus.svg" alt="plus" width={20} height={20} />
