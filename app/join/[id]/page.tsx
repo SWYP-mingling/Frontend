@@ -5,15 +5,14 @@ import { useState, useEffect } from 'react';
 import { useEnterParticipant } from '@/hooks/api/mutation/useEnterParticipant';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
-import { useIsLoggedIn } from '@/hooks/useIsLoggedIn'; // [1] 훅 임포트
+import { useIsLoggedIn } from '@/hooks/useIsLoggedIn';
 
 export default function Page() {
   const params = useParams();
   const meetingId = params?.id as string;
   const router = useRouter();
 
-  // [2] 로그인 상태 확인
-  const isLogin = useIsLoggedIn();
+  const { isLogin, isChecking } = useIsLoggedIn(); // ⭐ 객체 구조분해로 변경
 
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -23,24 +22,38 @@ export default function Page() {
   const participantEnter = useEnterParticipant();
   const { isVisible, show } = useToast();
 
-  // [3] 이미 로그인된 유저라면 -> 모임 현황 페이지로 강제 납치 (Redirect)
+  // 로그인 상태 확인 및 리다이렉트
   useEffect(() => {
-    // isLogin이 true이고, 모임 ID가 있을 때만 이동
-    if (isLogin && meetingId) {
-      // replace: 뒤로가기 방지
-      router.replace(`/meeting/${meetingId}`);
-    }
-  }, [isLogin, meetingId, router]);
+    if (!isChecking && isLogin && meetingId) {
+      // ⭐ 출발지 입력 여부 확인
+      const checkDeparture = async () => {
+        try {
+          const response = await fetch(`/api/meeting/${meetingId}/status`, {
+            credentials: 'include',
+          });
+          const data = await response.json();
 
-  // [중요] 렌더링 방지 로직 위치 변경
-  // useEffect가 실행되기 전에 화면이 그려지는 것을 막기 위해
-  // 훅 아래, return 문 바로 위에서 처리
-  if (isLogin) {
-    // 깜빡임 방지를 위해 빈 화면 혹은 로딩 스피너 반환
+          // 출발지가 이미 입력되어 있으면 result 페이지로
+          // 출발지가 없으면 meeting 페이지로
+          if (data.hasDeparture) {
+            router.replace(`/result/${meetingId}`);
+          } else {
+            router.replace(`/meeting/${meetingId}`);
+          }
+        } catch (error) {
+          router.replace(`/meeting/${meetingId}`);
+        }
+      };
+
+      checkDeparture();
+    }
+  }, [isChecking, isLogin, meetingId, router]);
+
+  // 확인 중이거나 로그인된 상태면 로딩 화면
+  if (isChecking || isLogin) {
     return <div className="flex h-screen items-center justify-center bg-white"></div>;
   }
 
-  // 이름/비번 유효성 검사
   const isFormValid = name.length > 0 && password.length === 4;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,8 +70,6 @@ export default function Page() {
       });
 
       if (result.success) {
-        // [4] 사용자의 선택에 따라 스토리지에 이름 저장
-        // (API 응답 헤더의 Set-Cookie로 토큰이 세팅되면 useIsLoggedIn이 true가 됨)
         if (isRemembered) {
           localStorage.setItem('userId', name);
         } else {
@@ -78,13 +89,11 @@ export default function Page() {
 
   return (
     <div className="flex flex-col items-center justify-center gap-11 bg-white px-5 py-10 md:min-h-[calc(100vh-200px)] md:justify-center">
-      {/* 타이틀 */}
       <h1 className="w-full text-[22px] font-semibold text-black md:max-w-sm">
         모임에 참여해 주세요.
       </h1>
 
       <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5 md:max-w-sm">
-        {/* 이름 입력 */}
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className="text-gray-9 text-sm font-semibold">
             이름을 입력해주세요.
@@ -100,7 +109,6 @@ export default function Page() {
           />
         </div>
 
-        {/* 비밀번호 입력 */}
         <div className="flex flex-col gap-2">
           <label htmlFor="password" className="text-gray-9 text-sm font-semibold">
             비밀번호를 입력해주세요
@@ -118,12 +126,10 @@ export default function Page() {
             className={`border-gray-2 placeholder:text-gray-3 text-gray-10 focus:border-blue-5 w-full rounded-sm border py-2 pl-3 text-center text-[15px] focus:bg-white focus:outline-none ${password ? 'pl-0 text-center' : 'pl-3 text-left'}`}
           />
 
-          {/* 체크박스 */}
           <div
             onClick={() => setIsRemembered(!isRemembered)}
             className="flex cursor-pointer items-center gap-2"
           >
-            {/* 체크 아이콘 박스 */}
             <div
               className={`flex h-5 w-5 items-center justify-center rounded border transition-colors ${
                 !isRemembered
@@ -157,15 +163,14 @@ export default function Page() {
           </div>
         </div>
 
-        {/* 하단 버튼 */}
         <div className="relative w-full md:max-w-sm">
           <button
             type="submit"
             disabled={!isFormValid || participantEnter.isPending}
             className={`text-gray-2 mt-6 h-12 w-full rounded-sm py-4 pt-3 pb-2.5 text-lg font-semibold transition-colors ${
               isFormValid && !participantEnter.isPending
-                ? 'hover:bg-blue-8 bg-blue-5' // 활성화 상태
-                : 'bg-gray-4 cursor-not-allowed' // 비활성화 상태
+                ? 'hover:bg-blue-8 bg-blue-5'
+                : 'bg-gray-4 cursor-not-allowed'
             }`}
           >
             모임 참여하기

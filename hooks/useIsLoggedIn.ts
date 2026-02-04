@@ -1,33 +1,47 @@
+// hooks/useIsLoggedIn.ts
 'use client';
 
 import { useState, useEffect } from 'react';
 
-// 커스텀 이벤트로 로그인 상태 변경 알림
 export const notifyLoginStateChange = () => {
   window.dispatchEvent(new Event('loginStateChange'));
 };
-
 export const useIsLoggedIn = () => {
-  const [isLogin, setIsLogin] = useState(() => {
-    // 초기값을 lazy initialization으로 설정
-    if (typeof window !== 'undefined') {
-      return document.cookie.includes('accessToken');
-    }
-    return false;
-  });
+  const [isLogin, setIsLogin] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const checkLoginState = () => {
-      setIsLogin(document.cookie.includes('accessToken'));
+    const checkLoginState = async () => {
+      try {
+        const pathParts = window.location.pathname.split('/');
+        const meetingId = pathParts[pathParts.length - 1];
+
+        if (!meetingId) {
+          setIsLogin(false);
+          setIsChecking(false);
+          return;
+        }
+
+        // ⭐ 이 API가 현재 모임에 대한 세션을 확인해야 함
+        const response = await fetch(`/api/meeting/${meetingId}/status`, {
+          credentials: 'include',
+        });
+
+        setIsLogin(response.ok);
+      } catch (error) {
+        setIsLogin(false);
+      } finally {
+        setIsChecking(false);
+      }
     };
 
-    // 커스텀 이벤트 리스너 등록
-    window.addEventListener('loginStateChange', checkLoginState);
+    checkLoginState();
 
+    window.addEventListener('loginStateChange', checkLoginState);
     return () => {
       window.removeEventListener('loginStateChange', checkLoginState);
     };
   }, []);
 
-  return isLogin;
+  return { isLogin, isChecking };
 };
