@@ -1,23 +1,46 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useEnterParticipant } from '@/hooks/api/mutation/useEnterParticipant';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
+import { useIsLoggedIn } from '@/hooks/useIsLoggedIn'; // [1] 훅 임포트
 
 export default function Page() {
   const params = useParams();
   const meetingId = params?.id as string;
+  const router = useRouter();
+
+  // [2] 로그인 상태 확인
+  const isLogin = useIsLoggedIn();
+
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [isRemembered, setIsRemembered] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
-  const router = useRouter();
+
   const participantEnter = useEnterParticipant();
   const { isVisible, show } = useToast();
 
-  // 이름/비번 유효성 검사 (입력값이 있을 때만 버튼 활성화)
+  // [3] 이미 로그인된 유저라면 -> 모임 현황 페이지로 강제 납치 (Redirect)
+  useEffect(() => {
+    // isLogin이 true이고, 모임 ID가 있을 때만 이동
+    if (isLogin && meetingId) {
+      // replace: 뒤로가기 방지
+      router.replace(`/meeting/${meetingId}`);
+    }
+  }, [isLogin, meetingId, router]);
+
+  // [중요] 렌더링 방지 로직 위치 변경
+  // useEffect가 실행되기 전에 화면이 그려지는 것을 막기 위해
+  // 훅 아래, return 문 바로 위에서 처리
+  if (isLogin) {
+    // 깜빡임 방지를 위해 빈 화면 혹은 로딩 스피너 반환
+    return <div className="flex h-screen items-center justify-center bg-white"></div>;
+  }
+
+  // 이름/비번 유효성 검사
   const isFormValid = name.length > 0 && password.length === 4;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,6 +57,8 @@ export default function Page() {
       });
 
       if (result.success) {
+        // [4] 사용자의 선택에 따라 스토리지에 이름 저장
+        // (API 응답 헤더의 Set-Cookie로 토큰이 세팅되면 useIsLoggedIn이 true가 됨)
         if (isRemembered) {
           localStorage.setItem('userId', name);
         } else {
@@ -86,13 +111,13 @@ export default function Page() {
             inputMode="numeric"
             value={password}
             onChange={(e) => {
-              // 4자리 숫자만 입력받도록 처리하기
               const val = e.target.value.replace(/[^0-9]/g, '');
               if (val.length <= 4) setPassword(val);
             }}
             placeholder="숫자 4자리를 입력해주세요"
             className={`border-gray-2 placeholder:text-gray-3 text-gray-10 focus:border-blue-5 w-full rounded-sm border py-2 pl-3 text-center text-[15px] focus:bg-white focus:outline-none ${password ? 'pl-0 text-center' : 'pl-3 text-left'}`}
           />
+
           {/* 체크박스 */}
           <div
             onClick={() => setIsRemembered(!isRemembered)}
@@ -102,10 +127,10 @@ export default function Page() {
             <div
               className={`flex h-5 w-5 items-center justify-center rounded border transition-colors ${
                 !isRemembered
-                  ? 'border-gray-300 bg-white' // 1. 체크가 안 된 경우
+                  ? 'border-gray-300 bg-white'
                   : isFormValid
-                    ? 'border-blue-500 bg-blue-500' // 2. 체크가 됐고, 이름/비번을 제대로 입력한 경우
-                    : 'border-gray-300 bg-gray-300' // 3. 체크가 됐으나, 입력이 제대로 안 된 경우
+                    ? 'border-blue-500 bg-blue-500'
+                    : 'border-gray-300 bg-gray-300'
               }`}
             >
               {isRemembered && (
@@ -131,6 +156,7 @@ export default function Page() {
             </span>
           </div>
         </div>
+
         {/* 하단 버튼 */}
         <div className="relative w-full md:max-w-sm">
           <button
