@@ -6,33 +6,18 @@ import { useState, useEffect } from 'react';
 export const notifyLoginStateChange = () => {
   window.dispatchEvent(new Event('loginStateChange'));
 };
+
 export const useIsLoggedIn = () => {
   const [isLogin, setIsLogin] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const checkLoginState = async () => {
-      try {
-        const pathParts = window.location.pathname.split('/');
-        const meetingId = pathParts[pathParts.length - 1];
+    const checkLoginState = () => {
+      // ⭐ 단순히 스토리지에 userId가 있는지만 확인
+      const hasUserId = !!(localStorage.getItem('userId') || sessionStorage.getItem('userId'));
 
-        if (!meetingId) {
-          setIsLogin(false);
-          setIsChecking(false);
-          return;
-        }
-
-        // ⭐ 이 API가 현재 모임에 대한 세션을 확인해야 함
-        const response = await fetch(`/api/meeting/${meetingId}/status`, {
-          credentials: 'include',
-        });
-
-        setIsLogin(response.ok);
-      } catch (error) {
-        setIsLogin(false);
-      } finally {
-        setIsChecking(false);
-      }
+      setIsLogin(hasUserId);
+      setIsChecking(false);
     };
 
     checkLoginState();

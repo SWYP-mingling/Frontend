@@ -20,20 +20,27 @@ interface KakaoMapProps {
 }
 
 export default function KakaoMap({ className, participants = [] }: KakaoMapProps) {
-  // 지도 객체를 담을 state (범위 재설정용)
+  // 지도 객체를 담을 state
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
 
-  // [핵심 로직] 참가자 목록이 변경되면 지도의 범위(Bounds)를 재설정
+  // [핵심 로직] 지도 범위(Bounds) 재설정
   useEffect(() => {
-    if (!map || participants.length === 0) return;
+    // 1. 지도 객체가 없거나, 참가자가 없거나, 카카오 SDK가 없으면 중단
+    if (!map || participants.length === 0 || !window.kakao || !window.kakao.maps) return;
 
-    const bounds = new kakao.maps.LatLngBounds();
-    participants.forEach((person) => {
-      bounds.extend(new kakao.maps.LatLng(person.latitude, person.longitude));
+    // 2. [중요] kakao.maps.load() 콜백 안에서 로직 실행
+    // 이 함수가 "LatLngBounds is not a constructor" 에러를 막아줍니다.
+    window.kakao.maps.load(() => {
+      const bounds = new window.kakao.maps.LatLngBounds();
+
+      participants.forEach((person) => {
+        bounds.extend(new window.kakao.maps.LatLng(person.latitude, person.longitude));
+      });
+
+      // 모든 참가자가 보이도록 지도 범위 조정 (padding 값을 주어 여백 확보 가능)
+      // 예: map.setBounds(bounds, 100, 50, 50, 50);
+      map.setBounds(bounds);
     });
-
-    // 모든 참가자가 보이도록 지도 범위 조정 (여백 포함)
-    map.setBounds(bounds);
   }, [map, participants]);
 
   return (

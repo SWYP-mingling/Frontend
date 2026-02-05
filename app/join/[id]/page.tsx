@@ -12,7 +12,7 @@ export default function Page() {
   const meetingId = params?.id as string;
   const router = useRouter();
 
-  const { isLogin, isChecking } = useIsLoggedIn(); // ⭐ 객체 구조분해로 변경
+  const { isLogin, isChecking } = useIsLoggedIn(); // meetingId 전달 안 함
 
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -22,36 +22,23 @@ export default function Page() {
   const participantEnter = useEnterParticipant();
   const { isVisible, show } = useToast();
 
-  // 로그인 상태 확인 및 리다이렉트
   useEffect(() => {
-    if (!isChecking && isLogin && meetingId) {
-      // ⭐ 출발지 입력 여부 확인
-      const checkDeparture = async () => {
-        try {
-          const response = await fetch(`/api/meeting/${meetingId}/status`, {
-            credentials: 'include',
-          });
-          const data = await response.json();
+    if (isChecking) return;
 
-          // 출발지가 이미 입력되어 있으면 result 페이지로
-          // 출발지가 없으면 meeting 페이지로
-          if (data.hasDeparture) {
-            router.replace(`/result/${meetingId}`);
-          } else {
-            router.replace(`/meeting/${meetingId}`);
-          }
-        } catch (error) {
-          router.replace(`/meeting/${meetingId}`);
-        }
-      };
-
-      checkDeparture();
+    // ⭐ 스토리지에 userId가 있으면 /meeting으로 보냄
+    // (실제 세션 유효성은 meeting 페이지에서 확인)
+    if (isLogin && meetingId) {
+      router.replace(`/meeting/${meetingId}`);
     }
   }, [isChecking, isLogin, meetingId, router]);
 
-  // 확인 중이거나 로그인된 상태면 로딩 화면
   if (isChecking || isLogin) {
-    return <div className="flex h-screen items-center justify-center bg-white"></div>;
+    return (
+      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-white">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" />
+        <p className="text-sm font-medium text-gray-500">로그인 정보를 확인 중...</p>
+      </div>
+    );
   }
 
   const isFormValid = name.length > 0 && password.length === 4;

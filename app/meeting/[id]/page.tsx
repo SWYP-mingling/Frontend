@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react'; // ⭐ useEffect 추가
+import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import KakaoMap from '@/components/map/kakaoMap';
 import StationSearch from '@/components/meeting/stationSearch';
@@ -30,26 +30,41 @@ export default function Page() {
   const openModal = useOpenModal();
   const router = useRouter();
 
-  const { data: meetingData } = useCheckMeeting(id);
-  const { mutate: setDeparture } = useSetDeparture(id);
-
   const [myName] = useState<string>(() => {
     if (typeof window === 'undefined') return '';
     return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
   });
 
-  // ⭐ API에서 받은 내 출발지 정보를 selectedStation에 반영
+  // ⭐ 로그인 정보 없으면 join으로 리다이렉트
   useEffect(() => {
-    if (meetingData?.data?.participants && myName) {
-      // 서버에서 받은 참가자 중 내 정보 찾기
-      const myData = meetingData.data.participants.find((p) => p.userName === myName);
-
-      // 내가 이미 출발지를 등록했다면 selectedStation에 반영
-      if (myData?.stationName && !selectedStation) {
-        setSelectedStation(myData.stationName);
-      }
+    if (!myName && id) {
+      console.log('❌ 로그인 정보 없음 - /join으로 리다이렉트');
+      router.replace(`/join/${id}`);
     }
-  }, [meetingData, myName, selectedStation]);
+  }, [myName, id, router]);
+
+  // ⭐ API 호출
+  const { data: meetingData, error } = useCheckMeeting(id);
+  const { mutate: setDeparture } = useSetDeparture(id);
+
+  // ⭐ API 에러 처리 (세션 만료 시)
+  useEffect(() => {
+    if (error) {
+      console.error('세션 만료 또는 권한 없음:', error);
+      localStorage.removeItem('userId');
+      sessionStorage.removeItem('userId');
+      router.replace(`/join/${id}`);
+    }
+  }, [error, id, router]);
+
+  // ⭐ 로그인 정보 없으면 로딩 화면 표시
+  if (!myName) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" />
+      </div>
+    );
+  }
 
   const handleShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     openModal('SHARE', { meetingId: id }, e);
@@ -70,6 +85,17 @@ export default function Page() {
       console.error('역 정보를 찾을 수 없습니다.');
     }
   };
+
+  // ⭐ API에서 받은 내 출발지 정보를 selectedStation에 반영
+  useEffect(() => {
+    if (meetingData?.data?.participants && myName) {
+      const myData = meetingData.data.participants.find((p) => p.userName === myName);
+
+      if (myData?.stationName && !selectedStation) {
+        setSelectedStation(myData.stationName);
+      }
+    }
+  }, [meetingData, myName, selectedStation]);
 
   const myParticipant = useMemo(() => {
     if (!selectedStation) return null;
@@ -125,9 +151,9 @@ export default function Page() {
         <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5 md:gap-10">
           {meetingData?.data && (
             <MeetingInfoSection
-              deadline={meetingData.data.deadlineAt} // "2026-01-23T18:00:00"
-              totalCapacity={meetingData.data.totalParticipantCount} // 10
-              currentParticipants={meetingData.data.currentParticipantCount} // 2
+              deadline={meetingData.data.deadlineAt}
+              totalCapacity={meetingData.data.totalParticipantCount}
+              currentParticipants={meetingData.data.currentParticipantCount}
               isDeadlineFlexible={false}
               isParticipantUndecided={false}
               onShare={handleShareClick}
