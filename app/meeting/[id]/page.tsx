@@ -8,7 +8,6 @@ import { useOpenModal } from '@/hooks/useOpenModal';
 import { useParams, useRouter } from 'next/navigation';
 import { useSetDeparture } from '@/hooks/api/mutation/useSetDeparture';
 import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting'; // [추가] 조회 훅
-import { useMidpoint } from '@/hooks/api/query/useMidpoint';
 import StationDataRaw from '@/database/stations_info.json';
 import { getRandomHexColor } from '@/lib/color';
 import MeetingInfoSection from '@/components/meeting/MeetingInfoSection';
@@ -39,7 +38,6 @@ export default function Page() {
   // [API Hook] 모임 정보 조회 & 출발지 등록
   const { data: meetingData } = useCheckMeeting(id);
   const { mutate: setDeparture } = useSetDeparture(id);
-  const { refetch: fetchMidpoint } = useMidpoint(id);
   const { isVisible, show } = useToast();
   const [errorMessage, setErrorMessage] = useState('');
   const [myName] = useState<string>(() => {
@@ -117,27 +115,15 @@ export default function Page() {
     return myParticipant ? [myParticipant, ...others] : others;
   }, [meetingData, myParticipant, myName]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!selectedStation) {
       setErrorMessage('출발지를 먼저 선택해주세요!');
       show();
       return;
     }
 
-    try {
-      // 중간지점 조회 API 호출
-      const result = await fetchMidpoint();
-      if (result.data?.success) {
-        // 결과 페이지로 이동
-        router.push(`/result/${id}`);
-      } else {
-        setErrorMessage('중간지점 조회에 실패했습니다. 다시 시도해주세요.');
-        show();
-      }
-    } catch {
-      setErrorMessage('중간지점 조회에 실패했습니다. 다시 시도해주세요.');
-      show();
-    }
+    // 결과 페이지로 이동
+    router.push(`/result/${id}`);
   };
 
   return (
