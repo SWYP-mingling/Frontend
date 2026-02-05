@@ -207,7 +207,7 @@ export default function Page() {
                         className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-normal text-white"
                         style={{ backgroundColor: `${user.hexColor}` }}
                       >
-                        {user.name}
+                        {user.name.charAt(0)}
                       </div>
                       <span className="text-gray-8 text-[15px]">{user.name}</span>
                     </div>
