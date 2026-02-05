@@ -68,41 +68,36 @@ export type MeetingStatusResponse = ApiResponse<MeetingStatusData>;
 
 // 중간지점 조회 API 응답 데이터 타입
 export interface MidpointData {
-  data: {
-    endStation: string;
-    endStationLine: string;
+  endStation: string;
+  endStationLine: string;
+  latitude: number;
+  longitude: number;
+  userRoutes: {
+    nickname: string;
+    startStation: string;
+    startStationLine: string;
     latitude: number;
     longitude: number;
-    userRoutes: {
-      nickname: string;
-      startStation: string;
-      startStationLine: string;
+    travelTime: number;
+    transferPath: {
+      linenumber: string;
+      station: string;
       latitude: number;
       longitude: number;
-      travelTime: number;
-      transferPath: {
-        linenumber: string;
-        station: string;
-        latitude: number;
-        longitude: number;
-      }[];
-      stations: {
-        linenumber: string;
-        station: string;
-        latitude: number;
-        longitude: number;
-      }[];
     }[];
-  };
+    stations: {
+      linenumber: string;
+      station: string;
+      latitude: number;
+      longitude: number;
+    }[];
+  }[];
 }
 
 
 
         
         
-export interface MidpointResponseData {
-  midpoints: MidpointData[];
-}
-
 // 중간지점 조회 API 조립
-export type MidpointResponse = ApiResponse<MidpointResponseData>;
+// 실제 응답: { success: true, data: MidpointData[] }
+export type MidpointResponse = ApiResponse<MidpointData[]>;

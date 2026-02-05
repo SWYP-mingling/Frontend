@@ -6,6 +6,27 @@ export type ModalType = 'FEEDBACK' | 'SHARE' | 'NUDGE' | 'TRANSFER';
 
 export interface ModalData {
   meetingId?: string; // SHARE, NUDGE 모달에서 사용
+  userRoutes?: Array<{
+    nickname: string;
+    startStation: string;
+    startStationLine: string;
+    latitude: number;
+    longitude: number;
+    travelTime: number;
+    transferPath: Array<{
+      linenumber: string;
+      station: string;
+      latitude: number;
+      longitude: number;
+    }>;
+    stations: Array<{
+      linenumber: string;
+      station: string;
+      latitude: number;
+      longitude: number;
+    }>;
+  }>; // TRANSFER 모달에서 사용
+  endStation?: string; // TRANSFER 모달에서 사용
 }
 
 export const useModalStore = create(

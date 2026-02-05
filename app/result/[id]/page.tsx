@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { useOpenModal } from '@/hooks/useOpenModal';
 import { useParams, useRouter } from 'next/navigation';
 import KakaoMapLine from '@/components/map/kakaoMapLine';
-import { MOCK_LOCATION_RESULTS } from '@/mock/mockData';
+import { useMidpoint } from '@/hooks/api/query/useMidpoint';
 
 export default function Page() {
   const openModal = useOpenModal();
@@ -13,23 +13,166 @@ export default function Page() {
   const params = useParams();
   const id = params?.id as string;
 
-  // 현재 선택된 결과 카드 관리 (기본값: 첫 번째)
+  // 현재 사용자 닉네임 가져오기
+  const [myNickname] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
+  });
+
+  // API 데이터 조회
+  const { data: midpointData, isLoading, isError } = useMidpoint(id);
+
+  // API 응답을 UI에 맞게 변환
+  const locationResults = useMemo(() => {
+    if (!midpointData?.success || !midpointData.data || !Array.isArray(midpointData.data)) {
+      return [];
+    }
+
+    return midpointData.data.map((midpoint, index) => {
+      const { endStation, endStationLine, userRoutes } = midpoint;
+
+      // 현재 사용자의 경로 찾기 (로컬스토리지 닉네임과 일치하는 것만)
+      const myRoute = userRoutes.find((route) => route.nickname === myNickname);
+
+      // 이동시간 가져오기 (내 경로가 있으면 내 이동시간, 없으면 첫 번째 경로의 이동시간)
+      const travelTime = myRoute?.travelTime 
+
+      // 호선 번호 추출 함수 (숫자가 있으면 숫자만, 없으면 앞 글자만)
+      const extractLineNumber = (linenumber: string): string => {
+        if (!linenumber) return '';
+        
+        // "호선" 제거
+        const cleaned = linenumber.replace('호선', '').trim();
+        
+        // 숫자가 있는지 확인
+        const hasNumber = /\d/.test(cleaned);
+        
+        if (hasNumber) {
+          // 숫자만 추출 (예: "4호선" → "4")
+          return cleaned.replace(/\D/g, '');
+        } else {
+          // 숫자가 없으면 앞 글자만 추출 (예: "수인분당선" → "수")
+          return cleaned.charAt(0);
+        }
+      };
+
+      // transferPath에서 호선 번호만 추출 (내 닉네임과 일치하는 경로의 transferPath만 사용, 첫 번째부터 모든 항목 순서대로)
+      const transferPathLines: Array<{ display: string; text: string }> = [];
+      
+      // transferPath의 모든 항목을 순서대로 처리 (중복 제거 없이 모든 항목 추가)
+      if (myRoute?.transferPath && Array.isArray(myRoute.transferPath) && myRoute.transferPath.length > 0) {
+        for (const path of myRoute.transferPath) {
+          if (path?.linenumber) {
+            const lineNumber = extractLineNumber(path.linenumber);
+            if (lineNumber) {
+              transferPathLines.push({
+                display: lineNumber, // 원 안에 표시할 값
+                text: path.linenumber, // 텍스트로 표시할 원래 값
+              });
+            }
+          }
+        }
+      }
+      
+      // 마지막에 endStationLine 추가 (transferPath 마지막 항목과 다를 때만 추가)
+      if (endStationLine) {
+        const endLineNumber = extractLineNumber(endStationLine);
+        if (endLineNumber) {
+          // transferPathLines의 마지막 항목과 비교
+          const lastLine = transferPathLines[transferPathLines.length - 1];
+          if (lastLine?.display !== endLineNumber) {
+            transferPathLines.push({
+              display: endLineNumber, // 원 안에 표시할 값
+              text: endStationLine, // 텍스트로 표시할 원래 값
+            });
+          }
+        }
+      }
+
+      return {
+        id: index + 1,
+        endStation,
+        travelTime,
+        transferPath: myRoute?.transferPath || [],
+        transferPathLines,
+        userRoutes, 
+      };
+    });
+  }, [midpointData, myNickname]);
+
+
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
 
   const handleModifyStart = () => {
-    // 출발지 수정 로직 (이전 페이지로 이동 등)
     router.back();
   };
 
-  // 호선별 색상 반환 함수 (예시)
-  const getLineColor = (line: string) => {
-    switch (line) {
-      case '1':
-        return 'bg-[#0052A4]'; // 1호선 파랑
-      case '2':
-        return 'bg-[#3CB44A]'; // 2호선 초록
-      case '6':
-        return 'bg-[#CD7C2F]'; // 6호선 갈색
+  const getLineColor = (fullLineName: string) => {
+    const cleaned = fullLineName.replace('호선', '').trim();
+    
+    // 숫자 호선 처리 (1~9)
+    if (/^\d+$/.test(cleaned)) {
+      switch (cleaned) {
+        case '1':
+          return 'bg-[#004A85]'; // 1호선 파랑
+        case '2':
+          return 'bg-[#00A23F]'; // 2호선 초록
+        case '3':
+          return 'bg-[#ED6C00]'; // 3호선 파랑
+        case '4':
+          return 'bg-[#009BCE]'; // 4호선 파랑
+        case '5':
+          return 'bg-[#794698]'; // 5호선 보라색
+        case '6':
+          return 'bg-[#7C4932]'; // 6호선 빨강
+        case '7':
+          return 'bg-[#6E7E31]'; // 7호선 초록
+        case '8':
+          return 'bg-[#D11D70]'; // 8호선 빨강
+        case '9':
+          return 'bg-[#A49D87]'; // 9호선 회색
+        default:
+          return 'bg-gray-400';
+      }
+    }
+    
+    // 전체 호선명으로 처리 (앞 글자가 겹치는 경우 구분)
+    switch (fullLineName) {
+      // 수도권 도시철도(경전철)
+      case '우이신설선':
+        return 'bg-[#B0CE18]'; // 우이신설 노랑
+      case '신림선':
+        return 'bg-[#5E7DBB]'; // 신림선 하늘
+      case '의정부경전철':
+        return 'bg-[#F0831E]'; // 의정부경전철 주황
+      case '용인에버라인':
+        return 'bg-[#44A436]'; // 용인에버라인 초록
+      case '인천2호선':
+        return 'bg-[#F4A462]'; // 인천2호선 살색
+      case '김포골드라인':
+        return 'bg-[#F4A462]'; // 김포골드라인 금색
+
+      // 수도권 도시철도(중전철)
+      case '경의선':
+      case '경의중앙선':
+        return 'bg-[#6AC2B3]'; // 경의중앙선 민트색
+      case '수인분당선':
+        return 'bg-[#ECA300]'; // 수인분당선 노란색
+      case '신분당선':
+        return 'bg-[#B81B30]'; // 신분당선 빨강색
+      case '인천1호선':
+        return 'bg-[#B4C7E7]'; // 인천1호선 연한 하늘색
+      case '공항철도':
+        return 'bg-[#0079AC]'; // 공항철도 파랑색
+
+      // 광역철도
+      case '경춘선':
+        return 'bg-[#007A62]'; // 경춘선 초록
+      case '경강산':
+        return 'bg-[#0B318F]'; // 경강산 파란
+      case '서해선':
+        return 'bg-[#5EAC41]'; // 서해선 초록
+
       default:
         return 'bg-gray-400';
     }
@@ -65,68 +208,84 @@ export default function Page() {
             {/* 리스트 스크롤 영역 */}
             <div className="mb-15 flex-1 overflow-auto">
               <div className="flex h-125 min-h-0 flex-col gap-3 pr-1">
-                {MOCK_LOCATION_RESULTS.map((result) => (
-                  <div
-                    key={result.id}
-                    onClick={() => setSelectedResultId(result.id)}
-                    className={`flex cursor-pointer flex-col gap-3.75 rounded border bg-white p-5 ${
-                      selectedResultId === result.id
-                        ? 'border-blue-5 border-2'
-                        : 'border-gray-2 hover:bg-gray-1'
-                    }`}
-                  >
-                    {/* 카드 헤더: 역 이름 & 시간 */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-10 text-lg font-semibold">{result.station}</span>
-                      <span className="text-gray-6 text-[13px] font-normal">
-                        이동시간
-                        <span className="text-blue-5 ml-1.75 text-lg font-semibold">
-                          {result.time}
-                        </span>
-                      </span>
-                    </div>
-
-                    {/* 환승 경로 (호선 아이콘) */}
-                    <div className="text-gray-6 flex items-center gap-3 text-[13px]">
-                      <span>내 환승경로</span>
-                      <div className="flex items-center">
-                        {result.lines.map((line, idx) => (
-                          <div key={idx} className="flex items-center">
-                            {/* 호선 원형 아이콘 */}
-                            <span
-                              className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] text-white ${getLineColor(line)}`}
-                            >
-                              {line}
-                            </span>
-                            <span className="text-gray-10 ml-1 text-sm font-semibold">
-                              {line}호선
-                            </span>
-                            {idx < result.lines.length - 1 && (
-                              <Image
-                                src="/icon/rightarrow.svg"
-                                alt="화살표"
-                                width={13}
-                                height={22}
-                                className="text-gray-6 mx-1.75 w-auto"
-                              />
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* 모임원 경로 보기 버튼 (카드 내부) */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openModal('TRANSFER', undefined, e);
-                      }}
-                      className="bg-gray-8 h-8 w-full cursor-pointer rounded py-1 text-[15px] font-normal text-white"
-                    >
-                      모임원 환승경로 보기
-                    </button>
+                {isLoading ? (
+                  <div className="flex h-full items-center justify-center">
+                    <span className="text-gray-6 text-sm">로딩 중...</span>
                   </div>
-                ))}
+                ) : isError || locationResults.length === 0 ? (
+                  <div className="flex h-full items-center justify-center">
+                    <span className="text-gray-6 text-sm">
+                      {isError ? '데이터를 불러오는데 실패했습니다.' : '결과가 없습니다.'}
+                    </span>
+                  </div>
+                ) : (
+                  locationResults.map((result) => (
+                    <div
+                      key={result.id}
+                      onClick={() => setSelectedResultId(result.id)}
+                      className={`flex cursor-pointer flex-col gap-3.75 rounded border bg-white p-5 ${
+                        selectedResultId === result.id
+                          ? 'border-blue-5 border-2'
+                          : 'border-gray-2 hover:bg-gray-1'
+                      }`}
+                    >
+                      {/* 카드 헤더: 역 이름 & 시간 */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-10 text-lg font-semibold">{result.endStation}</span>
+                        <span className="text-gray-6 text-[13px] font-normal">
+                          이동시간
+                          <span className="text-blue-5 ml-1.75 text-lg font-semibold">
+                            {result.travelTime}분
+                          </span>
+                        </span>
+                      </div>
+
+                      {/* 환승 경로 (호선 아이콘) */}
+                      <div className="text-gray-6 flex items-center gap-3 text-[13px]">
+                        <span>내 환승경로</span>
+                        </div>
+                        <div className="flex items-center">
+                          {result.transferPathLines.map((line: { display: string; text: string }, idx: number) => (
+                            <div key={idx} className="flex items-center">
+                              {/* 호선 원형 아이콘 */}
+                              <span
+                                className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] text-white ${getLineColor(line.text)}`}
+                              >
+                                {line.display}
+                              </span>
+                              <span className="text-gray-10 ml-1 text-sm font-semibold">
+                                {line.text}
+                              </span>
+                              {idx < result.transferPathLines.length - 1 && (
+                                <Image
+                                  src="/icon/rightarrow.svg"
+                                  alt="화살표"
+                                  width={13}
+                                  height={22}
+                                  className="text-gray-6 mx-1.75 w-auto"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                     
+
+                      {/* 모임원 경로 보기 버튼 (카드 내부) */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openModal('TRANSFER', {
+                            userRoutes: result.userRoutes,
+                            endStation: result.endStation,
+                          }, e);
+                        }}
+                        className="bg-gray-8 h-8 w-full cursor-pointer rounded py-1 text-[15px] font-normal text-white"
+                      >
+                        모임원 환승경로 보기
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
