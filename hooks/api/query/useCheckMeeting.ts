@@ -17,5 +17,7 @@ export const useCheckMeeting = (meetingId: string) => {
     enabled: hasUserId && !!meetingId,
     refetchInterval: 10000,
     retry: false,
+    // ⭐ 에러 발생 시 에러를 throw하지 않고 조용히 실패
+    throwOnError: false,
   });
 };

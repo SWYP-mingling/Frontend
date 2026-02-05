@@ -43,19 +43,27 @@ export default function Page() {
     }
   }, [myName, id, router]);
 
-  // ⭐ API 호출
-  const { data: meetingData, error } = useCheckMeeting(id);
+  const { data: meetingData, error, isError } = useCheckMeeting(id);
   const { mutate: setDeparture } = useSetDeparture(id);
 
-  // ⭐ API 에러 처리 (세션 만료 시)
+  // ⭐ API 에러 처리 - 한 번만 실행되도록 ref 사용
+  const [hasHandledError, setHasHandledError] = useState(false);
+
   useEffect(() => {
-    if (error) {
+    if (isError && error && !hasHandledError) {
       console.error('세션 만료 또는 권한 없음:', error);
+
+      // 스토리지 클리어
       localStorage.removeItem('userId');
       sessionStorage.removeItem('userId');
+
+      // 에러 처리 완료 표시
+      setHasHandledError(true);
+
+      // join으로 리다이렉트
       router.replace(`/join/${id}`);
     }
-  }, [error, id, router]);
+  }, [isError, error, hasHandledError, id, router]);
 
   // ⭐ 로그인 정보 없으면 로딩 화면 표시
   if (!myName) {
@@ -86,7 +94,6 @@ export default function Page() {
     }
   };
 
-  // ⭐ API에서 받은 내 출발지 정보를 selectedStation에 반영
   useEffect(() => {
     if (meetingData?.data?.participants && myName) {
       const myData = meetingData.data.participants.find((p) => p.userName === myName);
