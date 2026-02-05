@@ -19,10 +19,8 @@ export default function Page() {
     return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
   });
 
-  // API 데이터 조회
   const { data: midpointData, isLoading, isError } = useMidpoint(id);
 
-  // API 응답을 UI에 맞게 변환
   const locationResults = useMemo(() => {
     if (!midpointData?.success || !midpointData.data || !Array.isArray(midpointData.data)) {
       return [];
@@ -31,10 +29,8 @@ export default function Page() {
     return midpointData.data.map((midpoint, index) => {
       const { endStation, endStationLine, userRoutes } = midpoint;
 
-      // 현재 사용자의 경로 찾기 (로컬스토리지 닉네임과 일치하는 것만)
       const myRoute = userRoutes.find((route) => route.nickname === myNickname);
-
-      // 이동시간 가져오기 (내 경로가 있으면 내 이동시간, 없으면 첫 번째 경로의 이동시간)
+  
       const travelTime = myRoute?.travelTime 
 
       // 호선 번호 추출 함수 (숫자가 있으면 숫자만, 없으면 앞 글자만)
@@ -56,10 +52,9 @@ export default function Page() {
         }
       };
 
-      // transferPath에서 호선 번호만 추출 (내 닉네임과 일치하는 경로의 transferPath만 사용, 첫 번째부터 모든 항목 순서대로)
+      
       const transferPathLines: Array<{ display: string; text: string }> = [];
       
-      // transferPath의 모든 항목을 순서대로 처리 (중복 제거 없이 모든 항목 추가)
       if (myRoute?.transferPath && Array.isArray(myRoute.transferPath) && myRoute.transferPath.length > 0) {
         for (const path of myRoute.transferPath) {
           if (path?.linenumber) {
@@ -74,7 +69,7 @@ export default function Page() {
         }
       }
       
-      // 마지막에 endStationLine 추가 (transferPath 마지막 항목과 다를 때만 추가)
+      
       if (endStationLine) {
         const endLineNumber = extractLineNumber(endStationLine);
         if (endLineNumber) {
@@ -92,6 +87,9 @@ export default function Page() {
       return {
         id: index + 1,
         endStation,
+        endStationLine,
+        latitude: midpoint.latitude,
+        longitude: midpoint.longitude,
         travelTime,
         transferPath: myRoute?.transferPath || [],
         transferPathLines,
@@ -301,7 +299,20 @@ export default function Page() {
 
         {/* [RIGHT PANEL] 데스크탑 지도 영역 */}
         <section className="hidden h-full flex-1 bg-gray-100 md:block">
-          <KakaoMapLine className="h-full w-full" />
+          {locationResults.length > 0 && (() => {
+            const selectedResult = locationResults.find((r) => r.id === selectedResultId) || locationResults[0];
+            return (
+              <KakaoMapLine
+                className="h-full w-full"
+                endStation={{
+                  name: selectedResult.endStation,
+                  latitude: selectedResult.latitude,
+                  longitude: selectedResult.longitude,
+                }}
+                userRoutes={selectedResult.userRoutes}
+              />
+            );
+          })()}
         </section>
       </div>
     </div>
