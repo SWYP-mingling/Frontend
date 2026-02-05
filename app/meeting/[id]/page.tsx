@@ -11,6 +11,8 @@ import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting'; // [추가]
 import StationDataRaw from '@/database/stations_info.json';
 import { getRandomHexColor } from '@/lib/color';
 import MeetingInfoSection from '@/components/meeting/MeetingInfoSection';
+import { useToast } from '@/hooks/useToast';
+import Toast from '@/components/ui/toast';
 
 // 로컬 데이터 타입 정의
 interface StationInfo {
@@ -36,6 +38,8 @@ export default function Page() {
   // [API Hook] 모임 정보 조회 & 출발지 등록
   const { data: meetingData } = useCheckMeeting(id);
   const { mutate: setDeparture } = useSetDeparture(id);
+  const { isVisible, show } = useToast();
+  const [errorMessage, setErrorMessage] = useState('');
   const [myName] = useState<string>(() => {
     if (typeof window === 'undefined') return '';
     return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
@@ -113,9 +117,11 @@ export default function Page() {
 
   const handleSubmit = () => {
     if (!selectedStation) {
-      alert('출발지를 먼저 선택해주세요!');
+      setErrorMessage('출발지를 먼저 선택해주세요!');
+      show();
       return;
     }
+
     // 결과 페이지로 이동
     router.push(`/result/${id}`);
   };
@@ -201,7 +207,7 @@ export default function Page() {
                         className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-normal text-white"
                         style={{ backgroundColor: `${user.hexColor}` }}
                       >
-                        {user.name}
+                        {user.name.charAt(0)}
                       </div>
                       <span className="text-gray-8 text-[15px]">{user.name}</span>
                     </div>
@@ -212,10 +218,11 @@ export default function Page() {
 
             <button
               onClick={handleSubmit}
-              className="bg-gray-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg text-white md:right-0 md:left-0"
+              className="bg-gray-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg text-white md:right-0 md:left-0 cursor-pointer"
             >
               결과보기
             </button>
+            <Toast message={errorMessage} isVisible={isVisible} />
           </div>
         </section>
 

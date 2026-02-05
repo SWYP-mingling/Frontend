@@ -21,7 +21,7 @@ export default function GlobalModal() {
     case 'NUDGE':
       return <NudgeModal isOpen={isOpen} onClose={onClose} meetingId={data?.meetingId || ''} />;
     case 'TRANSFER':
-      return <TransferModal isOpen={isOpen} onClose={onClose} />;
+      return <TransferModal isOpen={isOpen} onClose={onClose} userRoutes={data?.userRoutes} endStation={data?.endStation} />;
     default:
       return null;
   }
