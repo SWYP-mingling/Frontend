@@ -7,6 +7,7 @@ import StationSearch from '@/components/meeting/stationSearch';
 import { useOpenModal } from '@/hooks/useOpenModal';
 import { useParams, useRouter } from 'next/navigation';
 import { useSetDeparture } from '@/hooks/api/mutation/useSetDeparture';
+import { useDeleteDeparture } from '@/hooks/api/mutation/useDeleteDeparture';
 import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting';
 import StationDataRaw from '@/database/stations_info.json';
 import { getRandomHexColor } from '@/lib/color';
@@ -25,14 +26,13 @@ interface StationInfo {
 const STATION_DATA = StationDataRaw as StationInfo[];
 
 export default function Page() {
-  // [1] State 및 Hook 선언 (순서 고정)
   const [isMounted, setIsMounted] = useState(false);
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
   const [myName, setMyName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  // 에러 처리용 Ref (렌더링 방지)
   const hasHandledErrorRef = useRef(false);
+  const isDeletingRef = useRef(false); // ⭐ 삭제 중 플래그 추가
 
   const params = useParams();
   const id = params?.id as string;
@@ -41,21 +41,18 @@ export default function Page() {
   const router = useRouter();
   const { isVisible, show } = useToast();
 
-  // API Hooks
-  const { data: meetingData, error, isError, isLoading } = useCheckMeeting(id);
+  const { data: meetingData, error, isError, isLoading, refetch } = useCheckMeeting(id);
   const { mutate: setDeparture } = useSetDeparture(id);
+  const { mutate: deleteDeparture } = useDeleteDeparture(id);
 
-  // [2] 초기화 Effect (ESLint 경고 방지용 setTimeout)
   useEffect(() => {
     setTimeout(() => {
       setIsMounted(true);
-      // 클라이언트 마운트 후 스토리지 접근
       const storedName = getMeetingUserId(id) || '';
       setMyName(storedName);
     }, 0);
   }, [id]);
 
-  // [3] 로그인 정보 리다이렉트
   useEffect(() => {
     if (isMounted && !myName && id) {
       console.log('❌ 로그인 정보 없음 - /join으로 리다이렉트');
@@ -63,40 +60,66 @@ export default function Page() {
     }
   }, [isMounted, myName, id, router]);
 
-  // [4] API 에러 처리 (Ref 사용 + Safari 호환성)
   useEffect(() => {
     if (isError && error && !hasHandledErrorRef.current) {
       console.error('세션 만료 또는 권한 없음:', error);
-
-      // 해당 모임의 userId 삭제
       removeMeetingUserId(id);
-
-      // Ref 업데이트 (렌더링 유발 X)
       hasHandledErrorRef.current = true;
-
-      // 강제 이동 (쿠키/스토리지 동기화 보장)
       window.location.href = `/join/${id}`;
     }
   }, [isError, error, id]);
 
-  // [5] Helper Functions
   const handleShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     openModal('SHARE', { meetingId: id }, e);
   };
 
   const handleSelectStation = (stationName: string | null) => {
+    if (stationName === null) {
+      // ⭐ 삭제 요청
+      isDeletingRef.current = true; // 삭제 시작
+      setSelectedStation(null); // 즉시 UI 업데이트
+
+      deleteDeparture(undefined, {
+        onSuccess: (data) => {
+          console.log('✅ 출발지 삭제 성공:', data);
+          // API 데이터 새로고침
+          refetch().then(() => {
+            isDeletingRef.current = false; // 삭제 완료
+          });
+        },
+        onError: (error) => {
+          console.error('❌ 출발지 삭제 실패:', error);
+          setErrorMessage('출발지 삭제에 실패했습니다.');
+          show();
+          isDeletingRef.current = false; // 삭제 실패
+        },
+      });
+      return;
+    }
+
+    // ⭐ 등록 요청
     setSelectedStation(stationName);
 
-    if (!stationName) return;
-
-    // "역" 중복 방지 로직
     const searchName = stationName.endsWith('역') ? stationName : `${stationName}역`;
     const stationInfo = STATION_DATA.find((s) => s.name === searchName);
 
     if (stationInfo) {
-      setDeparture({
-        departure: stationInfo.name,
-      });
+      setDeparture(
+        {
+          departure: stationInfo.name,
+        },
+        {
+          onSuccess: () => {
+            console.log('✅ 출발지 등록 성공');
+            refetch();
+          },
+          onError: (error) => {
+            console.error('❌ 출발지 등록 실패:', error);
+            setErrorMessage('출발지 등록에 실패했습니다.');
+            show();
+          },
+        }
+      );
     } else {
       console.error('역 정보를 찾을 수 없습니다.');
     }
@@ -111,21 +134,27 @@ export default function Page() {
     router.push(`/result/${id}`);
   };
 
-  // [6] 데이터 동기화 Effect (setTimeout 적용)
+  // ⭐ API에서 받은 내 출발지 정보를 selectedStation에 반영 (삭제 중이 아닐 때만)
   useEffect(() => {
-    if (meetingData?.data?.participants && myName) {
+    if (meetingData?.data?.participants && myName && !isDeletingRef.current) {
       const myData = meetingData.data.participants.find((p) => p.userName === myName);
 
-      if (myData?.stationName && !selectedStation) {
-        // 렌더링 중 상태 업데이트 경고 해결을 위해 비동기 처리
-        setTimeout(() => {
-          setSelectedStation(myData.stationName);
-        }, 0);
+      // myData가 있고 stationName이 있을 때만 설정
+      if (myData?.stationName) {
+        if (!selectedStation) {
+          setTimeout(() => {
+            setSelectedStation(myData.stationName);
+          }, 0);
+        }
+      } else {
+        // myData가 없거나 stationName이 없으면 null로 설정
+        if (selectedStation) {
+          setSelectedStation(null);
+        }
       }
     }
   }, [meetingData, myName, selectedStation]);
 
-  // [7] Memoized Data
   const myParticipant = useMemo(() => {
     if (!selectedStation || !myName) return null;
 
@@ -155,7 +184,6 @@ export default function Page() {
     const others = serverParticipants
       .filter((p) => p.userName !== myName)
       .map((p, index) => {
-        // 역 이름 포맷팅
         const displayStationName = p.stationName
           ? p.stationName.endsWith('역')
             ? p.stationName
@@ -176,10 +204,10 @@ export default function Page() {
         };
       });
 
+    // ⭐ myParticipant가 있을 때만 추가 (삭제 후에는 제외)
     return myParticipant ? [myParticipant, ...others] : others;
   }, [meetingData, myParticipant, myName]);
 
-  // [8] 로딩 화면 처리 (Hook 호출 이후, JSX 리턴 직전)
   if (!isMounted || !myName) {
     return (
       <div className="flex h-screen items-center justify-center bg-white">
@@ -188,7 +216,6 @@ export default function Page() {
     );
   }
 
-  // 메인 UI
   return (
     <div className="flex items-center justify-center p-0 md:min-h-[calc(100vh-200px)] md:py-25">
       <div className="flex h-full w-full flex-col bg-white md:h-175 md:w-174 md:flex-row md:gap-4 md:rounded-xl lg:w-215">
@@ -260,25 +287,31 @@ export default function Page() {
 
             <div className="mb-10 flex-1">
               <div className="[&::-webkit-scrollbar-thumb]:bg-gray-6 flex h-80 flex-col gap-3.5 overflow-y-scroll pr-2 pb-5 md:pb-18 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full">
-                {allParticipants.map((user) => (
-                  <div
-                    key={user.id}
-                    className={`flex h-17 shrink-0 items-center justify-between rounded border bg-white px-5 ${
-                      user.id === 'me' ? 'border-blue-5' : 'border-gray-2'
-                    }`}
-                  >
-                    <span className="text-gray-8 text-[17px] font-semibold">{user.station}</span>
-                    <div className="flex items-center gap-1.5">
-                      <div
-                        className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-normal text-white"
-                        style={{ backgroundColor: `${user.hexColor}` }}
-                      >
-                        {user.name.charAt(0)}
+                {allParticipants.length > 0 ? (
+                  allParticipants.map((user) => (
+                    <div
+                      key={user.id}
+                      className={`flex h-17 shrink-0 items-center justify-between rounded border bg-white px-5 ${
+                        user.id === 'me' ? 'border-blue-5' : 'border-gray-2'
+                      }`}
+                    >
+                      <span className="text-gray-8 text-[17px] font-semibold">{user.station}</span>
+                      <div className="flex items-center gap-1.5">
+                        <div
+                          className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-normal text-white"
+                          style={{ backgroundColor: `${user.hexColor}` }}
+                        >
+                          {user.name.charAt(0)}
+                        </div>
+                        <span className="text-gray-8 text-[15px]">{user.name}</span>
                       </div>
-                      <span className="text-gray-8 text-[15px]">{user.name}</span>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-gray-5 flex h-20 items-center justify-center text-sm">
+                    아직 참여한 인원이 없습니다.
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
