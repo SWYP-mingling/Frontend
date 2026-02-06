@@ -1,15 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import Image from 'next/image';
 import ZoomControl from './zoomControl';
+
+interface Place {
+  id: number;
+  name: string;
+  category: string;
+  latitude: number;
+  longitude: number;
+}
 
 interface KakaoMapRecommendProps {
   className?: string;
   midPlace?: string;
   midPlaceLatitude?: number;
   midPlaceLongitude?: number;
+  places?: Place[];
+  selectedPlaceId?: number;
+  onSelectPlace?: (placeId: number) => void;
 }
 
 const CATEGORIES = [
@@ -24,11 +35,26 @@ export default function KakaoMapRecommend({
   midPlace,
   midPlaceLatitude,
   midPlaceLongitude,
+  places = [],
+  selectedPlaceId,
 }: KakaoMapRecommendProps) {
   // 1. 지도 객체를 state로 관리 (줌 컨트롤 제어용)
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [activeCategory, setActiveCategory] = useState('식당');
 
+  // 선택된 장소 찾기
+  const selectedPlace = useMemo(() => {
+    if (!selectedPlaceId || places.length === 0) return null;
+    return places.find((place) => place.id === selectedPlaceId) || null;
+  }, [selectedPlaceId, places]);
+
+  // 선택된 장소로 지도 중심 이동
+  useEffect(() => {
+    if (map && selectedPlace && typeof kakao !== 'undefined' && kakao.maps) {
+      const moveLatLon = new kakao.maps.LatLng(selectedPlace.latitude, selectedPlace.longitude);
+      map.panTo(moveLatLon);
+    }
+  }, [map, selectedPlace]);
 
   // 유효한 좌표 확인
   const validLatitude = midPlaceLatitude ?? 37.5496;
@@ -55,6 +81,31 @@ export default function KakaoMapRecommend({
           </CustomOverlayMap>
         )}
 
+        {/* [선택된 장소 마커만 표시] */}
+        {selectedPlace && (
+          <CustomOverlayMap
+            position={{ lat: selectedPlace.latitude, lng: selectedPlace.longitude }}
+            yAnchor={1}
+            zIndex={20}
+          >
+            <div className="group relative flex cursor-pointer flex-col items-center">
+              <div className="z-10 flex h-15 w-15 items-center justify-center overflow-hidden rounded-full transition-transform group-hover:scale-110">
+                <Image
+                  src="/icon/location.svg"
+                  alt={selectedPlace.name}
+                  className="object-contain"
+                  width={50}
+                  height={50}
+                />
+              </div>
+
+              {/* 호버 시 나오는 툴팁 */}
+              <div className="pointer-events-none absolute -top-8 z-20 rounded bg-gray-900 px-2 py-1 text-[11px] whitespace-nowrap text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+                {selectedPlace.name}
+              </div>
+            </div>
+          </CustomOverlayMap>
+        )}
       </Map>
 
       {/* 상단 카테고리 필터 (Floating) */}

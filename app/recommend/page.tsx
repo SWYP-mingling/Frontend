@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import KakaoMapRecommend from '@/components/map/kakaoMapRecommend';
 import { useRecommend } from '@/hooks/api/query/useRecommend';
 
-export default function RecommendPage() {
+function RecommendContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const meetingId = searchParams.get('meetingId') || '';
@@ -53,8 +53,9 @@ export default function RecommendPage() {
       phone: place.phone || '전화번호 없음',
       address: place.addressName,
       roadAddress: place.roadAddressName,
-      latitude: place.latitude,
-      longitude: place.longitude,
+      latitude: place.y || place.latitude, // y가 위도
+      longitude: place.x || place.longitude, // x가 경도
+      placeUrl: place.placeUrl,
     }));
   }, [recommendData]);
 
@@ -62,9 +63,13 @@ export default function RecommendPage() {
     router.back();
   };
 
-  const handleOpenKakaoMap = (e: React.MouseEvent) => {
+  const handleOpenKakaoMap = (e: React.MouseEvent, placeUrl?: string) => {
     e.stopPropagation(); // 카드 클릭 이벤트 버블링 방지
-    window.open('https://map.kakao.com', '_blank', 'noopener,noreferrer');
+    if (placeUrl) {
+      window.open(placeUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      window.open('https://map.kakao.com', '_blank', 'noopener,noreferrer');
+    }
   };
 
   return (
@@ -87,6 +92,9 @@ export default function RecommendPage() {
               midPlace={midPlace}
               midPlaceLatitude={midPlaceLatitude}
               midPlaceLongitude={midPlaceLongitude}
+              places={places}
+              selectedPlaceId={selectedPlaceId}
+              onSelectPlace={setSelectedPlaceId}
             />
           </div>
 
@@ -156,7 +164,7 @@ export default function RecommendPage() {
                   {/* 하단 버튼은 조건부 렌더링 */}
                   {selectedPlaceId === place.id ? (
                     <button
-                      onClick={handleOpenKakaoMap}
+                      onClick={(e) => handleOpenKakaoMap(e, place.placeUrl)}
                       className="bg-gray-8 w-full rounded py-1 text-[15px] text-white"
                     >
                       카카오맵에서 보기
@@ -176,9 +184,26 @@ export default function RecommendPage() {
             midPlace={midPlace}
             midPlaceLatitude={midPlaceLatitude}
             midPlaceLongitude={midPlaceLongitude}
+            places={places}
+            selectedPlaceId={selectedPlaceId}
+            onSelectPlace={setSelectedPlaceId}
           />
         </section>
       </div>
     </div>
+  );
+}
+
+export default function RecommendPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <span className="text-gray-6 text-sm">로딩 중...</span>
+        </div>
+      }
+    >
+      <RecommendContent />
+    </Suspense>
   );
 }
