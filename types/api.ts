@@ -94,10 +94,29 @@ export interface MidpointData {
   }[];
 }
 
-
-
-        
         
 // 중간지점 조회 API 조립
-// 실제 응답: { success: true, data: MidpointData[] }
 export type MidpointResponse = ApiResponse<MidpointData[]>;
+
+// 장소 추천 API 응답 데이터 타입
+export interface PlaceInfo {
+  placeName: string;
+  categoryName: string;
+  categoryGroupName: string;
+  phone: string;
+  addressName: string;
+  roadAddressName: string;
+  latitude: number;
+  longitude: number;
+  placeUrl: string;
+  x: number;
+  y: number;
+
+}
+
+export interface RecommendData {
+  placeInfos: PlaceInfo[];
+}
+
+// 장소 추천 API 조립
+export type RecommendResponse = ApiResponse<RecommendData>;
