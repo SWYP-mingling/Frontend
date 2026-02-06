@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 // 1. 계산 로직을 훅 내부(useEffect 밖) 또는 파일 최상단으로 분리
 const calculateTimeLeft = (targetDateISO: string) => {
