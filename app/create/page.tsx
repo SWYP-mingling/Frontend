@@ -142,6 +142,14 @@ export default function Page() {
         const { meetingId } = result.data;
         console.log('생성된 ID:', meetingId);
 
+        // purposes를 localStorage에 저장 (장소 추천 카테고리로 사용)
+        const purposes = getPurposes();
+        if (purposes.length > 0) {
+          // purposes 배열에서 장소 카테고리 추출 (마지막 값이 일반적으로 장소 카테고리)
+          const category = purposes[purposes.length - 1];
+          localStorage.setItem(`meeting_${meetingId}_category`, category);
+        }
+
         // 링크 공유 페이지 이동
         router.push(`/share/${meetingId}`);
       } else {
