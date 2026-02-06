@@ -1,33 +1,38 @@
+// hooks/useIsLoggedIn.ts
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getMeetingUserId } from '@/lib/storage';
 
-// 커스텀 이벤트로 로그인 상태 변경 알림
 export const notifyLoginStateChange = () => {
   window.dispatchEvent(new Event('loginStateChange'));
 };
 
-export const useIsLoggedIn = () => {
-  const [isLogin, setIsLogin] = useState(() => {
-    // 초기값을 lazy initialization으로 설정
-    if (typeof window !== 'undefined') {
-      return document.cookie.includes('accessToken');
-    }
-    return false;
-  });
+export const useIsLoggedIn = (meetingId?: string) => {
+  const [isLogin, setIsLogin] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const checkLoginState = () => {
-      setIsLogin(document.cookie.includes('accessToken'));
+      if (!meetingId) {
+        setIsLogin(false);
+        setIsChecking(false);
+        return;
+      }
+
+      // ⭐ 모임별로 분리된 userId 확인
+      const userId = getMeetingUserId(meetingId);
+      setIsLogin(!!userId);
+      setIsChecking(false);
     };
 
-    // 커스텀 이벤트 리스너 등록
-    window.addEventListener('loginStateChange', checkLoginState);
+    checkLoginState();
 
+    window.addEventListener('loginStateChange', checkLoginState);
     return () => {
       window.removeEventListener('loginStateChange', checkLoginState);
     };
-  }, []);
+  }, [meetingId]);
 
-  return isLogin;
+  return { isLogin, isChecking };
 };
