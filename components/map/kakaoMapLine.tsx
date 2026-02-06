@@ -37,9 +37,10 @@ interface KakaoMapLineProps {
   className?: string;
   endStation?: EndStation;
   userRoutes?: UserRoute[];
+  meetingId?: string;
 }
 
-export default function KakaoMapLine({ className, endStation, userRoutes = [] }: KakaoMapLineProps) {
+export default function KakaoMapLine({ className, endStation, userRoutes = [], meetingId }: KakaoMapLineProps) {
   const router = useRouter();
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [hoveredUserId, setHoveredUserId] = useState<string | null>(null);
@@ -188,7 +189,15 @@ export default function KakaoMapLine({ className, endStation, userRoutes = [] }:
       <div className="absolute top-6 left-1/2 z-20 -translate-x-1/2 transform">
         <button
           className="bg-blue-5 hover:bg-blue-8 relative flex h-9 cursor-pointer items-center rounded-full px-4 py-1.75 text-sm font-semibold text-white transition-colors"
-          onClick={() => router.push('/recommend')}
+          onClick={() => {
+            if (meetingId && endStation) {
+              router.push(
+                `/recommend?meetingId=${meetingId}&midPlace=${encodeURIComponent(endStation.name)}&lat=${endStation.latitude}&lng=${endStation.longitude}`
+              );
+            } else {
+              router.push('/recommend');
+            }
+          }}
         >
           {endStation.name} 주변 장소 추천
         </button>

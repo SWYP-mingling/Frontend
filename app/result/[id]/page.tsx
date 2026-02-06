@@ -199,7 +199,21 @@ export default function Page() {
           </div>
 
           {/* 모바일 전용 지도 영역 */}
-          <KakaoMapLine className="bg-gray-1 relative block aspect-video h-93.5 md:hidden" />
+          {locationResults.length > 0 && (() => {
+            const selectedResult = locationResults.find((r) => r.id === selectedResultId) || locationResults[0];
+            return (
+              <KakaoMapLine
+                className="bg-gray-1 relative block aspect-video h-93.5 md:hidden"
+                endStation={{
+                  name: selectedResult.endStation,
+                  latitude: selectedResult.latitude,
+                  longitude: selectedResult.longitude,
+                }}
+                userRoutes={selectedResult.userRoutes}
+                meetingId={id}
+              />
+            );
+          })()}
 
           {/* 결과 리스트 & 하단 버튼 */}
           <div className="relative mb-10 flex flex-1 flex-col gap-3 px-5 md:mb-0 md:p-0">
@@ -310,6 +324,7 @@ export default function Page() {
                   longitude: selectedResult.longitude,
                 }}
                 userRoutes={selectedResult.userRoutes}
+                meetingId={id}
               />
             );
           })()}
