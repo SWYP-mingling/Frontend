@@ -32,7 +32,8 @@ export default function Page() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const hasHandledErrorRef = useRef(false);
-  const isDeletingRef = useRef(false); // ⭐ 삭제 중 플래그 추가
+  const isDeletingRef = useRef(false);
+  const hasInitializedRef = useRef(false); // ⭐ 초기화 플래그 추가
 
   const params = useParams();
   const id = params?.id as string;
@@ -75,29 +76,26 @@ export default function Page() {
 
   const handleSelectStation = (stationName: string | null) => {
     if (stationName === null) {
-      // ⭐ 삭제 요청
-      isDeletingRef.current = true; // 삭제 시작
-      setSelectedStation(null); // 즉시 UI 업데이트
+      isDeletingRef.current = true;
+      setSelectedStation(null);
 
       deleteDeparture(undefined, {
         onSuccess: (data) => {
           console.log('✅ 출발지 삭제 성공:', data);
-          // API 데이터 새로고침
           refetch().then(() => {
-            isDeletingRef.current = false; // 삭제 완료
+            isDeletingRef.current = false;
           });
         },
         onError: (error) => {
           console.error('❌ 출발지 삭제 실패:', error);
           setErrorMessage('출발지 삭제에 실패했습니다.');
           show();
-          isDeletingRef.current = false; // 삭제 실패
+          isDeletingRef.current = false;
         },
       });
       return;
     }
 
-    // ⭐ 등록 요청
     setSelectedStation(stationName);
 
     const searchName = stationName.endsWith('역') ? stationName : `${stationName}역`;
@@ -134,26 +132,26 @@ export default function Page() {
     router.push(`/result/${id}`);
   };
 
-  // ⭐ API에서 받은 내 출발지 정보를 selectedStation에 반영 (삭제 중이 아닐 때만)
+  // ⭐ API에서 받은 내 출발지 정보를 selectedStation에 반영 (초기화 시 한 번만)
   useEffect(() => {
-    if (meetingData?.data?.participants && myName && !isDeletingRef.current) {
+    if (
+      meetingData?.data?.participants &&
+      myName &&
+      !isDeletingRef.current &&
+      !hasInitializedRef.current
+    ) {
       const myData = meetingData.data.participants.find((p) => p.userName === myName);
 
-      // myData가 있고 stationName이 있을 때만 설정
       if (myData?.stationName) {
-        if (!selectedStation) {
-          setTimeout(() => {
-            setSelectedStation(myData.stationName);
-          }, 0);
-        }
+        setTimeout(() => {
+          setSelectedStation(myData.stationName);
+          hasInitializedRef.current = true; // 초기화 완료
+        }, 0);
       } else {
-        // myData가 없거나 stationName이 없으면 null로 설정
-        if (selectedStation) {
-          setSelectedStation(null);
-        }
+        hasInitializedRef.current = true; // 데이터 없어도 초기화 완료
       }
     }
-  }, [meetingData, myName, selectedStation]);
+  }, [meetingData, myName]);
 
   const myParticipant = useMemo(() => {
     if (!selectedStation || !myName) return null;
@@ -204,7 +202,6 @@ export default function Page() {
         };
       });
 
-    // ⭐ myParticipant가 있을 때만 추가 (삭제 후에는 제외)
     return myParticipant ? [myParticipant, ...others] : others;
   }, [meetingData, myParticipant, myName]);
 
