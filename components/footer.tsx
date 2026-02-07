@@ -27,23 +27,23 @@ const Footer = () => {
               <Link href="/" className="text-gray-7 text-[16px]">
                 문의하기
               </Link>
-              <button
+              {/* <button
                 type="button"
                 onClick={(e) => openModal('FEEDBACK', undefined, e)}
                 className="text-gray-7 cursor-pointer text-[16px]"
               >
                 피드백남기기
-              </button>
+              </button> */}
             </div>
           </div>
           {/* 쓰레드, 인스타그램 아이콘 렌더링 */}
-          <div className="text-gray-4 flex gap-3">
+          {/* <div className="text-gray-4 flex gap-3">
             {ICON.map((item, idx) => (
               <Link href={`https://www.${item}.com/`} key={idx}>
                 <Image src={`/icon/${item}.svg`} alt={`${item} Logo`} width={24} height={24} />
               </Link>
             ))}
-          </div>
+          </div> */}
         </nav>
       </div>
     </footer>

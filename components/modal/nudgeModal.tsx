@@ -47,7 +47,7 @@ export default function NudgeModal({ isOpen, onClose, meetingId }: NudgeModalPro
         </DialogHeader>
         <div className="bg-gray-2 relative flex w-full items-center justify-center overflow-hidden rounded-2xl">
           <Image
-            src="/images/nudge_modals.jpg"
+            src="/images/nudge_modal.jpg"
             width={310}
             height={222}
             alt="모임 링크를 공유해주세요"
