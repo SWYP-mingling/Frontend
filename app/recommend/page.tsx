@@ -21,21 +21,23 @@ function RecommendContent() {
   // 현재 선택된 장소 ID (기본값: 첫 번째)
   const [selectedPlaceId, setSelectedPlaceId] = useState<number>(1);
 
-  // 모임 카테고리 가져오기 (localStorage에서 캐싱된 값 사용)
-  const meetingCategory = useMemo(() => {
+  // 선택된 카테고리 (기본값: localStorage의 meetingCategory)
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
     const cachedCategory = localStorage.getItem(`meeting_${meetingId}_category`);
-    if (cachedCategory) {
-      return cachedCategory;
-    }
-    
-    return '';
-  }, [meetingId]);
+    return cachedCategory || '';
+  });
+
+  // 카테고리 변경 핸들러
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setSelectedPlaceId(1); // 카테고리 변경 시 첫 번째 장소 선택
+  };
 
   // 장소 추천 API 호출
   const { data: recommendData, isLoading, isError } = useRecommend({
     meetingId,
     midPlace,
-    category: meetingCategory,
+    category: selectedCategory,
     page: 1,
     size: 15,
   });
@@ -58,6 +60,7 @@ function RecommendContent() {
       placeUrl: place.placeUrl,
     }));
   }, [recommendData]);
+
 
   const handleBack = () => {
     router.back();
@@ -95,6 +98,8 @@ function RecommendContent() {
               places={places}
               selectedPlaceId={selectedPlaceId}
               onSelectPlace={setSelectedPlaceId}
+              selectedCategory={selectedCategory}
+              onCategoryChange={handleCategoryChange}
             />
           </div>
 
@@ -187,6 +192,8 @@ function RecommendContent() {
             places={places}
             selectedPlaceId={selectedPlaceId}
             onSelectPlace={setSelectedPlaceId}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
           />
         </section>
       </div>
