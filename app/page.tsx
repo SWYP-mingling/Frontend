@@ -57,7 +57,7 @@ const PainPointTooltip = ({ text }: { text: string }) => (
 
 // 2. 반복되는 특징 카드 컴포넌트
 const FeatureCard = ({ title, desc, desc2 }: { title: string; desc: string; desc2: string }) => (
-  <div className="border-gray-2 flex h-[236px]  flex-col items-center justify-center gap-7.75 rounded-[20px] border-2 bg-white  w-[247px] lg:w-[280px]">
+  <div className="border-gray-2 flex h-[236px] w-[247px] flex-col items-center justify-center gap-7.75 rounded-[20px] border-2 bg-white lg:w-[280px]">
     <h3 className="text-gray-10 text-center text-[22px] leading-[1.364] font-semibold tracking-[-0.4268px]">
       {title}
     </h3>
@@ -77,16 +77,19 @@ const FeatureCard = ({ title, desc, desc2 }: { title: string; desc: string; desc
 const HeroSection = () => (
   <section className="mx-[71.73px] mt-30 flex flex-col items-center justify-center md:px-[101px]">
     <div className="flex flex-col items-center">
-      <h1 className="text-gray-8 max-w-[209px] text-center text-[28px] leading-[1.3] font-bold tracking-[-1.128px] break-keep md:max-w-full md:text-[40px]">
+      <h1 className="text-gray-8 max-w-[209px] text-center text-[28px] leading-[1.3] font-bold tracking-[-1.128px] break-keep md:max-w-full md:text-[36px] xl:text-[40px]">
         모임 장소 선정, 출발역만 넣으면 끝!
       </h1>
-      <div className="mt-4 flex flex-col items-center">
-        <p className="text-gray-5 max-w-[240px] text-center text-[16px] leading-[1.364] font-semibold tracking-[-0.4268px] break-keep md:max-w-[530px] md:text-[22px]">
-          참석자들이 지하철 출발역을 입력하면, 
-        </p>
-        <p className="text-gray-5 max-w-[240px] text-center text-[16px] leading-[1.364] font-semibold tracking-[-0.4268px] break-keep md:max-w-[530px] md:text-[22px]">
-          이동시간과 편차를 분석해 서울 내 최적의 번화가를
-          추천합니다
+
+      <div className="mt-4 flex flex-col flex-nowrap items-center">
+        <p className="text-gray-5 text-center text-[16px] leading-[1.364] font-semibold tracking-[-0.4268px] md:text-[18px] md:leading-[1.444]">
+          참석자들이 지하철 출발역을 입력하면,
+          <br className="block md:hidden lg:block" />
+          <span className="hidden md:inline lg:hidden">&nbsp;</span>
+          이동시간과 편차를 고려해
+          <br className="block lg:hidden" />
+          <span className="hidden lg:inline">&nbsp;</span>
+          서울 내 최적의 번화가를 추천합니다
         </p>
       </div>
 
@@ -97,7 +100,7 @@ const HeroSection = () => (
         모임 만들기
       </Link>
 
-      {/* Responsive Images */}
+      {/* Responsive Images (기존 코드 유지) */}
       <div className="mt-[74px] md:mt-[74px] lg:mt-10">
         <Image
           src="/images/iphone.jpg"
