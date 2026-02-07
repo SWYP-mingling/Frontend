@@ -37,7 +37,7 @@ export default function KakaoMap({ className, participants = [] }: KakaoMapProps
   }, [map, participants]);
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative w-full max-w-full overflow-hidden ${className}`}>
       <Map
         center={{ lat: 37.5563, lng: 126.9224 }}
         style={{ width: '100%', height: '100%' }}

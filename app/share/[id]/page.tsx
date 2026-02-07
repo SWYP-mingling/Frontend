@@ -1,60 +1,32 @@
-'use client';
+import type { Metadata } from 'next';
+import ShareContent from '@/components/share/shareContent';
 
-import { notFound, useParams } from 'next/navigation';
-import Link from 'next/link';
-import Toast from '@/components/ui/toast';
-import { useShareMeeting } from '@/hooks/api/query/useShareMeeting';
-import Image from 'next/image';
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
-export default function SharePage() {
-  const params = useParams();
-  const id = params?.id as string;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
 
-  const { shareUrl, isError, isLoading, handleCopyLink, isVisible } = useShareMeeting(id);
+  return {
+    title: '모임이 만들어졌어요! 🎉',
+    description: '친구들에게 링크를 공유하고 출발지를 받아보세요.',
+    openGraph: {
+      title: '모임이 만들어졌어요! 🎉',
+      description: '친구들에게 링크를 공유하고 출발지를 받아보세요.',
+      images: ['/images/og-image/create_meeting_card.jpg'],
+      url: `https://www.mingling.kr/share/${id}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: '모임이 만들어졌어요! 🎉',
+      description: '친구들에게 링크를 공유하고 출발지를 받아보세요.',
+      images: ['/images/og-image/create_meeting_card.jpg'],
+    },
+  };
+}
 
-  if (isError) notFound();
-  if (isLoading) return null;
-
-  return (
-    <div className="flex flex-col items-center justify-center bg-white px-5 py-10 md:py-25">
-      <h2 className="text-gray-10 mb-9 text-center text-2xl leading-[1.334] font-bold md:text-4xl">
-        모임이 만들어졌어요!
-        <br />
-        링크를 공유해주세요
-      </h2>
-
-      <section className="mb-9 flex h-70 w-80 max-w-sm items-center justify-center rounded-2xl md:w-90">
-        <Image
-          src="/images/create_meeting.jpg"
-          width={360}
-          height={257}
-          alt="모임이 만들어졌어요"
-        />
-      </section>
-
-      <div className="relative z-10 mb-9 flex w-full rounded-sm md:w-90">
-        <Toast message="주소가 복사되었습니다" isVisible={isVisible} />
-        <input
-          type="text"
-          value={shareUrl}
-          readOnly
-          className="border-gray-1 grow rounded-l-sm border border-r-0 bg-white p-2.5 text-[15px] font-normal text-black focus:outline-none"
-        />
-        <button
-          type="button"
-          onClick={handleCopyLink}
-          className="bg-gray-1 text-gray-6 border-gray-1 hover:bg-gray-2 cursor-pointer rounded-r-sm border px-3.5 py-3 text-sm font-semibold whitespace-nowrap transition-colors"
-        >
-          복사
-        </button>
-      </div>
-
-      <Link
-        href={`/join/${id}`}
-        className="bg-blue-5 hover:bg-blue-8 h-12 w-full rounded-sm py-2.5 pt-3 text-center text-lg font-normal text-white transition-colors md:w-90"
-      >
-        내 출발지 등록하기
-      </Link>
-    </div>
-  );
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+  return <ShareContent id={id} />;
 }

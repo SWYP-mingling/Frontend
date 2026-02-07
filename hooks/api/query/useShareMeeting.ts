@@ -11,23 +11,25 @@ const fetchMeetingResult = async (id: string) => {
   return apiGet<MeetingLinkResponse>(`/api/meeting/result/${id}`);
 };
 
-// (URL origin은 변하지 않으므로 구독 함수는 빈 함수가 된다.)
+// URL Origin 구독 함수 (변하지 않으므로 빈 함수)
 const emptySubscribe = () => () => {};
-// 브라우저에서 실행될 함수 (브라우저 URL을 가져오는 함수)
 const getClientSnapshot = () => window.location.origin;
-// 서버에서 실행될 함수 (서버에는 window가 없기에 빈 값 반환)
 const getServerSnapshot = () => '';
 
-export const useShareMeeting = (meetingId: string) => {
+// [수정] mode 파라미터 추가 (기본값: 'share')
+export const useShareMeeting = (meetingId: string, mode: 'share' | 'nudge' = 'share') => {
   const { show, isVisible } = useToast();
 
-  // useSyncExternalStore hooks를 통해 window.location.origin을 안전하게 가져오기
+  // 1. Base Origin 가져오기
   const origin = useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
 
-  // URL 계산 (origin이 있을 때만 합침)
-  const shareUrl = origin ? `${origin}/join/${meetingId}` : '';
+  // 2. 쿼리스트링 결정 로직
+  const queryString = mode === 'nudge' ? '?view=nudge' : '?view=share';
 
-  // 모임 존재 여부 확인 (Query)
+  // 3. 최종 URL 조합 (화면에 보여줄 용도)
+  const shareUrl = origin ? `${origin}/join/${meetingId}${queryString}` : '';
+
+  // 4. 모임 존재 여부 확인 (Query)
   const { isError, isLoading, error } = useQuery({
     queryKey: ['meeting', 'exist', meetingId],
     queryFn: () => fetchMeetingResult(meetingId),
@@ -35,14 +37,15 @@ export const useShareMeeting = (meetingId: string) => {
     retry: false,
   });
 
+  // 5. 링크 복사 핸들러
   const handleCopyLink = async () => {
     if (!shareUrl) return;
     try {
       await navigator.clipboard.writeText(shareUrl);
       show();
     } catch (err) {
-      console.error(err);
-      alert('복사 실패');
+      console.error('링크 복사 실패:', err);
+      alert('링크 복사에 실패했습니다.');
     }
   };
 
