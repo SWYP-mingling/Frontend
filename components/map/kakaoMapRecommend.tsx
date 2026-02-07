@@ -61,7 +61,7 @@ export default function KakaoMapRecommend({
   const validLongitude = midPlaceLongitude ?? 126.9139;
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative w-full max-w-full overflow-hidden ${className}`}>
       <Map
         center={{ lat: validLatitude, lng: validLongitude }}
         style={{ width: '100%', height: '100%' }}

@@ -239,7 +239,7 @@ export default function Page() {
           )}
 
           <KakaoMap
-            className="bg-gray-1 relative block aspect-video h-93.5 md:hidden"
+            className="bg-gray-1 relative block h-93.5 md:hidden"
             participants={allParticipants}
           />
 
@@ -282,7 +282,7 @@ export default function Page() {
               />
             </button>
 
-            <div className="mb-10 flex-1">
+            <div className="flex-1">
               <div className="[&::-webkit-scrollbar-thumb]:bg-gray-6 flex h-80 flex-col gap-3.5 overflow-y-scroll pr-2 pb-5 md:pb-18 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {allParticipants.length > 0 ? (
                   allParticipants.map((user) => (
@@ -314,7 +314,7 @@ export default function Page() {
 
             <button
               onClick={handleSubmit}
-              className="bg-gray-8 absolute right-5 bottom-0 left-5 h-12 cursor-pointer rounded text-lg text-white md:right-0 md:left-0"
+              className="bg-gray-8 right-5 left-5 h-12 cursor-pointer rounded text-lg text-white md:absolute md:right-0 md:bottom-0 md:left-0 md:mb-0"
             >
               결과보기
             </button>

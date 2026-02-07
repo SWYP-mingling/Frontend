@@ -40,7 +40,12 @@ interface KakaoMapLineProps {
   meetingId?: string;
 }
 
-export default function KakaoMapLine({ className, endStation, userRoutes = [], meetingId }: KakaoMapLineProps) {
+export default function KakaoMapLine({
+  className,
+  endStation,
+  userRoutes = [],
+  meetingId,
+}: KakaoMapLineProps) {
   const router = useRouter();
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [hoveredUserId, setHoveredUserId] = useState<string | null>(null);
@@ -59,14 +64,14 @@ export default function KakaoMapLine({ className, endStation, userRoutes = [], m
     userRoutes.forEach((userRoute) => {
       // 출발역 추가
       bounds.extend(new kakao.maps.LatLng(userRoute.latitude, userRoute.longitude));
-      
+
       // transferPath의 모든 역 추가
       if (userRoute.transferPath && userRoute.transferPath.length > 0) {
         userRoute.transferPath.forEach((path) => {
           bounds.extend(new kakao.maps.LatLng(path.latitude, path.longitude));
         });
       }
-      
+
       // stations의 모든 역 추가
       if (userRoute.stations && userRoute.stations.length > 0) {
         userRoute.stations.forEach((station) => {
@@ -81,7 +86,7 @@ export default function KakaoMapLine({ className, endStation, userRoutes = [], m
   // endStation이나 userRoutes가 없으면 빈 화면 표시
   if (!endStation || userRoutes.length === 0) {
     return (
-      <div className={`relative ${className}`}>
+      <div className={`relative w-full max-w-full overflow-hidden ${className}`}>
         <div className="flex h-full w-full items-center justify-center bg-gray-100">
           <span className="text-gray-6 text-sm">지도 정보가 없습니다.</span>
         </div>
@@ -112,20 +117,20 @@ export default function KakaoMapLine({ className, endStation, userRoutes = [], m
         {userRoutes.map((userRoute, index) => {
           const isHovered = hoveredUserId === userRoute.nickname;
           const userColor = getRandomHexColor(userRoute.nickname);
-          
+
           // 경로 좌표 생성 (출발역 -> transferPath -> 도착지)
           const pathCoordinates: Array<{ lat: number; lng: number }> = [];
-          
+
           // 출발역 추가
           pathCoordinates.push({ lat: userRoute.latitude, lng: userRoute.longitude });
-          
+
           // transferPath 추가
           if (userRoute.transferPath && userRoute.transferPath.length > 0) {
             userRoute.transferPath.forEach((path) => {
               pathCoordinates.push({ lat: path.latitude, lng: path.longitude });
             });
           }
-          
+
           // 도착지 추가
           pathCoordinates.push({ lat: endStation.latitude, lng: endStation.longitude });
 
