@@ -24,7 +24,7 @@ const Footer = () => {
               </Link>
             </div>
             <div className="flex gap-4 md:gap-8">
-              <Link href="/" className="text-gray-7 text-[16px]">
+              <Link href="https://tally.so/r/lbry1p" className="text-gray-7 text-[16px]">
                 문의하기
               </Link>
               {/* <button
@@ -36,7 +36,7 @@ const Footer = () => {
               </button> */}
             </div>
           </div>
-          {/* 쓰레드, 인스타그램 아이콘 렌더링 */}
+          {/* 쓰레드, 인스타그램 아이콘 렌더링 숨김 */}
           {/* <div className="text-gray-4 flex gap-3">
             {ICON.map((item, idx) => (
               <Link href={`https://www.${item}.com/`} key={idx}>

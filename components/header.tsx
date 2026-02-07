@@ -12,7 +12,10 @@ const Header = () => {
         </Link>
 
         <nav className="flex items-center gap-2.5">
-          <Link href="/" className="text-gray-5 hidden p-2 text-[16px] md:block">
+          <Link
+            href="https://tally.so/r/lbry1p"
+            className="text-gray-5 hidden p-2 text-[16px] md:block"
+          >
             문의하기
           </Link>
           <Link

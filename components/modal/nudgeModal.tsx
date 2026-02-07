@@ -50,7 +50,7 @@ export default function NudgeModal({ isOpen, onClose, meetingId }: NudgeModalPro
             src="/images/nudge_modal.jpg"
             width={310}
             height={222}
-            alt="모임 링크를 공유해주세요"
+            alt="모임원들에게 재촉 알림을 보냅니다."
             className="h-auto w-full object-cover"
             priority
           />
@@ -63,7 +63,7 @@ export default function NudgeModal({ isOpen, onClose, meetingId }: NudgeModalPro
             <input
               type="text"
               name="NudgeLink"
-              aria-label="모임 공유 링크"
+              aria-label="모임원 재촉하기"
               value={displayValue}
               readOnly
               disabled={isLoading || isError}
