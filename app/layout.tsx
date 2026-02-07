@@ -24,6 +24,7 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://www.mingling.kr'),
   title: '밍글링 - 어디서 만날지, 고민 시간을 줄여드려요',
   description:
     '퇴근 후 모임, 주말 약속까지. 서울 어디서든 모두가 비슷하게 도착하는 마법의 장소를 찾아드려요.',

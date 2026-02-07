@@ -19,7 +19,10 @@ interface ShareModalProps {
 }
 
 export default function ShareModal({ isOpen, onClose, meetingId }: ShareModalProps) {
-  const { shareUrl, isError, isLoading, handleCopyLink, isVisible } = useShareMeeting(meetingId);
+  const { shareUrl, isError, isLoading, handleCopyLink, isVisible } = useShareMeeting(
+    meetingId,
+    'share'
+  );
 
   const displayValue = isError
     ? '유효하지 않은 모임입니다.'

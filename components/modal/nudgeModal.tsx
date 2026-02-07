@@ -19,7 +19,10 @@ interface NudgeModalProps {
 }
 
 export default function NudgeModal({ isOpen, onClose, meetingId }: NudgeModalProps) {
-  const { shareUrl, isError, isLoading, handleCopyLink, isVisible } = useShareMeeting(meetingId);
+  const { shareUrl, isError, isLoading, handleCopyLink, isVisible } = useShareMeeting(
+    meetingId,
+    'nudge'
+  );
 
   const displayValue = isError
     ? '유효하지 않은 모임입니다.'
