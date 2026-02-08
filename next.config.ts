@@ -2,6 +2,10 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  experimental: {
+    // 기본값이 30초~60초 정도인데, 이를 120초(120,000ms)로 늘립니다.
+    proxyTimeout: 120000,
+  },
   async rewrites() {
     return [
       // 1️⃣ [예외 처리] 백엔드에 실제로 '/api'가 붙어있는 친구들 (예: status)

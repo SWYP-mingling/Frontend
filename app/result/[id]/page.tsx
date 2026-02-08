@@ -30,19 +30,19 @@ export default function Page() {
       const { endStation, endStationLine, userRoutes } = midpoint;
 
       const myRoute = userRoutes.find((route) => route.nickname === myNickname);
-  
-      const travelTime = myRoute?.travelTime 
+
+      const travelTime = myRoute?.travelTime;
 
       // 호선 번호 추출 함수 (숫자가 있으면 숫자만, 없으면 앞 글자만)
       const extractLineNumber = (linenumber: string): string => {
         if (!linenumber) return '';
-        
+
         // "호선" 제거
         const cleaned = linenumber.replace('호선', '').trim();
-        
+
         // 숫자가 있는지 확인
         const hasNumber = /\d/.test(cleaned);
-        
+
         if (hasNumber) {
           // 숫자만 추출 (예: "4호선" → "4")
           return cleaned.replace(/\D/g, '');
@@ -52,10 +52,13 @@ export default function Page() {
         }
       };
 
-      
       const transferPathLines: Array<{ display: string; text: string }> = [];
-      
-      if (myRoute?.transferPath && Array.isArray(myRoute.transferPath) && myRoute.transferPath.length > 0) {
+
+      if (
+        myRoute?.transferPath &&
+        Array.isArray(myRoute.transferPath) &&
+        myRoute.transferPath.length > 0
+      ) {
         for (const path of myRoute.transferPath) {
           if (path?.linenumber) {
             const lineNumber = extractLineNumber(path.linenumber);
@@ -68,8 +71,7 @@ export default function Page() {
           }
         }
       }
-      
-      
+
       if (endStationLine) {
         const endLineNumber = extractLineNumber(endStationLine);
         if (endLineNumber) {
@@ -93,11 +95,10 @@ export default function Page() {
         travelTime,
         transferPath: myRoute?.transferPath || [],
         transferPathLines,
-        userRoutes, 
+        userRoutes,
       };
     });
   }, [midpointData, myNickname]);
-
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
 
@@ -107,7 +108,7 @@ export default function Page() {
 
   const getLineColor = (fullLineName: string) => {
     const cleaned = fullLineName.replace('호선', '').trim();
-    
+
     // 숫자 호선 처리 (1~9)
     if (/^\d+$/.test(cleaned)) {
       switch (cleaned) {
@@ -133,7 +134,7 @@ export default function Page() {
           return 'bg-gray-400';
       }
     }
-    
+
     // 전체 호선명으로 처리 (앞 글자가 겹치는 경우 구분)
     switch (fullLineName) {
       // 수도권 도시철도(경전철)
@@ -199,21 +200,23 @@ export default function Page() {
           </div>
 
           {/* 모바일 전용 지도 영역 */}
-          {locationResults.length > 0 && (() => {
-            const selectedResult = locationResults.find((r) => r.id === selectedResultId) || locationResults[0];
-            return (
-              <KakaoMapLine
-                className="bg-gray-1 relative block aspect-video h-93.5 md:hidden"
-                endStation={{
-                  name: selectedResult.endStation,
-                  latitude: selectedResult.latitude,
-                  longitude: selectedResult.longitude,
-                }}
-                userRoutes={selectedResult.userRoutes}
-                meetingId={id}
-              />
-            );
-          })()}
+          {locationResults.length > 0 &&
+            (() => {
+              const selectedResult =
+                locationResults.find((r) => r.id === selectedResultId) || locationResults[0];
+              return (
+                <KakaoMapLine
+                  className="bg-gray-1 relative block h-93.5 md:hidden"
+                  endStation={{
+                    name: selectedResult.endStation,
+                    latitude: selectedResult.latitude,
+                    longitude: selectedResult.longitude,
+                  }}
+                  userRoutes={selectedResult.userRoutes}
+                  meetingId={id}
+                />
+              );
+            })()}
 
           {/* 결과 리스트 & 하단 버튼 */}
           <div className="relative mb-10 flex flex-1 flex-col gap-3 px-5 md:mb-0 md:p-0">
@@ -243,7 +246,9 @@ export default function Page() {
                     >
                       {/* 카드 헤더: 역 이름 & 시간 */}
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-10 text-lg font-semibold">{result.endStation}</span>
+                        <span className="text-gray-10 text-lg font-semibold">
+                          {result.endStation}
+                        </span>
                         <span className="text-gray-6 text-[13px] font-normal">
                           이동시간
                           <span className="text-blue-5 ml-1.75 text-lg font-semibold">
@@ -255,9 +260,10 @@ export default function Page() {
                       {/* 환승 경로 (호선 아이콘) */}
                       <div className="text-gray-6 flex items-center gap-3 text-[13px]">
                         <span>내 환승경로</span>
-                        </div>
-                        <div className="flex items-center">
-                          {result.transferPathLines.map((line: { display: string; text: string }, idx: number) => (
+                      </div>
+                      <div className="flex items-center">
+                        {result.transferPathLines.map(
+                          (line: { display: string; text: string }, idx: number) => (
                             <div key={idx} className="flex items-center">
                               {/* 호선 원형 아이콘 */}
                               <span
@@ -278,18 +284,22 @@ export default function Page() {
                                 />
                               )}
                             </div>
-                          ))}
-                        </div>
-                     
+                          )
+                        )}
+                      </div>
 
                       {/* 모임원 경로 보기 버튼 (카드 내부) */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          openModal('TRANSFER', {
-                            userRoutes: result.userRoutes,
-                            endStation: result.endStation,
-                          }, e);
+                          openModal(
+                            'TRANSFER',
+                            {
+                              userRoutes: result.userRoutes,
+                              endStation: result.endStation,
+                            },
+                            e
+                          );
                         }}
                         className="bg-gray-8 h-8 w-full cursor-pointer rounded py-1 text-[15px] font-normal text-white"
                       >
@@ -313,21 +323,23 @@ export default function Page() {
 
         {/* [RIGHT PANEL] 데스크탑 지도 영역 */}
         <section className="hidden h-full flex-1 bg-gray-100 md:block">
-          {locationResults.length > 0 && (() => {
-            const selectedResult = locationResults.find((r) => r.id === selectedResultId) || locationResults[0];
-            return (
-              <KakaoMapLine
-                className="h-full w-full"
-                endStation={{
-                  name: selectedResult.endStation,
-                  latitude: selectedResult.latitude,
-                  longitude: selectedResult.longitude,
-                }}
-                userRoutes={selectedResult.userRoutes}
-                meetingId={id}
-              />
-            );
-          })()}
+          {locationResults.length > 0 &&
+            (() => {
+              const selectedResult =
+                locationResults.find((r) => r.id === selectedResultId) || locationResults[0];
+              return (
+                <KakaoMapLine
+                  className="h-full w-full"
+                  endStation={{
+                    name: selectedResult.endStation,
+                    latitude: selectedResult.latitude,
+                    longitude: selectedResult.longitude,
+                  }}
+                  userRoutes={selectedResult.userRoutes}
+                  meetingId={id}
+                />
+              );
+            })()}
         </section>
       </div>
     </div>
