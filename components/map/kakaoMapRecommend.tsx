@@ -21,6 +21,8 @@ interface KakaoMapRecommendProps {
   places?: Place[];
   selectedPlaceId?: number;
   onSelectPlace?: (placeId: number) => void;
+  selectedCategory?: string;
+  onCategoryChange?: (category: string) => void;
 }
 
 const CATEGORIES = [
@@ -37,10 +39,11 @@ export default function KakaoMapRecommend({
   midPlaceLongitude,
   places = [],
   selectedPlaceId,
+  selectedCategory = '',
+  onCategoryChange,
 }: KakaoMapRecommendProps) {
   // 1. 지도 객체를 state로 관리 (줌 컨트롤 제어용)
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
-  const [activeCategory, setActiveCategory] = useState('식당');
 
   // 선택된 장소 찾기
   const selectedPlace = useMemo(() => {
@@ -113,9 +116,9 @@ export default function KakaoMapRecommend({
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
+            onClick={() => onCategoryChange?.(cat.id)}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all ${
-              activeCategory === cat.id
+              selectedCategory === cat.id
                 ? 'bg-blue-5 text-white'
                 : 'text-gray-7 bg-white hover:bg-gray-50'
             }`}

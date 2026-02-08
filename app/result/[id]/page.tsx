@@ -14,7 +14,7 @@ export default function Page() {
   const params = useParams();
   const id = params?.id as string;
 
-  // 현재 사용자 닉네임 가져오기
+  // 현재 사용자 닉네임 가져오기 (모임별로 분리된 userId 사용)
   const [myNickname] = useState<string>(() => {
     if (typeof window === 'undefined') return '';
     return getMeetingUserId(id) || '';
