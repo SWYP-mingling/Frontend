@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useOpenModal } from '@/hooks/useOpenModal';
 
-const ICON = ['threads', 'instagram'];
+// const ICON = ['threads', 'instagram'];
 
 const Footer = () => {
   const openModal = useOpenModal();
@@ -16,12 +16,20 @@ const Footer = () => {
         <nav className="flex flex-col items-start gap-6 md:items-end">
           <div className="flex flex-col gap-3 md:flex-row md:gap-8">
             <div className="flex gap-4 md:gap-8">
-              <Link href="/" className="text-gray-7 text-[16px]">
+              <button
+                type="button"
+                onClick={(e) => openModal('TERMS', undefined, e)}
+                className="text-gray-7 text-[16px]"
+              >
                 이용약관
-              </Link>
-              <Link href="/" className="text-gray-7 text-[16px]">
+              </button>
+              <button
+                type="button"
+                onClick={(e) => openModal('POLICY', undefined, e)}
+                className="text-gray-7 text-[16px]"
+              >
                 개인정보 처리방침
-              </Link>
+              </button>
             </div>
             <div className="flex gap-4 md:gap-8">
               <Link href="https://tally.so/r/lbry1p" className="text-gray-7 text-[16px]">

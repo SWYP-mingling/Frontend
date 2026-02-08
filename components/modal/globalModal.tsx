@@ -5,6 +5,8 @@ import FeedbackModal from '@/components/modal/feedbackModal';
 import ShareModal from '@/components/modal/shareModal';
 import NudgeModal from '@/components/modal/nudgeModal';
 import TransferModal from './transferModal';
+import TermsModal from './termsModal';
+import PolicyModal from './policyModal';
 
 export default function GlobalModal() {
   const { type, isOpen, onClose, data } = useModalStore();
@@ -16,12 +18,23 @@ export default function GlobalModal() {
   switch (type) {
     case 'FEEDBACK':
       return <FeedbackModal isOpen={isOpen} onClose={onClose} />;
+    case 'TERMS':
+      return <TermsModal isOpen={isOpen} onClose={onClose} />;
+    case 'POLICY':
+      return <PolicyModal isOpen={isOpen} onClose={onClose} />;
     case 'SHARE':
       return <ShareModal isOpen={isOpen} onClose={onClose} meetingId={data?.meetingId || ''} />;
     case 'NUDGE':
       return <NudgeModal isOpen={isOpen} onClose={onClose} meetingId={data?.meetingId || ''} />;
     case 'TRANSFER':
-      return <TransferModal isOpen={isOpen} onClose={onClose} userRoutes={data?.userRoutes} endStation={data?.endStation} />;
+      return (
+        <TransferModal
+          isOpen={isOpen}
+          onClose={onClose}
+          userRoutes={data?.userRoutes}
+          endStation={data?.endStation}
+        />
+      );
     default:
       return null;
   }
