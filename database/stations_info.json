@@ -2131,6 +2131,30 @@
   },
   {
     "line": "8호선",
+    "name": "암사역사공원역",
+    "latitude": 37.557167,
+    "longitude": 127.137556
+  },
+  {
+    "line": "8호선",
+    "name": "장자호수공원역",
+    "latitude": 37.5876578,
+    "longitude": 127.1379073
+  },
+  {
+    "line": "8호선",
+    "name": "동구릉역",
+    "latitude": 37.611056,
+    "longitude": 127.138004
+  },
+  {
+    "line": "8호선",
+    "name": "다산역",
+    "latitude": 37.624268,
+    "longitude": 127.149809
+  },
+  {
+    "line": "8호선",
     "name": "암사역",
     "latitude": 37.55021,
     "longitude": 127.127562

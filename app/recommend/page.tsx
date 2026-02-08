@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import {  useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import KakaoMapRecommend from '@/components/map/kakaoMapRecommend';
 import { useRecommend } from '@/hooks/api/query/useRecommend';
@@ -10,7 +10,7 @@ import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting';
 function RecommendContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const meetingId = searchParams.get('meetingId') || '';
+  const meetingId = searchParams.get(`meetingId`) || '';
   const midPlace = searchParams.get('midPlace') || '';
   const lat = searchParams.get('lat');
   const lng = searchParams.get('lng');
@@ -111,7 +111,6 @@ function RecommendContent() {
     }));
   }, [recommendData]);
 
-
   const handleBack = () => {
     router.back();
   };
@@ -139,7 +138,7 @@ function RecommendContent() {
           </div>
 
           {/* 모바일 전용 지도 (작게 표시) */}
-          <div className="bg-gray-1 relative block aspect-video h-93.5 md:hidden">
+          <div className="bg-gray-1 relative block h-93.5 md:hidden">
             <KakaoMapRecommend
               className="h-full w-full"
               midPlace={midPlace}
@@ -169,64 +168,68 @@ function RecommendContent() {
             ) : (
               <div className="flex flex-col gap-4 md:gap-5">
                 {places.map((place) => (
-                <div
-                  key={place.id}
-                  onClick={() => setSelectedPlaceId(place.id)}
-                  className={`flex cursor-pointer flex-col gap-2 rounded border p-4 ${
-                    selectedPlaceId === place.id
-                      ? 'border-blue-5 border-2' // 선택 시 파란 테두리
-                      : 'border-gray-2 hover:bg-gray-1 bg-white'
-                  }`}
-                >
-                  {/* 상단: 이름 및 카테고리 */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-2 px-0.5 flex-1 min-w-0">
-                      <span className="text-gray-8 text-xl font-semibold break-words">{place.name}</span>
-                      <span className="bg-gray-2 text-gray-7 shrink-0 rounded px-2 py-px text-sm font-semibold">
-                        {place.category}
-                      </span>
+                  <div
+                    key={place.id}
+                    onClick={() => setSelectedPlaceId(place.id)}
+                    className={`flex cursor-pointer flex-col gap-2 rounded border p-4 ${
+                      selectedPlaceId === place.id
+                        ? 'border-blue-5 border-2' // 선택 시 파란 테두리
+                        : 'border-gray-2 hover:bg-gray-1 bg-white'
+                    }`}
+                  >
+                    {/* 상단: 이름 및 카테고리 */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 px-0.5">
+                        <span className="text-gray-8 text-xl font-semibold break-words">
+                          {place.name}
+                        </span>
+                        <span className="bg-gray-2 text-gray-7 shrink-0 rounded px-2 py-px text-sm font-semibold">
+                          {place.category}
+                        </span>
+                      </div>
+                      {/* 공유 아이콘 (이미지에 살짝 보임) */}
+                      <button className="text-gray-5 shrink-0 cursor-pointer">
+                        <Image src="/icon/gray_share.svg" alt="공유" width={24} height={24} />
+                      </button>
                     </div>
-                    {/* 공유 아이콘 (이미지에 살짝 보임) */}
-                    <button className="text-gray-5 cursor-pointer shrink-0">
-                      <Image src="/icon/gray_share.svg" alt="공유" width={24} height={24} />
-                    </button>
-                  </div>
 
-                  {/* 설명 */}
-                  <p className="text-gray-6 text-[16px]">{place.description}</p>
+                    {/* 설명 */}
+                    <p className="text-gray-6 text-[16px]">{place.description}</p>
 
-                  {/* 전화번호 */}
-                  <div className="text-gray-8 flex items-center gap-2 text-[16px]">
-                    <Image src="/icon/phone.svg" alt="전화" width={20} height={20} />
-                    {place.phone}
-                  </div>
-
-                  {/* 주소 정보 */}
-                  <div className="flex flex-col gap-2 text-[12px]">
-                    <div className="flex items-start gap-2.5">
-                      <span className="text-gray-5 border-gray-1 m-0.5 shrink-0 rounded border px-2 py-px">
-                        지번
-                      </span>
-                      <span className="text-gray-8 text-[16px] break-words">{place.address}</span>
+                    {/* 전화번호 */}
+                    <div className="text-gray-8 flex items-center gap-2 text-[16px]">
+                      <Image src="/icon/phone.svg" alt="전화" width={20} height={20} />
+                      {place.phone}
                     </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-gray-5 border-gray-1 shrink-0 rounded border px-2 py-px">
-                        도로명
-                      </span>
-                      <span className="text-gray-8 text-[16px] break-words">{place.roadAddress}</span>
-                    </div>
-                  </div>
 
-                  {/* 하단 버튼은 조건부 렌더링 */}
-                  {selectedPlaceId === place.id ? (
-                    <button
-                      onClick={(e) => handleOpenKakaoMap(e, place.placeUrl)}
-                      className="bg-gray-8 w-full rounded py-1 text-[15px] text-white"
-                    >
-                      카카오맵에서 보기
-                    </button>
-                  ) : null}
-                </div>
+                    {/* 주소 정보 */}
+                    <div className="flex flex-col gap-2 text-[12px]">
+                      <div className="flex items-start gap-2.5">
+                        <span className="text-gray-5 border-gray-1 m-0.5 shrink-0 rounded border px-2 py-px">
+                          지번
+                        </span>
+                        <span className="text-gray-8 text-[16px] break-words">{place.address}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-gray-5 border-gray-1 shrink-0 rounded border px-2 py-px">
+                          도로명
+                        </span>
+                        <span className="text-gray-8 text-[16px] break-words">
+                          {place.roadAddress}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 하단 버튼은 조건부 렌더링 */}
+                    {selectedPlaceId === place.id ? (
+                      <button
+                        onClick={(e) => handleOpenKakaoMap(e, place.placeUrl)}
+                        className="bg-gray-8 w-full rounded py-1 text-[15px] text-white"
+                      >
+                        카카오맵에서 보기
+                      </button>
+                    ) : null}
+                  </div>
                 ))}
               </div>
             )}
