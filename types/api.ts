@@ -59,8 +59,8 @@ export interface MeetingStatusData {
   currentParticipantCount: number;
   pendingParticipantCount: number;
   deadlineAt: string;
-  // 출발지 등록한 참여자 리스트
   participants: SetDepartureData[];
+  purposes?: string[];
 }
 
 // 모임 참여 현황 조회 API 조립

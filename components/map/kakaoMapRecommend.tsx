@@ -23,13 +23,17 @@ interface KakaoMapRecommendProps {
   onSelectPlace?: (placeId: number) => void;
   selectedCategory?: string;
   onCategoryChange?: (category: string) => void;
+  meetingType?: '회의' | '친목' | null;
 }
 
-const CATEGORIES = [
+// 전체 카테고리 목록
+const ALL_CATEGORIES = [
   { id: '식당', label: '식당', icon: '/icon/place/restaurant' },
-  { id: '놀거리', label: '놀거리', icon: '/icon/place/play' },
+  { id: '술집', label: '술집', icon: '/icon/place/bar' }, 
   { id: '카페', label: '카페', icon: '/icon/place/cafe' },
+  { id: '놀거리', label: '놀거리', icon: '/icon/place/play' },
   { id: '스터디카페', label: '스터디카페', icon: '/icon/place/studycafe' },
+  { id: '장소 대여', label: '장소 대여', icon: '/icon/place/rent' }, 
 ];
 
 export default function KakaoMapRecommend({
@@ -41,9 +45,25 @@ export default function KakaoMapRecommend({
   selectedPlaceId,
   selectedCategory = '',
   onCategoryChange,
+  meetingType,
 }: KakaoMapRecommendProps) {
   // 1. 지도 객체를 state로 관리 (줌 컨트롤 제어용)
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
+
+  // 상위 카테고리에 따라 하위 카테고리 필터링
+  const categories = useMemo(() => {
+    if (meetingType === '회의') {
+      // 회의: 스터디카페, 장소 대여
+      return ALL_CATEGORIES.filter((cat) => cat.id === '스터디카페' || cat.id === '장소 대여');
+    } else if (meetingType === '친목') {
+      // 친목: 식당, 술집, 카페, 놀거리
+      return ALL_CATEGORIES.filter(
+        (cat) => cat.id === '식당' || cat.id === '술집' || cat.id === '카페' || cat.id === '놀거리'
+      );
+    }
+    // meetingType이 없으면 전체 카테고리 표시
+    return ALL_CATEGORIES;
+  }, [meetingType]);
 
   // 선택된 장소 찾기
   const selectedPlace = useMemo(() => {
@@ -113,7 +133,7 @@ export default function KakaoMapRecommend({
 
       {/* 상단 카테고리 필터 (Floating) */}
       <div className="scrollbar-hide absolute top-4 right-0 left-0 z-20 flex justify-start gap-2 overflow-x-hidden px-4">
-        {CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => onCategoryChange?.(cat.id)}

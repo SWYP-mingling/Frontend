@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import KakaoMapRecommend from '@/components/map/kakaoMapRecommend';
 import { useRecommend } from '@/hooks/api/query/useRecommend';
+import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting';
 
 function RecommendContent() {
   const router = useRouter();
@@ -21,23 +22,67 @@ function RecommendContent() {
   // 현재 선택된 장소 ID (기본값: 첫 번째)
   const [selectedPlaceId, setSelectedPlaceId] = useState<number>(1);
 
-  // 선택된 카테고리 (기본값: localStorage의 meetingCategory)
-  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+  // 모임 정보 조회 (purposes 정보를 가져오기 위해)
+  const { data: meetingData } = useCheckMeeting(meetingId);
+
+  // 상위 카테고리 추출 (API에서 가져오거나 localStorage에서)
+  const meetingType = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    
+    // 1. API에서 purposes 가져오기 (참여자도 접근 가능)
+    if (meetingData?.data?.purposes && meetingData.data.purposes.length > 0) {
+      const firstPurpose = meetingData.data.purposes[0];
+      if (firstPurpose === '회의' || firstPurpose === '친목') {
+        // localStorage에도 저장 (다음 접근 시 빠르게 사용)    localStorage.setItem(`meeting_${meetingId}_meetingType`, firstPurpose);
+        return firstPurpose as '회의' | '친목';
+      }
+    }
+    
+  
+    const cachedType = localStorage.getItem(`meeting_${meetingId}_meetingType`);
+    if (cachedType === '회의' || cachedType === '친목') {
+      return cachedType as '회의' | '친목';
+    }
+    
+    return null;
+  }, [meetingId, meetingData]);
+
+  // 하위 카테고리 추출 (API에서 가져오거나 localStorage에서)
+  const defaultCategory = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    
+    // 1. API에서 가져온 purposes의 마지막 값 사용
+    if (meetingData?.data?.purposes && meetingData.data.purposes.length > 1) {
+      const subCategory = meetingData.data.purposes[meetingData.data.purposes.length - 1];
+      if (subCategory) {
+        // localStorage에도 저장 (다음 접근 시 빠르게 사용)
+        localStorage.setItem(`meeting_${meetingId}_category`, subCategory);
+        return subCategory;
+      }
+    }
+    
     const cachedCategory = localStorage.getItem(`meeting_${meetingId}_category`);
     return cachedCategory || '';
+  }, [meetingId, meetingData]);
+
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    return localStorage.getItem(`meeting_${meetingId}_category`) || '';
   });
 
+  const effectiveCategory = currentCategory;
   // 카테고리 변경 핸들러
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     setSelectedPlaceId(1); // 카테고리 변경 시 첫 번째 장소 선택
+    if (typeof window !== 'undefined') {
   };
 
-  // 장소 추천 API 호출
+  // 장소 추천 API 호출 (effectiveCategory 사용 - selectedCategory가 우선)
   const { data: recommendData, isLoading, isError } = useRecommend({
     meetingId,
     midPlace,
-    category: selectedCategory,
+    category: effectiveCategory,
     page: 1,
     size: 15,
   });
@@ -50,7 +95,7 @@ function RecommendContent() {
     return recommendData.data.placeInfos.map((place, index) => ({
       id: index + 1,
       name: place.placeName,
-      category: place.categoryGroupName || place.categoryName,
+      category: place.categoryGroupName,
       description: place.categoryName,
       phone: place.phone || '전화번호 없음',
       address: place.addressName,
@@ -98,8 +143,9 @@ function RecommendContent() {
               places={places}
               selectedPlaceId={selectedPlaceId}
               onSelectPlace={setSelectedPlaceId}
-              selectedCategory={selectedCategory}
+              selectedCategory={effectiveCategory}
               onCategoryChange={handleCategoryChange}
+              meetingType={meetingType}
             />
           </div>
 
@@ -192,8 +238,9 @@ function RecommendContent() {
             places={places}
             selectedPlaceId={selectedPlaceId}
             onSelectPlace={setSelectedPlaceId}
-            selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
+            selectedCategory={effectiveCategory}
+            onCategoryChange={handleCategoryChange}
+            meetingType={meetingType}
           />
         </section>
       </div>
