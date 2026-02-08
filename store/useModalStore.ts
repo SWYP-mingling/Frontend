@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { combine, devtools } from 'zustand/middleware';
 
 // 관리할 모달의 종류 정의
-export type ModalType = 'FEEDBACK' | 'SHARE' | 'NUDGE' | 'TRANSFER';
+export type ModalType = 'FEEDBACK' | 'SHARE' | 'NUDGE' | 'TRANSFER' | 'TERMS' | 'POLICY';
 
 export interface ModalData {
   meetingId?: string; // SHARE, NUDGE 모달에서 사용
