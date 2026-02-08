@@ -25,7 +25,6 @@ interface UserRoute {
     latitude: number;
     longitude: number;
   }>;
-  // ⭐ 여기에 모든 경유 역 정보가 들어있습니다
   stations: Array<{
     linenumber: string;
     station: string;
@@ -39,14 +38,17 @@ interface KakaoMapLineProps {
   endStation?: EndStation;
   userRoutes?: UserRoute[];
   meetingId?: string;
+  purposes?: string[];
 }
 
 const LINE_OFFSET_GAP = 0.00015;
+
 export default function KakaoMapLine({
   className,
   endStation,
   userRoutes = [],
   meetingId,
+  purposes = [],
 }: KakaoMapLineProps) {
   const router = useRouter();
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
@@ -60,7 +62,6 @@ export default function KakaoMapLine({
     bounds.extend(new window.kakao.maps.LatLng(endStation.latitude, endStation.longitude));
 
     userRoutes.forEach((userRoute) => {
-      // Bounds 계산에는 오프셋 없는 원본 좌표를 사용하여 정확한 범위를 잡습니다.
       if (userRoute.stations && userRoute.stations.length > 0) {
         userRoute.stations.forEach((station) => {
           bounds.extend(new window.kakao.maps.LatLng(station.latitude, station.longitude));
@@ -72,6 +73,50 @@ export default function KakaoMapLine({
 
     map.setBounds(bounds);
   }, [map, endStation, userRoutes]);
+
+  const handleRecommendClick = () => {
+    if (!meetingId || !endStation) {
+      router.push('/recommend');
+      return;
+    }
+
+    let meetingType = '';
+    let category = '';
+
+    // 🔥 1순위: localStorage에서 가져오기
+    if (typeof window !== 'undefined') {
+      meetingType = localStorage.getItem(`meeting_${meetingId}_meetingType`) || '';
+      category = localStorage.getItem(`meeting_${meetingId}_category`) || '';
+    }
+
+    // 🔥 2순위: localStorage에 없으면 purposes에서 가져오기 (fallback)
+    if (!meetingType && purposes && purposes.length > 0) {
+      meetingType = purposes[0];
+    }
+    if (!category && purposes && purposes.length > 1) {
+      category = purposes[purposes.length - 1];
+    }
+
+    console.log('🔍 meetingType:', meetingType);
+    console.log('🔍 category:', category);
+
+    const params = new URLSearchParams({
+      meetingId,
+      midPlace: endStation.name,
+      lat: endStation.latitude.toString(),
+      lng: endStation.longitude.toString(),
+    });
+
+    if (meetingType) {
+      params.append('meetingType', meetingType);
+    }
+    if (category) {
+      params.append('category', category);
+    }
+
+    console.log('🔍 final URL:', `/recommend?${params.toString()}`);
+    router.push(`/recommend?${params.toString()}`);
+  };
 
   if (!endStation || userRoutes.length === 0) {
     return (
@@ -105,25 +150,20 @@ export default function KakaoMapLine({
           const isHovered = hoveredUserId === userRoute.nickname;
           const userColor = getRandomHexColor(userRoute.nickname);
 
-          // ⭐ [핵심 로직] 오프셋 계산
-          // 총 인원 중 현재 인덱스의 위치를 계산하여 중앙 정렬 (-1.5, -0.5, 0.5, 1.5 ...)
-          // (index - (전체길이 - 1) / 2) 공식을 쓰면 0을 기준으로 대칭이 됩니다.
           const offsetMultiplier = index - (userRoutes.length - 1) / 2;
           const offsetVal = offsetMultiplier * LINE_OFFSET_GAP;
 
-          // 1. 경로 좌표에 오프셋 적용
           const pathCoordinates =
             userRoute.stations && userRoute.stations.length > 0
               ? userRoute.stations.map((station) => ({
-                  lat: station.latitude + offsetVal, // 위도 이동
-                  lng: station.longitude + offsetVal, // 경도 이동
+                  lat: station.latitude + offsetVal,
+                  lng: station.longitude + offsetVal,
                 }))
               : [
                   { lat: userRoute.latitude + offsetVal, lng: userRoute.longitude + offsetVal },
                   { lat: endStation.latitude, lng: endStation.longitude },
                 ];
 
-          // 2. 출발 마커 좌표에도 오프셋 적용
           const markerPosition = {
             lat: userRoute.latitude + offsetVal,
             lng: userRoute.longitude + offsetVal,
@@ -136,18 +176,12 @@ export default function KakaoMapLine({
                   path={pathCoordinates}
                   strokeWeight={4}
                   strokeColor={userColor}
-                  // 겹침 방지를 위해 평소에는 불투명하게,
-                  // 그래도 겹친다면 구분되도록 0.8 정도로 설정
                   strokeOpacity={1}
                   strokeStyle={'solid'}
                 />
               )}
 
-              <CustomOverlayMap
-                position={markerPosition} // 오프셋 적용된 위치
-                yAnchor={1}
-                zIndex={isHovered ? 60 : 15}
-              >
+              <CustomOverlayMap position={markerPosition} yAnchor={1} zIndex={isHovered ? 60 : 15}>
                 <div
                   className="group relative flex cursor-pointer flex-col items-center"
                   onMouseEnter={() => setHoveredUserId(userRoute.nickname)}
@@ -190,15 +224,7 @@ export default function KakaoMapLine({
       <div className="absolute top-4 left-1/2 z-10 -translate-x-1/2 transform">
         <button
           className="bg-blue-5 hover:bg-blue-8 flex h-10 items-center rounded-full px-5 text-sm font-bold text-white shadow-lg transition-colors"
-          onClick={() => {
-            if (meetingId && endStation) {
-              router.push(
-                `/recommend?meetingId=${meetingId}&midPlace=${encodeURIComponent(endStation.name)}&lat=${endStation.latitude}&lng=${endStation.longitude}`
-              );
-            } else {
-              router.push('/recommend');
-            }
-          }}
+          onClick={handleRecommendClick}
         >
           {endStation.name}역 주변 장소 추천
         </button>

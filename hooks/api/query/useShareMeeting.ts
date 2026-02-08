@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiGet } from '@/lib/api';
 import { useToast } from '@/hooks/useToast';
-import { useSyncExternalStore } from 'react';
+import { useSyncExternalStore, useState } from 'react';
 import { MeetingLinkResponse } from '@/types/api';
 
 // API Fetcher
@@ -11,23 +11,36 @@ const fetchMeetingResult = async (id: string) => {
   return apiGet<MeetingLinkResponse>(`/api/meeting/result/${id}`);
 };
 
-// URL Origin 구독 함수 (변하지 않으므로 빈 함수)
 const emptySubscribe = () => () => {};
 const getClientSnapshot = () => window.location.origin;
 const getServerSnapshot = () => '';
 
-// [수정] mode 파라미터 추가 (기본값: 'share')
 export const useShareMeeting = (meetingId: string, mode: 'share' | 'nudge' = 'share') => {
   const { show, isVisible } = useToast();
-
-  // 1. Base Origin 가져오기
   const origin = useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
 
-  // 2. 쿼리스트링 결정 로직
-  const queryString = mode === 'nudge' ? '?view=nudge' : '?view=share';
+  // [추가] 카테고리 정보를 담을 state
+  const [categoryParams] = useState(() => {
+    // SSR 환경 방어
+    if (typeof window === 'undefined' || !meetingId) return '';
 
-  // 3. 최종 URL 조합 (화면에 보여줄 용도)
-  const shareUrl = origin ? `${origin}/join/${meetingId}${queryString}` : '';
+    const meetingType = localStorage.getItem(`meeting_${meetingId}_meetingType`);
+    const category = localStorage.getItem(`meeting_${meetingId}_category`);
+
+    const params = new URLSearchParams();
+    if (meetingType) params.append('meetingType', meetingType);
+    if (category) params.append('category', category);
+
+    const paramString = params.toString();
+    return paramString ? `&${paramString}` : '';
+  });
+
+  // 2. 쿼리스트링 결정 로직 (기본 모드 설정)
+  const baseQueryString = mode === 'nudge' ? '?view=nudge' : '?view=share';
+
+  // 3. 최종 URL 조합 (Origin + BaseQuery + CategoryParams)
+  // 예: .../join/123?view=share&meetingType=date&category=food
+  const shareUrl = origin ? `${origin}/join/${meetingId}${baseQueryString}${categoryParams}` : '';
 
   // 4. 모임 존재 여부 확인 (Query)
   const { isError, isLoading, error } = useQuery({

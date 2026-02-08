@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation'; // [추가] useSearchParams
 import { useState, useEffect } from 'react';
 import { useEnterParticipant } from '@/hooks/api/mutation/useEnterParticipant';
 import { useToast } from '@/hooks/useToast';
@@ -14,6 +14,7 @@ interface JoinFormProps {
 
 export default function JoinForm({ meetingId }: JoinFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams(); // [추가] 쿼리 스트링 읽기용 훅
 
   // meetingId는 부모(Page)에서 props로 전달받음
   const { isLogin, isChecking } = useIsLoggedIn(meetingId);
@@ -21,11 +22,28 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [isRemembered, setIsRemembered] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(''); // [수정] string 타입으로 초기화
 
   const participantEnter = useEnterParticipant();
   const { isVisible, show } = useToast();
 
+  // [추가] 공유 링크로 들어왔을 때 카테고리 정보를 localStorage에 저장
+  useEffect(() => {
+    if (!meetingId) return;
+
+    const meetingType = searchParams.get('meetingType');
+    const category = searchParams.get('category');
+
+    // 값이 존재할 때만 저장 (기존 값을 덮어쓰거나 새로 저장)
+    if (meetingType) {
+      localStorage.setItem(`meeting_${meetingId}_meetingType`, meetingType);
+    }
+    if (category) {
+      localStorage.setItem(`meeting_${meetingId}_category`, category);
+    }
+  }, [searchParams, meetingId]);
+
+  // 기존 로그인 체크 및 리다이렉트 로직
   useEffect(() => {
     if (isChecking) return;
 
@@ -37,8 +55,8 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
   if (isChecking || isLogin) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-white">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" />
-        <p className="text-sm font-medium text-gray-500">로그인 정보를 확인 중...</p>
+        <div className="border-t-blue-5 h-8 w-8 animate-spin rounded-full border-4 border-gray-200" />
+        <p className="text-gray-5 text-sm font-medium">로그인 정보를 확인 중...</p>
       </div>
     );
   }
@@ -50,6 +68,7 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
     if (!isFormValid || !meetingId) return;
 
     try {
+      // @ts-ignore (혹시 모를 타입 불일치 방지, API 스펙에 따라 제거 가능)
       const result = await participantEnter.mutateAsync({
         meetingId,
         data: {
@@ -65,7 +84,7 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
         setErrorMessage('모임 참여에 실패했습니다. 다시 시도해주세요.');
         show();
       }
-    } catch {
+    } catch (error) {
       setErrorMessage('모임 참여에 실패했습니다. 이름과 비밀번호를 확인해주세요.');
       show();
     }
@@ -78,7 +97,6 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
       </h1>
 
       <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5 md:max-w-sm">
-        {/* ... 기존 JSX 그대로 유지 ... */}
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className="text-gray-9 text-sm font-semibold">
             이름을 입력해주세요.
@@ -108,9 +126,12 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
               if (val.length <= 4) setPassword(val);
             }}
             placeholder="숫자 4자리를 입력해주세요"
-            className={`border-gray-2 placeholder:text-gray-3 text-gray-10 focus:border-blue-5 w-full rounded-sm border py-2 pl-3 text-center text-[15px] focus:bg-white focus:outline-none ${password ? 'pl-0 text-center' : 'pl-3 text-left'}`}
+            className={`border-gray-2 placeholder:text-gray-3 text-gray-10 focus:border-blue-5 w-full rounded-sm border py-2 pl-3 text-center text-[15px] focus:bg-white focus:outline-none ${
+              password ? 'pl-0 text-center' : 'pl-3 text-left'
+            }`}
           />
 
+          {/* 내 정보 기억하기 체크박스 */}
           <div
             onClick={() => setIsRemembered(!isRemembered)}
             className="flex cursor-pointer items-center gap-2"
@@ -120,7 +141,7 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
                 !isRemembered
                   ? 'border-gray-300 bg-white'
                   : isFormValid
-                    ? 'border-blue-500 bg-blue-500'
+                    ? 'border-blue-5 bg-blue-5'
                     : 'border-gray-300 bg-gray-300'
               }`}
             >
@@ -154,13 +175,16 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
             disabled={!isFormValid || participantEnter.isPending}
             className={`text-gray-2 mt-6 h-12 w-full rounded-sm py-4 pt-3 pb-2.5 text-lg font-semibold transition-colors ${
               isFormValid && !participantEnter.isPending
-                ? 'hover:bg-blue-8 bg-blue-5'
+                ? 'hover:bg-blue-8 bg-blue-5 text-white'
                 : 'bg-gray-4 cursor-not-allowed'
             }`}
           >
             모임 참여하기
           </button>
-          <Toast message={errorMessage} isVisible={isVisible} />
+
+          <div className="absolute top-full left-0 mt-2 w-full">
+            <Toast message={errorMessage} isVisible={isVisible} />
+          </div>
         </div>
       </form>
     </div>
