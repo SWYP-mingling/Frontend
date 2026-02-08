@@ -6,6 +6,7 @@ import { useOpenModal } from '@/hooks/useOpenModal';
 import { useParams, useRouter } from 'next/navigation';
 import KakaoMapLine from '@/components/map/kakaoMapLine';
 import { useMidpoint } from '@/hooks/api/query/useMidpoint';
+import { getMeetingUserId } from '@/lib/storage';
 
 export default function Page() {
   const openModal = useOpenModal();
@@ -16,11 +17,7 @@ export default function Page() {
   // 현재 사용자 닉네임 가져오기
   const [myNickname] = useState<string>(() => {
     if (typeof window === 'undefined') return '';
-    return (
-      localStorage.getItem(`meeting_${id}_userId`) ||
-      sessionStorage.getItem(`meeting_${id}_userId`) ||
-      ''
-    );
+    return getMeetingUserId(id) || '';
   });
 
   const { data: midpointData, isLoading, isError } = useMidpoint(id);
