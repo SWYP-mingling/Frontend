@@ -112,15 +112,18 @@ const getLineBadgeStyle = (fullLineName: string) => {
   }
 };
 
-  // transferPath에서 호선 추출 함수
-  const extractTransferLines = (route: UserRoute): string[] => {
-    const lines: string[] = [];
+  // transferPath에서 호선과 환승역 추출 함수
+  const extractTransferLines = (route: UserRoute): Array<{ linenumber: string; station: string }> => {
+    const lines: Array<{ linenumber: string; station: string }> = [];
     
-    // transferPath의 모든 항목에서 호선 추출
+    // transferPath의 모든 항목에서 호선과 환승역 추출
     if (route.transferPath && Array.isArray(route.transferPath)) {
       route.transferPath.forEach((path) => {
-        if (path.linenumber && !lines.includes(path.linenumber)) {
-          lines.push(path.linenumber);
+        if (path.linenumber) {
+          lines.push({
+            linenumber: path.linenumber,
+            station: path.station || '',
+          });
         }
       });
     }
@@ -174,26 +177,31 @@ const getLineBadgeStyle = (fullLineName: string) => {
                       {transferLines.length === 0 ? (
                         <span className="text-gray-6 text-[13px]">환승 경로 없음</span>
                       ) : (
-                        transferLines.map((line, idx) => (
-                          <div key={idx} className="flex items-center">
-                            <span
-                              className={`flex items-center justify-center rounded-[5px] px-2 py-px text-[13px] text-white ${getLineBadgeStyle(
-                                line
-                              )}`}
-                            >
-                              {line}
-                            </span>
-                            {/* 화살표 아이콘 (마지막 요소 제외) */}
-                            {idx < transferLines.length - 1 && (
-                              <span className="mx-1 text-gray-400">
-                                <Image
-                                  src="/icon/rightarrow.svg"
-                                  alt="오른쪽 화살표"
-                                  width={12}
-                                  height={18}
-                                />
+                        transferLines.map((lineInfo, idx) => (
+                          <div key={idx} className="flex flex-col items-center">
+                            
+                            <div className="flex items-center">                                                    
+                              <span
+                                className={`flex items-center justify-center rounded-[5px] px-2 py-px text-[13px] text-white ${getLineBadgeStyle(
+                                  lineInfo.linenumber
+                                )}`}
+                              >
+                                {lineInfo.station}
+                                ({lineInfo.linenumber})
                               </span>
-                            )}
+                              {/* 화살표 아이콘 (마지막 요소 제외) */}
+                              {idx < transferLines.length - 1 && (
+                                <span className="mx-1 text-gray-400">
+                                  <Image
+                                    src="/icon/rightarrow.svg"
+                                    alt="오른쪽 화살표"
+                                    width={12}
+                                    height={18}
+                                  />
+                                </span>
+                              )}
+                            </div>
+                            
                           </div>
                         ))
                       )}

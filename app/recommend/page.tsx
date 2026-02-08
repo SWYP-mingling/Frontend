@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import {  useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import KakaoMapRecommend from '@/components/map/kakaoMapRecommend';
 import { useRecommend } from '@/hooks/api/query/useRecommend';
