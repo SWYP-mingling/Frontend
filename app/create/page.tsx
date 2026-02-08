@@ -151,6 +151,7 @@ export default function Page() {
         }
         if (meetingType) {
           localStorage.setItem(`meeting_${meetingId}_meetingType`, meetingType);
+        }
 
         // 링크 공유 페이지 이동
         router.push(`/share/${meetingId}`);

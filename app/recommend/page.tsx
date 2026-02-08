@@ -70,12 +70,17 @@ function RecommendContent() {
     return localStorage.getItem(`meeting_${meetingId}_category`) || '';
   });
 
+  const currentCategory = selectedCategory || defaultCategory;
+  
   const effectiveCategory = currentCategory;
+
   // 카테고리 변경 핸들러
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     setSelectedPlaceId(1); // 카테고리 변경 시 첫 번째 장소 선택
     if (typeof window !== 'undefined') {
+      localStorage.setItem(`meeting_${meetingId}_category`, category);
+    }
   };
 
   // 장소 추천 API 호출 (effectiveCategory 사용 - selectedCategory가 우선)
