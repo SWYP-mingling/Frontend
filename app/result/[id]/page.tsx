@@ -204,16 +204,18 @@ export default function Page() {
               const selectedResult =
                 locationResults.find((r) => r.id === selectedResultId) || locationResults[0];
               return (
-                <KakaoMapLine
-                  className="bg-gray-1 relative block h-93.5 md:hidden"
-                  endStation={{
-                    name: selectedResult.endStation,
-                    latitude: selectedResult.latitude,
-                    longitude: selectedResult.longitude,
-                  }}
-                  userRoutes={selectedResult.userRoutes}
-                  meetingId={id}
-                />
+                <div className="relative h-93.5 w-full max-w-[100vw] overflow-hidden md:hidden">
+                  <KakaoMapLine
+                    className="bg-gray-1 relative block h-93.5 md:hidden"
+                    endStation={{
+                      name: selectedResult.endStation,
+                      latitude: selectedResult.latitude,
+                      longitude: selectedResult.longitude,
+                    }}
+                    userRoutes={selectedResult.userRoutes}
+                    meetingId={id}
+                  />
+                </div>
               );
             })()}
 
