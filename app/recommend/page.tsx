@@ -9,7 +9,7 @@ import { useRecommend } from '@/hooks/api/query/useRecommend';
 function RecommendContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const meetingId = searchParams.get('meetingId') || '';
+  const meetingId = searchParams.get(`meetingId`) || '';
   const midPlace = searchParams.get('midPlace') || '';
   const lat = searchParams.get('lat');
   const lng = searchParams.get('lng');

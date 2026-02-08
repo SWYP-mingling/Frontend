@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Map, Polyline, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import { useRouter } from 'next/navigation';
 import ZoomControl from './zoomControl';
@@ -25,6 +25,7 @@ interface UserRoute {
     latitude: number;
     longitude: number;
   }>;
+  // ⭐ 여기에 모든 경유 역 정보가 들어있습니다
   stations: Array<{
     linenumber: string;
     station: string;
@@ -40,6 +41,7 @@ interface KakaoMapLineProps {
   meetingId?: string;
 }
 
+const LINE_OFFSET_GAP = 0.00015;
 export default function KakaoMapLine({
   className,
   endStation,
@@ -50,44 +52,31 @@ export default function KakaoMapLine({
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [hoveredUserId, setHoveredUserId] = useState<string | null>(null);
 
-  // 지도가 생성되고 Kakao Maps SDK가 로드된 후 범위 설정
   useEffect(() => {
-    if (!endStation || userRoutes.length === 0) return;
-    if (!map || typeof kakao === 'undefined' || !kakao.maps || !kakao.maps.LatLngBounds) return;
+    if (!map || !endStation || userRoutes.length === 0) return;
+    if (typeof window === 'undefined' || !window.kakao || !window.kakao.maps) return;
 
-    const bounds = new kakao.maps.LatLngBounds();
+    const bounds = new window.kakao.maps.LatLngBounds();
+    bounds.extend(new window.kakao.maps.LatLng(endStation.latitude, endStation.longitude));
 
-    // 도착지 추가
-    bounds.extend(new kakao.maps.LatLng(endStation.latitude, endStation.longitude));
-
-    // 사용자 경로 기준으로 범위 설정
     userRoutes.forEach((userRoute) => {
-      // 출발역 추가
-      bounds.extend(new kakao.maps.LatLng(userRoute.latitude, userRoute.longitude));
-
-      // transferPath의 모든 역 추가
-      if (userRoute.transferPath && userRoute.transferPath.length > 0) {
-        userRoute.transferPath.forEach((path) => {
-          bounds.extend(new kakao.maps.LatLng(path.latitude, path.longitude));
-        });
-      }
-
-      // stations의 모든 역 추가
+      // Bounds 계산에는 오프셋 없는 원본 좌표를 사용하여 정확한 범위를 잡습니다.
       if (userRoute.stations && userRoute.stations.length > 0) {
         userRoute.stations.forEach((station) => {
-          bounds.extend(new kakao.maps.LatLng(station.latitude, station.longitude));
+          bounds.extend(new window.kakao.maps.LatLng(station.latitude, station.longitude));
         });
+      } else {
+        bounds.extend(new window.kakao.maps.LatLng(userRoute.latitude, userRoute.longitude));
       }
     });
 
     map.setBounds(bounds);
   }, [map, endStation, userRoutes]);
 
-  // endStation이나 userRoutes가 없으면 빈 화면 표시
   if (!endStation || userRoutes.length === 0) {
     return (
-      <div className={`relative w-full max-w-full overflow-hidden ${className}`}>
-        <div className="flex h-full w-full items-center justify-center bg-gray-100">
+      <div className={`relative h-full w-full bg-gray-100 ${className}`}>
+        <div className="flex h-full w-full items-center justify-center">
           <span className="text-gray-6 text-sm">지도 정보가 없습니다.</span>
         </div>
       </div>
@@ -95,105 +84,112 @@ export default function KakaoMapLine({
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative h-full w-full max-w-full overflow-hidden ${className}`}>
       <Map
         center={{ lat: endStation.latitude, lng: endStation.longitude }}
         style={{ width: '100%', height: '100%' }}
         level={8}
         onCreate={setMap}
       >
-        {/* 도착지 마커 */}
         <CustomOverlayMap
           position={{ lat: endStation.latitude, lng: endStation.longitude }}
-          yAnchor={0.5}
+          yAnchor={1.2}
           zIndex={20}
         >
-          <div className="flex items-center justify-center rounded-full border border-white bg-[#A95623] px-4 py-1.5">
+          <div className="flex items-center justify-center rounded-full border border-white bg-[#A95623] px-4 py-1.5 shadow-md">
             <span className="text-sm font-semibold text-white">{endStation.name}</span>
           </div>
         </CustomOverlayMap>
 
-        {/* 사용자 경로 표시 */}
         {userRoutes.map((userRoute, index) => {
           const isHovered = hoveredUserId === userRoute.nickname;
           const userColor = getRandomHexColor(userRoute.nickname);
 
-          // 경로 좌표 생성 (출발역 -> transferPath -> 도착지)
-          const pathCoordinates: Array<{ lat: number; lng: number }> = [];
+          // ⭐ [핵심 로직] 오프셋 계산
+          // 총 인원 중 현재 인덱스의 위치를 계산하여 중앙 정렬 (-1.5, -0.5, 0.5, 1.5 ...)
+          // (index - (전체길이 - 1) / 2) 공식을 쓰면 0을 기준으로 대칭이 됩니다.
+          const offsetMultiplier = index - (userRoutes.length - 1) / 2;
+          const offsetVal = offsetMultiplier * LINE_OFFSET_GAP;
 
-          // 출발역 추가
-          pathCoordinates.push({ lat: userRoute.latitude, lng: userRoute.longitude });
+          // 1. 경로 좌표에 오프셋 적용
+          const pathCoordinates =
+            userRoute.stations && userRoute.stations.length > 0
+              ? userRoute.stations.map((station) => ({
+                  lat: station.latitude + offsetVal, // 위도 이동
+                  lng: station.longitude + offsetVal, // 경도 이동
+                }))
+              : [
+                  { lat: userRoute.latitude + offsetVal, lng: userRoute.longitude + offsetVal },
+                  { lat: endStation.latitude, lng: endStation.longitude },
+                ];
 
-          // transferPath 추가
-          if (userRoute.transferPath && userRoute.transferPath.length > 0) {
-            userRoute.transferPath.forEach((path) => {
-              pathCoordinates.push({ lat: path.latitude, lng: path.longitude });
-            });
-          }
-
-          // 도착지 추가
-          pathCoordinates.push({ lat: endStation.latitude, lng: endStation.longitude });
+          // 2. 출발 마커 좌표에도 오프셋 적용
+          const markerPosition = {
+            lat: userRoute.latitude + offsetVal,
+            lng: userRoute.longitude + offsetVal,
+          };
 
           return (
-            <div key={`user-${index}`}>
-              {/* 경로 선 */}
+            <React.Fragment key={`user-route-${index}`}>
               {pathCoordinates.length > 1 && (
                 <Polyline
                   path={pathCoordinates}
-                  strokeWeight={3}
+                  strokeWeight={4}
                   strokeColor={userColor}
+                  // 겹침 방지를 위해 평소에는 불투명하게,
+                  // 그래도 겹친다면 구분되도록 0.8 정도로 설정
+                  strokeOpacity={1}
                   strokeStyle={'solid'}
-                  strokeOpacity={isHovered ? 0.8 : 0.5}
-                  zIndex={isHovered ? 50 : 1}
                 />
               )}
 
-              {/* 출발지 마커 & 인터랙션 영역 */}
               <CustomOverlayMap
-                position={{ lat: userRoute.latitude, lng: userRoute.longitude }}
-                yAnchor={0.5}
+                position={markerPosition} // 오프셋 적용된 위치
+                yAnchor={1}
                 zIndex={isHovered ? 60 : 15}
               >
                 <div
-                  className="group flex cursor-pointer flex-col items-center"
-                  style={{ transform: 'translateY(-30px)' }}
+                  className="group relative flex cursor-pointer flex-col items-center"
                   onMouseEnter={() => setHoveredUserId(userRoute.nickname)}
                   onMouseLeave={() => setHoveredUserId(null)}
                 >
-                  {/* 말풍선 */}
-                  <div className="bg-gray-9 relative mb-1 flex flex-col items-center rounded px-4.5 py-1.25 shadow-lg transition-transform group-hover:-translate-y-1">
-                    <span className="mb-1 text-[11px] whitespace-nowrap text-white">
-                      {userRoute.startStation}에서
+                  <div
+                    className={`absolute bottom-full mb-2 flex flex-col items-center rounded bg-gray-900 px-3 py-1 shadow-lg transition-all duration-200 ${
+                      isHovered
+                        ? 'translate-y-0 opacity-100'
+                        : 'pointer-events-none translate-y-2 opacity-0'
+                    }`}
+                  >
+                    <span className="text-xs whitespace-nowrap text-white">
+                      {userRoute.startStation} ({userRoute.travelTime}분)
                     </span>
-                    <span className="text-blue-2 text-sm font-semibold whitespace-nowrap">
-                      {userRoute.travelTime}분
-                    </span>
-                    <div className="bg-gray-9 absolute -bottom-1 h-2 w-2 rotate-45 transform"></div>
+                    <div className="absolute -bottom-1 h-2 w-2 rotate-45 bg-gray-900"></div>
                   </div>
 
-                  {/* 원형 아이콘 (닉네임 앞글자) */}
                   <div
-                    className={`z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white transition-transform md:h-10 md:w-10 ${isHovered ? 'scale-110' : ''}`}
-                    style={{ backgroundColor: userColor }}
+                    className={`flex items-center justify-center rounded-full border-2 border-white shadow-sm transition-transform duration-200 ${
+                      isHovered ? 'z-50 scale-125' : 'scale-100'
+                    }`}
+                    style={{
+                      backgroundColor: userColor,
+                      width: '32px',
+                      height: '32px',
+                    }}
                   >
-                    <span className="text-sm font-semibold text-white md:text-lg">
+                    <span className="text-xs font-bold text-white">
                       {userRoute.nickname.charAt(0)}
                     </span>
                   </div>
-
-                  {/* 클릭/호버 감지 범위 확장용 투명 원 */}
-                  <div className="absolute top-1/2 left-1/2 z-0 h-25 w-25 -translate-x-1/2 -translate-y-1/2 rounded-full" />
                 </div>
               </CustomOverlayMap>
-            </div>
+            </React.Fragment>
           );
         })}
       </Map>
 
-      {/* 상단 고정 버튼 (지도 밖) */}
-      <div className="absolute top-6 left-1/2 z-20 -translate-x-1/2 transform">
+      <div className="absolute top-4 left-1/2 z-10 -translate-x-1/2 transform">
         <button
-          className="bg-blue-5 hover:bg-blue-8 relative flex h-9 cursor-pointer items-center rounded-full px-4 py-1.75 text-sm font-semibold text-white transition-colors"
+          className="bg-blue-5 hover:bg-blue-8 flex h-10 items-center rounded-full px-5 text-sm font-bold text-white shadow-lg transition-colors"
           onClick={() => {
             if (meetingId && endStation) {
               router.push(
@@ -204,7 +200,7 @@ export default function KakaoMapLine({
             }
           }}
         >
-          {endStation.name} 주변 장소 추천
+          {endStation.name}역 주변 장소 추천
         </button>
       </div>
 

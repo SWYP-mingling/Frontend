@@ -16,7 +16,11 @@ export default function Page() {
   // 현재 사용자 닉네임 가져오기
   const [myNickname] = useState<string>(() => {
     if (typeof window === 'undefined') return '';
-    return localStorage.getItem('userId') || sessionStorage.getItem('userId') || '';
+    return (
+      localStorage.getItem(`meeting_${id}_userId`) ||
+      sessionStorage.getItem(`meeting_${id}_userId`) ||
+      ''
+    );
   });
 
   const { data: midpointData, isLoading, isError } = useMidpoint(id);
@@ -28,10 +32,8 @@ export default function Page() {
 
     return midpointData.data.map((midpoint, index) => {
       const { endStation, endStationLine, userRoutes } = midpoint;
-
       const myRoute = userRoutes.find((route) => route.nickname === myNickname);
-
-      const travelTime = myRoute?.travelTime;
+      const travelTime = myRoute?.travelTime || 0; // 기본값 0 설정
 
       // 호선 번호 추출 함수 (숫자가 있으면 숫자만, 없으면 앞 글자만)
       const extractLineNumber = (linenumber: string): string => {
@@ -247,7 +249,7 @@ export default function Page() {
                       {/* 카드 헤더: 역 이름 & 시간 */}
                       <div className="flex items-center justify-between">
                         <span className="text-gray-10 text-lg font-semibold">
-                          {result.endStation}
+                          {result.endStation}역
                         </span>
                         <span className="text-gray-6 text-[13px] font-normal">
                           이동시간

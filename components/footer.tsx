@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useOpenModal } from '@/hooks/useOpenModal';
 
-const ICON = ['threads', 'instagram'];
+// const ICON = ['threads', 'instagram'];
 
 const Footer = () => {
   const openModal = useOpenModal();
