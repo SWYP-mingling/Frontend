@@ -6,6 +6,7 @@ import { useOpenModal } from '@/hooks/useOpenModal';
 import { useParams, useRouter } from 'next/navigation';
 import KakaoMapLine from '@/components/map/kakaoMapLine';
 import { useMidpoint } from '@/hooks/api/query/useMidpoint';
+import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting';
 import { getMeetingUserId } from '@/lib/storage';
 
 export default function Page() {
@@ -21,6 +22,7 @@ export default function Page() {
   });
 
   const { data: midpointData, isLoading, isError } = useMidpoint(id);
+  const { data: meetingData } = useCheckMeeting(id);
 
   const locationResults = useMemo(() => {
     if (!midpointData?.success || !midpointData.data || !Array.isArray(midpointData.data)) {
@@ -30,7 +32,7 @@ export default function Page() {
     return midpointData.data.map((midpoint, index) => {
       const { endStation, endStationLine, userRoutes } = midpoint;
       const myRoute = userRoutes.find((route) => route.nickname === myNickname);
-      const travelTime = myRoute?.travelTime || 0; // 기본값 0 설정
+      const travelTime = myRoute?.travelTime || 0;
 
       // 호선 번호 추출 함수 (숫자가 있으면 숫자만, 없으면 앞 글자만)
       const extractLineNumber = (linenumber: string): string => {
@@ -63,8 +65,8 @@ export default function Page() {
             const lineNumber = extractLineNumber(path.linenumber);
             if (lineNumber) {
               transferPathLines.push({
-                display: lineNumber, // 원 안에 표시할 값
-                text: path.linenumber, // 텍스트로 표시할 원래 값
+                display: lineNumber,
+                text: path.linenumber,
               });
             }
           }
@@ -74,12 +76,11 @@ export default function Page() {
       if (endStationLine) {
         const endLineNumber = extractLineNumber(endStationLine);
         if (endLineNumber) {
-          // transferPathLines의 마지막 항목과 비교
           const lastLine = transferPathLines[transferPathLines.length - 1];
           if (lastLine?.display !== endLineNumber) {
             transferPathLines.push({
-              display: endLineNumber, // 원 안에 표시할 값
-              text: endStationLine, // 텍스트로 표시할 원래 값
+              display: endLineNumber,
+              text: endStationLine,
             });
           }
         }
@@ -112,23 +113,23 @@ export default function Page() {
     if (/^\d+$/.test(cleaned)) {
       switch (cleaned) {
         case '1':
-          return 'bg-[#004A85]'; // 1호선 파랑
+          return 'bg-[#004A85]';
         case '2':
-          return 'bg-[#00A23F]'; // 2호선 초록
+          return 'bg-[#00A23F]';
         case '3':
-          return 'bg-[#ED6C00]'; // 3호선 파랑
+          return 'bg-[#ED6C00]';
         case '4':
-          return 'bg-[#009BCE]'; // 4호선 파랑
+          return 'bg-[#009BCE]';
         case '5':
-          return 'bg-[#794698]'; // 5호선 보라색
+          return 'bg-[#794698]';
         case '6':
-          return 'bg-[#7C4932]'; // 6호선 빨강
+          return 'bg-[#7C4932]';
         case '7':
-          return 'bg-[#6E7E31]'; // 7호선 초록
+          return 'bg-[#6E7E31]';
         case '8':
-          return 'bg-[#D11D70]'; // 8호선 빨강
+          return 'bg-[#D11D70]';
         case '9':
-          return 'bg-[#A49D87]'; // 9호선 회색
+          return 'bg-[#A49D87]';
         default:
           return 'bg-gray-400';
       }
@@ -136,41 +137,35 @@ export default function Page() {
 
     // 전체 호선명으로 처리 (앞 글자가 겹치는 경우 구분)
     switch (fullLineName) {
-      // 수도권 도시철도(경전철)
       case '우이신설선':
-        return 'bg-[#B0CE18]'; // 우이신설 노랑
+        return 'bg-[#B0CE18]';
       case '신림선':
-        return 'bg-[#5E7DBB]'; // 신림선 하늘
+        return 'bg-[#5E7DBB]';
       case '의정부경전철':
-        return 'bg-[#F0831E]'; // 의정부경전철 주황
+        return 'bg-[#F0831E]';
       case '용인에버라인':
-        return 'bg-[#44A436]'; // 용인에버라인 초록
+        return 'bg-[#44A436]';
       case '인천2호선':
-        return 'bg-[#F4A462]'; // 인천2호선 살색
+        return 'bg-[#F4A462]';
       case '김포골드라인':
-        return 'bg-[#F4A462]'; // 김포골드라인 금색
-
-      // 수도권 도시철도(중전철)
+        return 'bg-[#F4A462]';
       case '경의선':
       case '경의중앙선':
-        return 'bg-[#6AC2B3]'; // 경의중앙선 민트색
+        return 'bg-[#6AC2B3]';
       case '수인분당선':
-        return 'bg-[#ECA300]'; // 수인분당선 노란색
+        return 'bg-[#ECA300]';
       case '신분당선':
-        return 'bg-[#B81B30]'; // 신분당선 빨강색
+        return 'bg-[#B81B30]';
       case '인천1호선':
-        return 'bg-[#B4C7E7]'; // 인천1호선 연한 하늘색
+        return 'bg-[#B4C7E7]';
       case '공항철도':
-        return 'bg-[#0079AC]'; // 공항철도 파랑색
-
-      // 광역철도
+        return 'bg-[#0079AC]';
       case '경춘선':
-        return 'bg-[#007A62]'; // 경춘선 초록
+        return 'bg-[#007A62]';
       case '경강산':
-        return 'bg-[#0B318F]'; // 경강산 파란
+        return 'bg-[#0B318F]';
       case '서해선':
-        return 'bg-[#5EAC41]'; // 서해선 초록
-
+        return 'bg-[#5EAC41]';
       default:
         return 'bg-gray-400';
     }
@@ -214,6 +209,7 @@ export default function Page() {
                     }}
                     userRoutes={selectedResult.userRoutes}
                     meetingId={id}
+                    purposes={meetingData?.data?.purposes}
                   />
                 </div>
               );
@@ -338,6 +334,7 @@ export default function Page() {
                   }}
                   userRoutes={selectedResult.userRoutes}
                   meetingId={id}
+                  purposes={meetingData?.data?.purposes}
                 />
               );
             })()}

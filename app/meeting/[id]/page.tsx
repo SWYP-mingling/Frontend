@@ -314,7 +314,7 @@ export default function Page() {
 
             <button
               onClick={handleSubmit}
-              className="bg-gray-8 right-5 left-5 h-12 cursor-pointer rounded text-lg text-white md:absolute md:right-0 md:bottom-0 md:left-0 md:mb-0"
+              className="bg-gray-8 right-5 left-5 mb-10 h-12 cursor-pointer rounded text-lg text-white md:absolute md:right-0 md:bottom-0 md:left-0 md:mb-0"
             >
               결과보기
             </button>

@@ -145,12 +145,17 @@ export default function Page() {
         // purposes를 localStorage에 저장 (장소 추천 카테고리로 사용)
         const purposes = getPurposes();
         if (purposes.length > 0) {
-          // purposes 배열에서 장소 카테고리 추출 (마지막 값이 일반적으로 장소 카테고리)
-          const category = purposes[purposes.length - 1];
-          localStorage.setItem(`meeting_${meetingId}_category`, category);
-        }
-        if (meetingType) {
-          localStorage.setItem(`meeting_${meetingId}_meetingType`, meetingType);
+          // meetingType 저장 (회의 또는 친목)
+          if (meetingType) {
+            localStorage.setItem(`meeting_${meetingId}_meetingType`, meetingType);
+          }
+
+          // 하위 카테고리 저장 (스터디 카페, 식당 등)
+          if (meetingType === '회의' && selectedLocation) {
+            localStorage.setItem(`meeting_${meetingId}_category`, selectedLocation);
+          } else if (meetingType === '친목' && selectedSocialPlace) {
+            localStorage.setItem(`meeting_${meetingId}_category`, selectedSocialPlace);
+          }
         }
 
         // 링크 공유 페이지 이동
@@ -312,8 +317,10 @@ export default function Page() {
               >
                 <Image src="/icon/minus.svg" alt="minus" width={20} height={20} />
               </button>
-              <div className={`absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 text-[15px] leading-[1.6] tracking-[0.144px] ${isParticipantUndecided ? 'text-gray-3' : 'text-gray-8'}`}>
-                <span>{participantCount}</span> 
+              <div
+                className={`absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 text-[15px] leading-[1.6] tracking-[0.144px] ${isParticipantUndecided ? 'text-gray-3' : 'text-gray-8'}`}
+              >
+                <span>{participantCount}</span>
                 <span>명</span>
               </div>
               <button
@@ -357,10 +364,14 @@ export default function Page() {
                 <Image src="/icon/minus.svg" alt="minus" width={20} height={20} />
               </button>
               <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-                <span className={`text-[12px] leading-[1.334] tracking-[0.3024px] ${isDeadlineFlexible ? 'text-gray-3' : 'text-blue-5'}`}>
+                <span
+                  className={`text-[12px] leading-[1.334] tracking-[0.3024px] ${isDeadlineFlexible ? 'text-gray-3' : 'text-blue-5'}`}
+                >
                   {getDeadlineDate()}
                 </span>
-                <div className={`flex items-center gap-0.5 text-[15px] leading-[1.6] tracking-[0.144px] ${isDeadlineFlexible ? 'text-gray-3' : 'text-gray-8'}`}>
+                <div
+                  className={`flex items-center gap-0.5 text-[15px] leading-[1.6] tracking-[0.144px] ${isDeadlineFlexible ? 'text-gray-3' : 'text-gray-8'}`}
+                >
                   <span>{deadlineDays}</span>
                   <span>일</span>
                 </div>

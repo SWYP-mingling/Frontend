@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, Suspense } from 'react';
-import {  useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import KakaoMapRecommend from '@/components/map/kakaoMapRecommend';
 import { useRecommend } from '@/hooks/api/query/useRecommend';
@@ -15,6 +15,10 @@ function RecommendContent() {
   const lat = searchParams.get('lat');
   const lng = searchParams.get('lng');
 
+  // 🔥 쿼리스트링에서 카테고리 정보 읽기
+  const categoryFromUrl = searchParams.get('category') || '';
+  const meetingTypeFromUrl = searchParams.get('meetingType') as '회의' | '친목' | null;
+
   // 좌표 파싱 (쿼리 파라미터에서 가져오기)
   const midPlaceLatitude = lat ? parseFloat(lat) : undefined;
   const midPlaceLongitude = lng ? parseFloat(lng) : undefined;
@@ -25,33 +29,45 @@ function RecommendContent() {
   // 모임 정보 조회 (purposes 정보를 가져오기 위해)
   const { data: meetingData } = useCheckMeeting(meetingId);
 
-  // 상위 카테고리 추출 (API에서 가져오거나 localStorage에서)
+  // 🔥 상위 카테고리 추출 (우선순위: URL > API > localStorage)
   const meetingType = useMemo(() => {
     if (typeof window === 'undefined') return null;
-    
-    // 1. API에서 purposes 가져오기 (참여자도 접근 가능)
+
+    // 1. URL 쿼리스트링에서 가져오기 (최우선)
+    if (meetingTypeFromUrl === '회의' || meetingTypeFromUrl === '친목') {
+      localStorage.setItem(`meeting_${meetingId}_meetingType`, meetingTypeFromUrl);
+      return meetingTypeFromUrl;
+    }
+
+    // 2. API에서 purposes 가져오기 (참여자도 접근 가능)
     if (meetingData?.data?.purposes && meetingData.data.purposes.length > 0) {
       const firstPurpose = meetingData.data.purposes[0];
       if (firstPurpose === '회의' || firstPurpose === '친목') {
-        // localStorage에도 저장 (다음 접근 시 빠르게 사용)    localStorage.setItem(`meeting_${meetingId}_meetingType`, firstPurpose);
+        localStorage.setItem(`meeting_${meetingId}_meetingType`, firstPurpose);
         return firstPurpose as '회의' | '친목';
       }
     }
-    
-  
+
+    // 3. localStorage에서 가져오기
     const cachedType = localStorage.getItem(`meeting_${meetingId}_meetingType`);
     if (cachedType === '회의' || cachedType === '친목') {
       return cachedType as '회의' | '친목';
     }
-    
-    return null;
-  }, [meetingId, meetingData]);
 
-  // 하위 카테고리 추출 (API에서 가져오거나 localStorage에서)
+    return null;
+  }, [meetingId, meetingData, meetingTypeFromUrl]);
+
+  // 🔥 하위 카테고리 추출 (우선순위: URL > API > localStorage)
   const defaultCategory = useMemo(() => {
     if (typeof window === 'undefined') return '';
-    
-    // 1. API에서 가져온 purposes의 마지막 값 사용
+
+    // 1. URL 쿼리스트링에서 가져오기 (최우선)
+    if (categoryFromUrl) {
+      localStorage.setItem(`meeting_${meetingId}_category`, categoryFromUrl);
+      return categoryFromUrl;
+    }
+
+    // 2. API에서 가져온 purposes의 마지막 값 사용
     if (meetingData?.data?.purposes && meetingData.data.purposes.length > 1) {
       const subCategory = meetingData.data.purposes[meetingData.data.purposes.length - 1];
       if (subCategory) {
@@ -60,18 +76,22 @@ function RecommendContent() {
         return subCategory;
       }
     }
-    
+
+    // 3. localStorage에서 가져오기
     const cachedCategory = localStorage.getItem(`meeting_${meetingId}_category`);
     return cachedCategory || '';
-  }, [meetingId, meetingData]);
+  }, [meetingId, meetingData, categoryFromUrl]);
 
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
-    if (typeof window === 'undefined') return '';
-    return localStorage.getItem(`meeting_${meetingId}_category`) || '';
+    if (typeof window !== 'undefined') {
+      const cachedCategory = localStorage.getItem(`meeting_${meetingId}_category`);
+      if (cachedCategory) return cachedCategory;
+    }
+    return '';
   });
 
   const currentCategory = selectedCategory || defaultCategory;
-  
+
   const effectiveCategory = currentCategory;
 
   // 카테고리 변경 핸들러
@@ -84,7 +104,11 @@ function RecommendContent() {
   };
 
   // 장소 추천 API 호출 (effectiveCategory 사용 - selectedCategory가 우선)
-  const { data: recommendData, isLoading, isError } = useRecommend({
+  const {
+    data: recommendData,
+    isLoading,
+    isError,
+  } = useRecommend({
     meetingId,
     midPlace,
     category: effectiveCategory,
@@ -134,7 +158,7 @@ function RecommendContent() {
             <button onClick={handleBack} className="flex h-6 w-6 items-center justify-center">
               <Image src="/icon/left_chevron.svg" alt="왼쪽 꺾쇠 기호" width={24} height={24} />
             </button>
-            <h2 className="text-gray-9 text-xl font-semibold">{midPlace} 주변 장소 추천</h2>
+            <h2 className="text-gray-9 text-xl font-semibold">{midPlace}역 주변 장소 추천</h2>
           </div>
 
           {/* 모바일 전용 지도 (작게 표시) */}
