@@ -149,6 +149,9 @@ export default function Page() {
           const category = purposes[purposes.length - 1];
           localStorage.setItem(`meeting_${meetingId}_category`, category);
         }
+        if (meetingType) {
+          localStorage.setItem(`meeting_${meetingId}_meetingType`, meetingType);
+        }
 
         // 링크 공유 페이지 이동
         router.push(`/share/${meetingId}`);
