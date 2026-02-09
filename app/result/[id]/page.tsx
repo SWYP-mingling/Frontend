@@ -8,8 +8,10 @@ import KakaoMapLine from '@/components/map/kakaoMapLine';
 import { useMidpoint } from '@/hooks/api/query/useMidpoint';
 import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting';
 import { getMeetingUserId } from '@/lib/storage';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Page() {
+  const queryClient = useQueryClient();
   const openModal = useOpenModal();
   const router = useRouter();
   const params = useParams();
@@ -103,6 +105,9 @@ export default function Page() {
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
 
   const handleModifyStart = () => {
+    queryClient.removeQueries({ queryKey: ['midpoint', id] });
+    queryClient.removeQueries({ queryKey: ['recommend', id] });
+
     router.back();
   };
 
