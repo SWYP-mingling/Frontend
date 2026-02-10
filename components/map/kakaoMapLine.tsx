@@ -52,7 +52,6 @@ export default function KakaoMapLine({
 }: KakaoMapLineProps) {
   const router = useRouter();
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
-  const [hoveredUserId, setHoveredUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!map || !endStation || userRoutes.length === 0) return;
@@ -83,22 +82,17 @@ export default function KakaoMapLine({
     let meetingType = '';
     let category = '';
 
-    // 🔥 1순위: localStorage에서 가져오기
     if (typeof window !== 'undefined') {
       meetingType = localStorage.getItem(`meeting_${meetingId}_meetingType`) || '';
       category = localStorage.getItem(`meeting_${meetingId}_category`) || '';
     }
 
-    // 🔥 2순위: localStorage에 없으면 purposes에서 가져오기 (fallback)
     if (!meetingType && purposes && purposes.length > 0) {
       meetingType = purposes[0];
     }
     if (!category && purposes && purposes.length > 1) {
       category = purposes[purposes.length - 1];
     }
-
-    console.log('🔍 meetingType:', meetingType);
-    console.log('🔍 category:', category);
 
     const params = new URLSearchParams({
       meetingId,
@@ -107,14 +101,9 @@ export default function KakaoMapLine({
       lng: endStation.longitude.toString(),
     });
 
-    if (meetingType) {
-      params.append('meetingType', meetingType);
-    }
-    if (category) {
-      params.append('category', category);
-    }
+    if (meetingType) params.append('meetingType', meetingType);
+    if (category) params.append('category', category);
 
-    console.log('🔍 final URL:', `/recommend?${params.toString()}`);
     router.push(`/recommend?${params.toString()}`);
   };
 
@@ -136,10 +125,11 @@ export default function KakaoMapLine({
         level={8}
         onCreate={setMap}
       >
+        {/* 도착지 마커 */}
         <CustomOverlayMap
           position={{ lat: endStation.latitude, lng: endStation.longitude }}
-          yAnchor={1.2}
-          zIndex={20}
+          yAnchor={0.5}
+          zIndex={100}
         >
           <div className="flex items-center justify-center rounded-full border border-white bg-[#A95623] px-4 py-1.5 shadow-md">
             <span className="text-sm font-semibold text-white">{endStation.name}</span>
@@ -147,7 +137,6 @@ export default function KakaoMapLine({
         </CustomOverlayMap>
 
         {userRoutes.map((userRoute, index) => {
-          const isHovered = hoveredUserId === userRoute.nickname;
           const userColor = getRandomHexColor(userRoute.nickname);
 
           const offsetMultiplier = index - (userRoutes.length - 1) / 2;
@@ -181,36 +170,32 @@ export default function KakaoMapLine({
                 />
               )}
 
-              <CustomOverlayMap position={markerPosition} yAnchor={1} zIndex={isHovered ? 60 : 15}>
-                <div
-                  className="group relative flex cursor-pointer flex-col items-center"
-                  onMouseEnter={() => setHoveredUserId(userRoute.nickname)}
-                  onMouseLeave={() => setHoveredUserId(null)}
-                >
-                  <div
-                    className={`absolute bottom-full mb-2 flex flex-col items-center rounded bg-gray-900 px-3 py-1 shadow-lg transition-all duration-200 ${
-                      isHovered
-                        ? 'translate-y-0 opacity-100'
-                        : 'pointer-events-none translate-y-2 opacity-0'
-                    }`}
-                  >
-                    <span className="text-xs whitespace-nowrap text-white">
-                      {userRoute.startStation} ({userRoute.travelTime}분)
+              {/* 출발지 마커 & 정보창 (항상 표시) */}
+              <CustomOverlayMap
+                position={markerPosition}
+                yAnchor={1}
+                zIndex={30} // 마커가 선보다 위에 오도록
+              >
+                <div className="flex flex-col items-center">
+                  {/* 1. 상단 정보 말풍선 (검은색 박스) */}
+                  <div className="relative mb-2 flex min-w-[80px] flex-col items-center justify-center rounded bg-[#2C2F36] px-3 py-2 shadow-lg">
+                    <span className="text-[11px] leading-tight whitespace-nowrap text-white">
+                      {userRoute.startStation}역에서
                     </span>
-                    <div className="absolute -bottom-1 h-2 w-2 rotate-45 bg-gray-900"></div>
+                    <span className="text-blue-2 mt-0.5 text-[14px] leading-tight font-semibold whitespace-nowrap">
+                      {userRoute.travelTime}분
+                    </span>
+
+                    {/* 말풍선 꼬리 (아래쪽 화살표) */}
+                    <div className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 transform bg-[#2C2F36]"></div>
                   </div>
 
+                  {/* 2. 하단 원형 프로필 아이콘 */}
                   <div
-                    className={`flex items-center justify-center rounded-full border-2 border-white shadow-sm transition-transform duration-200 ${
-                      isHovered ? 'z-50 scale-125' : 'scale-100'
-                    }`}
-                    style={{
-                      backgroundColor: userColor,
-                      width: '32px',
-                      height: '32px',
-                    }}
+                    className="z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white shadow-md"
+                    style={{ backgroundColor: userColor }}
                   >
-                    <span className="text-xs font-bold text-white">
+                    <span className="text-lg font-bold text-white">
                       {userRoute.nickname.charAt(0)}
                     </span>
                   </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation'; // [추가] useSearchParams
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useEnterParticipant } from '@/hooks/api/mutation/useEnterParticipant';
 import { useToast } from '@/hooks/useToast';
@@ -14,7 +14,7 @@ interface JoinFormProps {
 
 export default function JoinForm({ meetingId }: JoinFormProps) {
   const router = useRouter();
-  const searchParams = useSearchParams(); // [추가] 쿼리 스트링 읽기용 훅
+  const searchParams = useSearchParams();
 
   // meetingId는 부모(Page)에서 props로 전달받음
   const { isLogin, isChecking } = useIsLoggedIn(meetingId);
@@ -22,7 +22,7 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [isRemembered, setIsRemembered] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(''); // [수정] string 타입으로 초기화
+  const [errorMessage, setErrorMessage] = useState('');
 
   const participantEnter = useEnterParticipant();
   const { isVisible, show } = useToast();
@@ -68,7 +68,7 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
     if (!isFormValid || !meetingId) return;
 
     try {
-      // @ts-ignore (혹시 모를 타입 불일치 방지, API 스펙에 따라 제거 가능)
+      // @ts-ignore
       const result = await participantEnter.mutateAsync({
         meetingId,
         data: {
@@ -77,15 +77,26 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
         },
       });
 
+      // 200 OK (성공)일 때만 여기 실행
       if (result.success) {
         setMeetingUserId(meetingId, name, isRemembered);
         router.push(`/meeting/${meetingId}`);
+      }
+    } catch (error: any) {
+      // ⭐ [핵심] 400 에러가 뜨면 바로 여기로 옴
+      // Axios 에러 객체 안에 서버가 보낸 JSON 데이터가 들어있음
+      console.log('에러 raw 데이터 확인', error);
+      const errorResponse = error.response?.data;
+
+      console.log('에러 데이터 확인:', errorResponse); // 디버깅용 로그
+
+      // 2. 코드가 없으면 메시지 확인
+      if (errorResponse?.message) {
+        setErrorMessage(errorResponse.message);
       } else {
         setErrorMessage('모임 참여에 실패했습니다. 다시 시도해주세요.');
-        show();
       }
-    } catch (error) {
-      setErrorMessage('모임 참여에 실패했습니다. 이름과 비밀번호를 확인해주세요.');
+
       show();
     }
   };
