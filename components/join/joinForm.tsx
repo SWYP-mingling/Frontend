@@ -77,22 +77,20 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
         },
       });
 
-      // 200 OK (성공)일 때만 여기 실행
+      // 1. HTTP 200 OK지만 논리적 실패인 경우 (success: false)
       if (result.success) {
         setMeetingUserId(meetingId, name, isRemembered);
         router.push(`/meeting/${meetingId}`);
+      } else {
+        setErrorMessage(result.data.message || '모임 참여에 실패했습니다. 다시 시도해주세요.');
+        show();
       }
     } catch (error: any) {
-      // ⭐ [핵심] 400 에러가 뜨면 바로 여기로 옴
-      // Axios 에러 객체 안에 서버가 보낸 JSON 데이터가 들어있음
-      console.log('에러 raw 데이터 확인', error);
-      const errorResponse = error.response?.data;
+      const errorData = error.data || error.response?.data;
+      const serverMessage = errorData?.message;
 
-      console.log('에러 데이터 확인:', errorResponse); // 디버깅용 로그
-
-      // 2. 코드가 없으면 메시지 확인
-      if (errorResponse?.message) {
-        setErrorMessage(errorResponse.message);
+      if (serverMessage) {
+        setErrorMessage(serverMessage);
       } else {
         setErrorMessage('모임 참여에 실패했습니다. 다시 시도해주세요.');
       }
