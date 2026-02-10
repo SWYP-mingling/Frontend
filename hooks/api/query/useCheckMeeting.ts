@@ -14,7 +14,7 @@ export const useCheckMeeting = (meetingId: string) => {
       return apiGet<MeetingStatusResponse>(`/api/meeting/${meetingId}/status`);
     },
     enabled: hasUserId && !!meetingId,
-    refetchInterval: 10000,
+    refetchInterval: 5000,
     retry: false,
     throwOnError: false,
   });
