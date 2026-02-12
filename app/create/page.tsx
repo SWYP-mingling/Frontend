@@ -174,8 +174,11 @@ export default function Page() {
     <div className="flex flex-col">
       <div className="flex flex-1 justify-center overflow-hidden">
         <div className="mx-5 my-10 flex w-full flex-col items-center gap-11 sm:max-w-sm md:mx-12.5 md:my-20 lg:mx-42.5 lg:my-25 lg:gap-11">
+          <div className="flex w-full justify-start">
+            <h3 className="text-gray-10 text-2xl leading-[1.33] font-bold">모임 만들기</h3>
+          </div>
           <div className="flex w-full flex-col gap-2">
-            <label className="text-gray-9 text-[14px] leading-[1.571] font-semibold tracking-[0.203px]">
+            <label className="text-gray-9 text-[16px] leading-[1.571] font-semibold tracking-[0.203px]">
               약속의 이름을 알려주세요.
             </label>
             <input
@@ -188,8 +191,12 @@ export default function Page() {
           </div>
 
           <div className="flex w-full flex-col gap-2">
-            <label className="text-gray-9 text-[14px] leading-[1.571] font-semibold tracking-[0.203px]">
+            <label className="text-gray-9 text-[16px] leading-[1.571] font-semibold tracking-[0.203px]">
               어떤 약속인가요?
+            </label>
+
+            <label className="text-gray-6 text-[11px] leading-[1.273]">
+              추후 맞춤 장소 추천을 위해 선택해주세요.
             </label>
 
             <div className="flex gap-2">
@@ -305,7 +312,7 @@ export default function Page() {
           </div>
 
           <div className="flex w-full flex-col gap-2">
-            <label className="text-gray-9 text-[14px] leading-[1.571] font-semibold tracking-[0.203px] sm:text-[15px] md:text-[14px]">
+            <label className="text-gray-9 text-[16px] leading-[1.571] font-semibold tracking-[0.203px]">
               참여 인원을 알려주세요.
             </label>
             <div className="border-gray-2 relative flex h-11 items-center rounded border bg-white">
@@ -351,7 +358,7 @@ export default function Page() {
           </div>
 
           <div className="flex w-full flex-col gap-2">
-            <label className="text-gray-9 text-[14px] leading-[1.571] font-semibold tracking-[0.203px] sm:text-[15px] md:text-[14px]">
+            <label className="text-gray-9 text-[16px] leading-[1.571] font-semibold tracking-[0.203px]">
               참여 기한을 정해주세요.
             </label>
             <div className="border-gray-2 relative flex h-15 items-center rounded border bg-white">
