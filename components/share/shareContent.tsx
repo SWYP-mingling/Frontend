@@ -19,8 +19,8 @@ export default function ShareContent({ id }: ShareContentProps) {
 
   return (
     <div className="flex flex-col items-center justify-center bg-white px-5 py-10 md:py-25">
-      <h2 className="text-gray-10 mb-9 text-center text-2xl leading-[1.334] font-bold md:text-4xl">
-        모임이 만들어졌어요!
+      <h2 className="text-gray-10 mb-9 text-center text-2xl leading-[1.334] font-bold">
+        모임원들에게
         <br />
         링크를 공유해주세요
       </h2>
