@@ -29,11 +29,11 @@ interface KakaoMapRecommendProps {
 // 전체 카테고리 목록
 const ALL_CATEGORIES = [
   { id: '식당', label: '식당', icon: '/icon/place/restaurant' },
-  { id: '술집', label: '술집', icon: '/icon/place/bar' }, 
+  { id: '술집', label: '술집', icon: '/icon/place/bar' },
   { id: '카페', label: '카페', icon: '/icon/place/cafe' },
   { id: '놀거리', label: '놀거리', icon: '/icon/place/play' },
-  { id: '스터디카페', label: '스터디카페', icon: '/icon/place/studycafe' },
-  { id: '장소 대여', label: '장소 대여', icon: '/icon/place/rent' }, 
+  { id: '스터디 카페', label: '스터디 카페', icon: '/icon/place/studycafe' },
+  { id: '장소 대여', label: '장소 대여', icon: '/icon/place/rent' },
 ];
 
 export default function KakaoMapRecommend({
@@ -54,7 +54,7 @@ export default function KakaoMapRecommend({
   const categories = useMemo(() => {
     if (meetingType === '회의') {
       // 회의: 스터디카페, 장소 대여
-      return ALL_CATEGORIES.filter((cat) => cat.id === '스터디카페' || cat.id === '장소 대여');
+      return ALL_CATEGORIES.filter((cat) => cat.id === '스터디 카페' || cat.id === '장소 대여');
     } else if (meetingType === '친목') {
       // 친목: 식당, 술집, 카페, 놀거리
       return ALL_CATEGORIES.filter(
