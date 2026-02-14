@@ -158,7 +158,7 @@ function RecommendContent() {
             <button onClick={handleBack} className="flex h-6 w-6 items-center justify-center">
               <Image src="/icon/left_chevron.svg" alt="왼쪽 꺾쇠 기호" width={24} height={24} />
             </button>
-            <h2 className="text-gray-9 text-xl font-semibold">{midPlace}역 주변 장소 추천</h2>
+            <h2 className="text-gray-9 text-[22px] font-semibold">{midPlace}역 주변 장소 추천</h2>
           </div>
 
           {/* 모바일 전용 지도 (작게 표시) */}
@@ -248,7 +248,7 @@ function RecommendContent() {
                     {selectedPlaceId === place.id ? (
                       <button
                         onClick={(e) => handleOpenKakaoMap(e, place.placeUrl)}
-                        className="bg-gray-8 w-full rounded py-1 text-[15px] text-white"
+                        className="bg-gray-8 w-full rounded py-2 text-[15px] text-white"
                       >
                         카카오맵에서 보기
                       </button>
