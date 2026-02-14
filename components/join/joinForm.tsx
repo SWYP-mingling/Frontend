@@ -25,14 +25,10 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
   const [isRemembered, setIsRemembered] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // ⚡️ [핵심] 진입과 동시에 값 결정 (URL 파라미터 우선 -> 로컬스토리지 순)
-  // 이렇게 해야 공유 링크로 들어왔을 때 깜빡임 없이 바로 값이 보입니다.
   const [meetingTypeVal] = useState(() => {
     if (typeof window === 'undefined') return '';
-    // 1. URL 파라미터가 있으면 무조건 이걸 먼저 보여줌 (가장 최신 의도)
     const param = searchParams.get('meetingType');
     if (param) return param;
-    // 2. URL에 없으면 로컬스토리지(과거 기록) 확인
     return localStorage.getItem(`meeting_${meetingId}_meetingType`) || '';
   });
 
@@ -43,7 +39,6 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
     return localStorage.getItem(`meeting_${meetingId}_category`) || '';
   });
 
-  // [보조] URL 파라미터가 있다면 로컬스토리지에 '저장'만 해둠 (다음 방문을 위해)
   useEffect(() => {
     if (!meetingId) return;
     const meetingType = searchParams.get('meetingType');
@@ -57,7 +52,6 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
     }
   }, [searchParams, meetingId]);
 
-  // 로그인 체크
   useEffect(() => {
     if (isChecking) return;
     if (isLogin && meetingId) {

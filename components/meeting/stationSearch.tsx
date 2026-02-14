@@ -45,7 +45,7 @@ export default function StationSearch({
 
   return (
     <div className="relative z-20 px-5 md:p-0">
-      <h3 className="text-gray-9 mb-3 text-xl font-semibold">내 출발지</h3>
+      <h3 className="text-gray-9 mb-3 text-[22px] font-semibold">내 출발지</h3>
       <div className="relative w-full">
         {selectedStation ? (
           // [CASE 1] 선택 완료 상태
@@ -87,7 +87,7 @@ export default function StationSearch({
 
             {/* 자동완성 드롭다운 */}
             {searchValue && filteredStations.length > 0 && (
-              <ul className="border-gray-2 absolute top-full left-0 z-50 mt-2 max-h-50 w-full overflow-y-auto rounded border bg-white p-2 shadow-lg">
+              <ul className="border-gray-2 absolute top-full left-0 z-50 mt-2 max-h-50 w-full overflow-y-auto rounded border bg-white p-2">
                 {filteredStations.map((station, index) => (
                   <li
                     // key에 index를 섞거나 고유 ID가 있다면 사용하는 것이 좋습니다.
