@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
 import { useIsLoggedIn } from '@/hooks/useIsLoggedIn';
 import { setMeetingUserId } from '@/lib/storage';
+import Image from 'next/image';
 
 interface JoinFormProps {
   meetingId: string;
@@ -15,26 +16,34 @@ interface JoinFormProps {
 export default function JoinForm({ meetingId }: JoinFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // meetingId는 부모(Page)에서 props로 전달받음
   const { isLogin, isChecking } = useIsLoggedIn(meetingId);
+  const participantEnter = useEnterParticipant();
+  const { isVisible, show } = useToast();
 
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [isRemembered, setIsRemembered] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const participantEnter = useEnterParticipant();
-  const { isVisible, show } = useToast();
+  const [meetingTypeVal] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    const param = searchParams.get('meetingType');
+    if (param) return param;
+    return localStorage.getItem(`meeting_${meetingId}_meetingType`) || '';
+  });
 
-  // [추가] 공유 링크로 들어왔을 때 카테고리 정보를 localStorage에 저장
+  const [categoryVal] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    const param = searchParams.get('category');
+    if (param) return param;
+    return localStorage.getItem(`meeting_${meetingId}_category`) || '';
+  });
+
   useEffect(() => {
     if (!meetingId) return;
-
     const meetingType = searchParams.get('meetingType');
     const category = searchParams.get('category');
 
-    // 값이 존재할 때만 저장 (기존 값을 덮어쓰거나 새로 저장)
     if (meetingType) {
       localStorage.setItem(`meeting_${meetingId}_meetingType`, meetingType);
     }
@@ -43,10 +52,8 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
     }
   }, [searchParams, meetingId]);
 
-  // 기존 로그인 체크 및 리다이렉트 로직
   useEffect(() => {
     if (isChecking) return;
-
     if (isLogin && meetingId) {
       router.replace(`/meeting/${meetingId}`);
     }
@@ -77,12 +84,11 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
         },
       });
 
-      // 1. HTTP 200 OK지만 논리적 실패인 경우 (success: false)
       if (result.success) {
         setMeetingUserId(meetingId, name, isRemembered);
         router.push(`/meeting/${meetingId}`);
       } else {
-        setErrorMessage(result.data.message || '모임 참여에 실패했습니다. 다시 시도해주세요.');
+        setErrorMessage(result.data?.message || '모임 참여에 실패했습니다. 다시 시도해주세요.');
         show();
       }
     } catch (error: any) {
@@ -94,20 +100,47 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
       } else {
         setErrorMessage('모임 참여에 실패했습니다. 다시 시도해주세요.');
       }
-
       show();
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-11 bg-white px-5 py-10 md:min-h-[calc(100vh-200px)] md:justify-center">
-      <h1 className="w-full text-[22px] font-semibold text-black md:max-w-sm">
-        모임에 참여해 주세요.
-      </h1>
+    <div className="flex flex-col items-center justify-center gap-11 bg-white px-5 pt-12.5 pb-25 md:min-h-[calc(100vh-200px)] md:justify-center">
+      <div className="relative h-64 w-full max-w-215">
+        <Image
+          src="/images/banner.jpg"
+          alt="배너이미지"
+          fill
+          className="rounded-2xl object-cover"
+          sizes="(max-width: 768px) 100vw, 860px"
+          priority
+        />
+      </div>
+
+      <div className="flex w-full flex-col items-start gap-3 md:max-w-sm">
+        <h1 className="w-full text-[22px] font-semibold text-black">모임에 참여해 주세요.</h1>
+
+        {/* ⚡️ suppressHydrationWarning 필수 */}
+        {/* 서버(값 없음) vs 클라이언트(값 있음) 불일치 경고 무시 */}
+        {(meetingTypeVal || categoryVal) && (
+          <div className="flex gap-2" suppressHydrationWarning>
+            {meetingTypeVal && (
+              <span className="text-blue-5 bg-gray-1 rounded px-3 py-1 text-xs font-medium">
+                {meetingTypeVal}
+              </span>
+            )}
+            {categoryVal && (
+              <span className="text-blue-5 bg-gray-1 rounded px-3 py-1 text-xs font-medium">
+                {categoryVal}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5 md:max-w-sm">
         <div className="flex flex-col gap-2">
-          <label htmlFor="name" className="text-gray-9 text-sm font-semibold">
+          <label htmlFor="name" className="text-gray-9 text-[16px] font-semibold">
             이름을 입력해주세요.
           </label>
           <input
@@ -122,8 +155,8 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="password" className="text-gray-9 text-sm font-semibold">
-            비밀번호를 입력해주세요
+          <label htmlFor="password" className="text-gray-9 text-[16px] font-semibold">
+            비밀번호를 설정해주세요
           </label>
           <input
             id="password"
@@ -140,7 +173,6 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
             }`}
           />
 
-          {/* 내 정보 기억하기 체크박스 */}
           <div
             onClick={() => setIsRemembered(!isRemembered)}
             className="flex cursor-pointer items-center gap-2"

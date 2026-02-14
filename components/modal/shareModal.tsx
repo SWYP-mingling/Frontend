@@ -38,7 +38,7 @@ export default function ShareModal({ isOpen, onClose, meetingId }: ShareModalPro
       >
         {/* 헤더 영역 */}
         <DialogHeader className="text-left">
-          <DialogTitle className="pr-4 text-[22px] font-semibold text-black">
+          <DialogTitle className="pr-4 text-xl font-semibold text-black">
             모임 링크를 공유해주세요
           </DialogTitle>
           <DialogDescription className="sr-only">

@@ -22,7 +22,6 @@ export default function MeetingInfoSection({
 }: MeetingInfoProps) {
   const { days, hours, minutes, isExpired } = useCountdown(deadline);
 
-  // 남은 인원 (음수 방지)
   const pendingCount = Math.max(0, totalCapacity - currentParticipants);
 
   // 1. 시간 렌더링 여부: (기한 유연 아님) AND (59일 미만)
@@ -35,7 +34,7 @@ export default function MeetingInfoSection({
   return (
     <div className="px-5 pt-10 md:p-0">
       <div className="flex items-start justify-between">
-        <div className="text-[22px] leading-[1.364] font-semibold tracking-[-1.948%] break-keep">
+        <div className="text-[28px] leading-[1.358] font-bold tracking-[-2.36%] break-keep">
           {/* --- [타이틀 영역] --- */}
           <h2 className="text-gray-9">
             {isTimeSet ? (

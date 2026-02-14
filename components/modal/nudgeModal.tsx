@@ -37,7 +37,7 @@ export default function NudgeModal({ isOpen, onClose, meetingId }: NudgeModalPro
         className="flex w-80 flex-col gap-6 rounded bg-white px-6 py-5 md:w-89.5"
       >
         <DialogHeader className="text-left">
-          <DialogTitle className="pr-4 text-[22px] leading-[1.364] font-semibold text-black">
+          <DialogTitle className="pr-4 text-xl leading-[1.4] font-semibold text-black">
             아직 입력하지 않은 친구를 <br />
             재촉해 보세요!
           </DialogTitle>

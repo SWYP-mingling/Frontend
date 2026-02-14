@@ -33,7 +33,7 @@ export default function Page() {
 
   const hasHandledErrorRef = useRef(false);
   const isDeletingRef = useRef(false);
-  const hasInitializedRef = useRef(false); // ⭐ 초기화 플래그 추가
+  const hasInitializedRef = useRef(false);
 
   const params = useParams();
   const id = params?.id as string;
@@ -46,6 +46,10 @@ export default function Page() {
   const { mutate: setDeparture } = useSetDeparture(id);
   const { mutate: deleteDeparture } = useDeleteDeparture(id);
 
+  const currentCount = meetingData?.data?.currentParticipantCount || 0;
+  const totalCount = meetingData?.data?.totalParticipantCount || 0;
+  const isResultEnabled = totalCount > 0 && currentCount === totalCount;
+
   useEffect(() => {
     setTimeout(() => {
       setIsMounted(true);
@@ -56,7 +60,6 @@ export default function Page() {
 
   useEffect(() => {
     if (isMounted && !myName && id) {
-      console.log('❌ 로그인 정보 없음 - /join으로 리다이렉트');
       router.replace(`/join/${id}`);
     }
   }, [isMounted, myName, id, router]);
@@ -80,14 +83,12 @@ export default function Page() {
       setSelectedStation(null);
 
       deleteDeparture(undefined, {
-        onSuccess: (data) => {
-          console.log('✅ 출발지 삭제 성공:', data);
+        onSuccess: () => {
           refetch().then(() => {
             isDeletingRef.current = false;
           });
         },
-        onError: (error) => {
-          console.error('❌ 출발지 삭제 실패:', error);
+        onError: () => {
           setErrorMessage('출발지 삭제에 실패했습니다.');
           show();
           isDeletingRef.current = false;
@@ -98,8 +99,7 @@ export default function Page() {
 
     setSelectedStation(stationName);
 
-    const searchName = stationName.endsWith('역') ? stationName : `${stationName}역`;
-    const stationInfo = STATION_DATA.find((s) => s.name === searchName);
+    const stationInfo = STATION_DATA.find((s) => s.name === stationName);
 
     if (stationInfo) {
       setDeparture(
@@ -108,11 +108,9 @@ export default function Page() {
         },
         {
           onSuccess: () => {
-            console.log('✅ 출발지 등록 성공');
             refetch();
           },
-          onError: (error) => {
-            console.error('❌ 출발지 등록 실패:', error);
+          onError: () => {
             setErrorMessage('출발지 등록에 실패했습니다.');
             show();
           },
@@ -156,10 +154,7 @@ export default function Page() {
   const myParticipant = useMemo(() => {
     if (!selectedStation || !myName) return null;
 
-    const correctStationName = selectedStation.endsWith('역')
-      ? selectedStation
-      : `${selectedStation}역`;
-    const info = STATION_DATA.find((s) => s.name === correctStationName);
+    const info = STATION_DATA.find((s) => s.name === selectedStation);
     if (!info) return null;
 
     return {
@@ -182,18 +177,12 @@ export default function Page() {
     const others = serverParticipants
       .filter((p) => p.userName !== myName)
       .map((p, index) => {
-        const displayStationName = p.stationName
-          ? p.stationName.endsWith('역')
-            ? p.stationName
-            : `${p.stationName}역`
-          : '';
-
-        const stationInfo = STATION_DATA.find((s) => s.name === displayStationName);
+        const stationInfo = STATION_DATA.find((s) => s.name === p.stationName);
 
         return {
           id: `other-${index}`,
           name: p.userName,
-          station: displayStationName,
+          station: p.stationName,
           line: stationInfo?.line ?? '미확인',
           latitude: p.latitude,
           longitude: p.longitude,
@@ -208,7 +197,7 @@ export default function Page() {
   if (!isMounted || !myName) {
     return (
       <div className="flex h-screen items-center justify-center bg-white">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" />
+        <div className="border-t-blue-5 h-8 w-8 animate-spin rounded-full border-4 border-gray-200" />
       </div>
     );
   }
@@ -219,7 +208,7 @@ export default function Page() {
         <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5 md:gap-10">
           {isLoading && (
             <div className="flex h-20 items-center justify-center">
-              <div className="h-6 w-6 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" />
+              <div className="border-t-blue-5 border-gray-2 h-6 w-6 animate-spin rounded-full border-4" />
             </div>
           )}
 
@@ -234,7 +223,7 @@ export default function Page() {
             />
           ) : (
             !isLoading && (
-              <div className="text-center text-gray-500">모임 정보를 불러올 수 없습니다.</div>
+              <div className="text-gray-6 text-center">모임 정보를 불러올 수 없습니다.</div>
             )
           )}
 
@@ -253,12 +242,10 @@ export default function Page() {
 
           <div className="relative flex flex-1 flex-col gap-3 overflow-hidden px-5 md:gap-3.5 md:p-0">
             <div className="flex items-center justify-between bg-white">
-              <h3 className="text-gray-9 text-xl font-semibold">참여현황</h3>
+              <h3 className="text-gray-9 text-[22px] font-semibold">참여현황</h3>
               <span className="text-gray-6 text-normal text-xs">
-                <span className="text-blue-5">
-                  {meetingData?.data.currentParticipantCount || 0}명
-                </span>
-                이 참여 중
+                <span className="text-blue-5">{currentCount}</span>
+                <span> / {totalCount}</span>
               </span>
             </div>
 
@@ -283,7 +270,7 @@ export default function Page() {
             </button>
 
             <div className="flex-1">
-              <div className="[&::-webkit-scrollbar-thumb]:bg-gray-6 flex h-80 flex-col gap-3.5 overflow-y-scroll pr-2 pb-5 md:pb-18 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full">
+              <div className="[&::-webkit-scrollbar-thumb]:bg-gray-6 flex h-80 flex-col gap-3.5 overflow-y-scroll pb-5 md:pb-18 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {allParticipants.length > 0 ? (
                   allParticipants.map((user) => (
                     <div
@@ -312,12 +299,23 @@ export default function Page() {
               </div>
             </div>
 
-            <button
-              onClick={handleSubmit}
-              className="bg-gray-8 right-5 left-5 mb-10 h-12 cursor-pointer rounded text-lg text-white md:absolute md:right-0 md:bottom-0 md:left-0 md:mb-0"
-            >
-              결과보기
-            </button>
+            <div className="group relative right-5 left-5 mb-10 md:absolute md:right-0 md:bottom-0 md:left-0 md:mb-0">
+              {!isResultEnabled && (
+                <div className="bg-gray-9 absolute bottom-full left-1/2 mb-2 hidden w-max -translate-x-1/2 rounded px-3 py-1.5 text-xs text-white opacity-0 transition-opacity group-hover:block group-hover:opacity-100">
+                  모든 팀원이 참여해야 결과를 확인할 수 있어요
+                  <div className="border-t-gray-9 absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"></div>
+                </div>
+              )}
+              <button
+                onClick={handleSubmit}
+                disabled={!isResultEnabled}
+                className={`h-12 w-full rounded text-lg font-semibold text-white transition-colors ${
+                  isResultEnabled ? 'bg-gray-8 cursor-pointer' : 'bg-gray-4 cursor-not-allowed'
+                }`}
+              >
+                결과보기
+              </button>
+            </div>
             <Toast message={errorMessage} isVisible={isVisible} />
           </div>
         </section>
