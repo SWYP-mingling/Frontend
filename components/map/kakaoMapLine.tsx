@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Map, Polyline, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import { useRouter } from 'next/navigation';
 import ZoomControl from './zoomControl';
-import { getRandomHexColor } from '@/lib/color';
 
 interface EndStation {
   name: string;
@@ -19,6 +18,7 @@ interface UserRoute {
   latitude: number;
   longitude: number;
   travelTime: number;
+  hexColor?: string;
   transferPath: Array<{
     linenumber: string;
     station: string;
@@ -61,11 +61,13 @@ export default function KakaoMapLine({
     bounds.extend(new window.kakao.maps.LatLng(endStation.latitude, endStation.longitude));
 
     userRoutes.forEach((userRoute) => {
+      // 경로 데이터가 있으면 경로 전체를 포함
       if (userRoute.stations && userRoute.stations.length > 0) {
         userRoute.stations.forEach((station) => {
           bounds.extend(new window.kakao.maps.LatLng(station.latitude, station.longitude));
         });
       } else {
+        // 경로 데이터가 없으면 출발점만 포함
         bounds.extend(new window.kakao.maps.LatLng(userRoute.latitude, userRoute.longitude));
       }
     });
@@ -137,7 +139,7 @@ export default function KakaoMapLine({
         </CustomOverlayMap>
 
         {userRoutes.map((userRoute, index) => {
-          const userColor = getRandomHexColor(userRoute.nickname);
+          const userColor = userRoute.hexColor || '#333333';
 
           const offsetMultiplier = index - (userRoutes.length - 1) / 2;
           const offsetVal = offsetMultiplier * LINE_OFFSET_GAP;
@@ -170,14 +172,10 @@ export default function KakaoMapLine({
                 />
               )}
 
-              {/* 출발지 마커 & 정보창 (항상 표시) */}
-              <CustomOverlayMap
-                position={markerPosition}
-                yAnchor={1}
-                zIndex={30} // 마커가 선보다 위에 오도록
-              >
+              {/* 출발지 마커 & 정보창 */}
+              <CustomOverlayMap position={markerPosition} yAnchor={1} zIndex={30}>
                 <div className="flex flex-col items-center">
-                  {/* 1. 상단 정보 말풍선 (검은색 박스) */}
+                  {/* 1. 상단 정보 말풍선 */}
                   <div className="relative mb-2 flex min-w-[80px] flex-col items-center justify-center rounded bg-[#2C2F36] px-3 py-2 shadow-lg">
                     <span className="text-[11px] leading-tight whitespace-nowrap text-white">
                       {userRoute.startStation}역에서
@@ -185,8 +183,6 @@ export default function KakaoMapLine({
                     <span className="text-blue-2 mt-0.5 text-[14px] leading-tight font-semibold whitespace-nowrap">
                       {userRoute.travelTime}분
                     </span>
-
-                    {/* 말풍선 꼬리 (아래쪽 화살표) */}
                     <div className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 transform bg-[#2C2F36]"></div>
                   </div>
 

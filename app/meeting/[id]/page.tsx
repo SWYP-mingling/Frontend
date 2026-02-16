@@ -130,7 +130,6 @@ export default function Page() {
     router.push(`/result/${id}`);
   };
 
-  // ⭐ API에서 받은 내 출발지 정보를 selectedStation에 반영 (초기화 시 한 번만)
   useEffect(() => {
     if (
       meetingData?.data?.participants &&
@@ -143,56 +142,49 @@ export default function Page() {
       if (myData?.stationName) {
         setTimeout(() => {
           setSelectedStation(myData.stationName);
-          hasInitializedRef.current = true; // 초기화 완료
+          hasInitializedRef.current = true;
         }, 0);
       } else {
-        hasInitializedRef.current = true; // 데이터 없어도 초기화 완료
+        hasInitializedRef.current = true;
       }
     }
   }, [meetingData, myName]);
-
-  const myParticipant = useMemo(() => {
-    if (!selectedStation || !myName) return null;
-
-    const info = STATION_DATA.find((s) => s.name === selectedStation);
-    if (!info) return null;
-
-    return {
-      id: 'me',
-      name: myName,
-      station: info.name,
-      line: info.line,
-      latitude: info.latitude,
-      longitude: info.longitude,
-      status: 'done',
-      hexColor: '#000000',
-    };
-  }, [selectedStation, myName]);
 
   const allParticipants = useMemo(() => {
     if (!myName) return [];
 
     const serverParticipants = meetingData?.data.participants || [];
 
-    const others = serverParticipants
-      .filter((p) => p.userName !== myName)
-      .map((p, index) => {
-        const stationInfo = STATION_DATA.find((s) => s.name === p.stationName);
+    const participantsWithColor = serverParticipants.map((p, index) => {
+      const stationInfo = STATION_DATA.find((s) => s.name === p.stationName);
 
-        return {
-          id: `other-${index}`,
-          name: p.userName,
-          station: p.stationName,
-          line: stationInfo?.line ?? '미확인',
-          latitude: p.latitude,
-          longitude: p.longitude,
-          status: 'done',
-          hexColor: getRandomHexColor(p.userName || p.stationName || `user-${index}`),
-        };
-      });
+      return {
+        id: p.userName === myName ? 'me' : `other-${index}`,
+        name: p.userName,
+        station: p.stationName,
+        line: stationInfo?.line ?? '미확인',
+        latitude: p.latitude,
+        longitude: p.longitude,
+        status: 'done',
+        hexColor: getRandomHexColor(p.userName, id),
+      };
+    });
+
+    const myParticipant = participantsWithColor.find((p) => p.name === myName);
+    const others = participantsWithColor.filter((p) => p.name !== myName);
+
+    if (myParticipant && selectedStation) {
+      const info = STATION_DATA.find((s) => s.name === selectedStation);
+      if (info) {
+        myParticipant.station = info.name;
+        myParticipant.line = info.line;
+        myParticipant.latitude = info.latitude;
+        myParticipant.longitude = info.longitude;
+      }
+    }
 
     return myParticipant ? [myParticipant, ...others] : others;
-  }, [meetingData, myParticipant, myName]);
+  }, [meetingData, selectedStation, myName, id]);
 
   if (!isMounted || !myName) {
     return (
@@ -270,7 +262,7 @@ export default function Page() {
             </button>
 
             <div className="flex-1">
-              <div className="[&::-webkit-scrollbar-thumb]:bg-gray-6 flex h-80 flex-col gap-3.5 overflow-y-scroll pb-5 md:pb-18 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full">
+              <div className="[&::-webkit-scrollbar-thumb]:bg-gray-6 flex h-80 flex-col gap-3.5 overflow-y-scroll pb-5 md:pb-38 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {allParticipants.length > 0 ? (
                   allParticipants.map((user) => (
                     <div
@@ -283,7 +275,7 @@ export default function Page() {
                       <div className="flex items-center gap-1.5">
                         <div
                           className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-normal text-white"
-                          style={{ backgroundColor: `${user.hexColor}` }}
+                          style={{ backgroundColor: user.hexColor }}
                         >
                           {user.name.charAt(0)}
                         </div>
@@ -299,7 +291,7 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="group relative right-5 left-5 mb-10 md:absolute md:right-0 md:bottom-0 md:left-0 md:mb-0">
+            <div className="group relative mb-10 md:absolute md:right-0 md:bottom-0 md:left-0 md:mb-0">
               {!isResultEnabled && (
                 <div className="bg-gray-9 absolute bottom-full left-1/2 mb-2 hidden w-max -translate-x-1/2 rounded px-3 py-1.5 text-xs text-white opacity-0 transition-opacity group-hover:block group-hover:opacity-100">
                   모든 팀원이 참여해야 결과를 확인할 수 있어요
