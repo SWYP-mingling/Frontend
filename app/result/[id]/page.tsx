@@ -101,7 +101,7 @@ export default function Page() {
         userRoutes: routesWithColor,
       };
     });
-  }, [midpointData, myNickname, meetingData, id]);
+  }, [midpointData, myNickname, id]);
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
 
