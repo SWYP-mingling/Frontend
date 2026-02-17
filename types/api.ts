@@ -94,7 +94,6 @@ export interface MidpointData {
   }[];
 }
 
-        
 // 중간지점 조회 API 조립
 export type MidpointResponse = ApiResponse<MidpointData[]>;
 
@@ -111,7 +110,6 @@ export interface PlaceInfo {
   placeUrl: string;
   x: number;
   y: number;
-
 }
 
 export interface RecommendData {
@@ -120,3 +118,20 @@ export interface RecommendData {
 
 // 장소 추천 API 조립
 export type RecommendResponse = ApiResponse<RecommendData>;
+
+// 참여자 데이터
+interface Participant {
+  userName: string;
+}
+
+// 비로그인 모임 참여 현황 조회 API 응답 데이터 타입
+export interface GuestStatusData {
+  meetingName: string;
+  category: string;
+  totalParticipantCount: number;
+  currentParticipantCount: number;
+  participants: Participant[];
+}
+
+// 비로그인 모임 참여 현황 조회 API 조립
+export type GuestStatusResponse = ApiResponse<GuestStatusData>;

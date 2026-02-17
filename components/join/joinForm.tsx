@@ -3,11 +3,13 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useEnterParticipant } from '@/hooks/api/mutation/useEnterParticipant';
+import { useGuestMeetingStatus } from '@/hooks/api/query/useGuestMeetingStatus';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
 import { useIsLoggedIn } from '@/hooks/useIsLoggedIn';
 import { setMeetingUserId } from '@/lib/storage';
 import Image from 'next/image';
+import { getRandomHexColor } from '@/lib/color';
 
 interface JoinFormProps {
   meetingId: string;
@@ -17,6 +19,9 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isLogin, isChecking } = useIsLoggedIn(meetingId);
+  const { data: guestStatus } = useGuestMeetingStatus(meetingId);
+  const meetingInfo = guestStatus?.data;
+
   const participantEnter = useEnterParticipant();
   const { isVisible, show } = useToast();
 
@@ -24,20 +29,6 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
   const [password, setPassword] = useState('');
   const [isRemembered, setIsRemembered] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
-
-  const [meetingTypeVal] = useState(() => {
-    if (typeof window === 'undefined') return '';
-    const param = searchParams.get('meetingType');
-    if (param) return param;
-    return localStorage.getItem(`meeting_${meetingId}_meetingType`) || '';
-  });
-
-  const [categoryVal] = useState(() => {
-    if (typeof window === 'undefined') return '';
-    const param = searchParams.get('category');
-    if (param) return param;
-    return localStorage.getItem(`meeting_${meetingId}_category`) || '';
-  });
 
   useEffect(() => {
     if (!meetingId) return;
@@ -93,19 +84,14 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
       }
     } catch (error: any) {
       const errorData = error.data || error.response?.data;
-      const serverMessage = errorData?.message;
-
-      if (serverMessage) {
-        setErrorMessage(serverMessage);
-      } else {
-        setErrorMessage('모임 참여에 실패했습니다. 다시 시도해주세요.');
-      }
+      setErrorMessage(errorData?.message || '모임 참여에 실패했습니다. 다시 시도해주세요.');
       show();
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center gap-11 bg-white px-5 pt-12.5 pb-25 md:min-h-[calc(100vh-200px)] md:justify-center">
+      {/* 1. 배너 이미지 */}
       <div className="relative h-64 w-full max-w-215">
         <Image
           src="/images/banner.jpg"
@@ -117,23 +103,60 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
         />
       </div>
 
-      <div className="flex w-full flex-col items-start gap-3 md:max-w-sm">
-        <h1 className="w-full text-[22px] font-semibold text-black">모임에 참여해 주세요.</h1>
+      <div className="flex w-full flex-col items-start gap-5 md:max-w-sm">
+        <div className="flex flex-col gap-3">
+          {/* 모임 제목 (API 데이터 연동) */}
+          <h1 className="w-full text-[22px] leading-tight font-semibold break-keep text-black">
+            {meetingInfo?.meetingName
+              ? `${meetingInfo.meetingName}에 참여해 주세요.`
+              : '모임에 참여해 주세요.'}
+          </h1>
 
-        {/* ⚡️ suppressHydrationWarning 필수 */}
-        {/* 서버(값 없음) vs 클라이언트(값 있음) 불일치 경고 무시 */}
-        {(meetingTypeVal || categoryVal) && (
-          <div className="flex gap-2" suppressHydrationWarning>
-            {meetingTypeVal && (
-              <span className="text-blue-5 bg-gray-1 rounded px-3 py-1 text-xs font-medium">
-                {meetingTypeVal}
+          {/* 태그 영역 (카테고리, 인원수) */}
+          {meetingInfo && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-blue-5 bg-gray-1 rounded px-3 py-1 text-xs">
+                {meetingInfo.category}
               </span>
-            )}
-            {categoryVal && (
-              <span className="text-blue-5 bg-gray-1 rounded px-3 py-1 text-xs font-medium">
-                {categoryVal}
+              <span className="text-blue-5 bg-gray-1 rounded px-3 py-1 text-xs">
+                {meetingInfo.totalParticipantCount}인
               </span>
-            )}
+            </div>
+          )}
+        </div>
+        {/* 실시간 참여 현황 박스 */}
+        {meetingInfo && (
+          <div className="border-gray-2 w-full rounded border px-4 py-3">
+            <div className="mb-4 flex items-center gap-3 text-black">
+              <span className="text-[16px] font-semibold">실시간 참여 현황</span>
+              <div className="text-gray-6 text-[12px]">
+                <span className="text-blue-5">{meetingInfo.currentParticipantCount}명</span>이 참여
+                중
+              </div>
+            </div>
+
+            {/* 참여자 리스트 */}
+            <div className="flex flex-wrap gap-2.5">
+              {meetingInfo.participants && meetingInfo.participants.length > 0 ? (
+                meetingInfo.participants.map((p, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 rounded-full py-1 pr-3 pl-1"
+                    style={{ backgroundColor: `${getRandomHexColor(p.userName, meetingId)}33` }}
+                  >
+                    <div
+                      className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-medium text-white"
+                      style={{ backgroundColor: getRandomHexColor(p.userName, meetingId) }}
+                    >
+                      {p.userName.slice(0, 1)}
+                    </div>
+                    <span className="text-xs font-medium text-gray-700">{p.userName}</span>
+                  </div>
+                ))
+              ) : (
+                <span className="text-xs text-gray-400">아직 참여자가 없습니다.</span>
+              )}
+            </div>
           </div>
         )}
       </div>

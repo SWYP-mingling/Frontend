@@ -10,6 +10,7 @@ import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting';
 import { getMeetingUserId } from '@/lib/storage';
 import { useQueryClient } from '@tanstack/react-query';
 import Loading from '@/components/loading/loading';
+import { getRandomHexColor } from '@/lib/color';
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -33,7 +34,15 @@ export default function Page() {
 
     return midpointData.data.map((midpoint, index) => {
       const { endStation, endStationLine, userRoutes } = midpoint;
-      const myRoute = userRoutes.find((route) => route.nickname === myNickname);
+
+      const routesWithColor = userRoutes.map((route) => {
+        return {
+          ...route,
+          hexColor: getRandomHexColor(route.nickname, id),
+        };
+      });
+
+      const myRoute = routesWithColor.find((route) => route.nickname === myNickname);
       const travelTime = myRoute?.travelTime || 0;
 
       const extractLineNumber = (linenumber: string): string => {
@@ -89,10 +98,10 @@ export default function Page() {
         travelTime,
         transferPath: myRoute?.transferPath || [],
         transferPathLines,
-        userRoutes,
+        userRoutes: routesWithColor,
       };
     });
-  }, [midpointData, myNickname]);
+  }, [midpointData, myNickname, id]);
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
 
@@ -159,7 +168,7 @@ export default function Page() {
       case '서해선':
         return 'bg-[#5EAC41]';
       default:
-        return 'bg-gray-4';
+        return 'bg-gray-400';
     }
   };
 
@@ -172,9 +181,7 @@ export default function Page() {
           </div>
         ) : (
           <>
-            {/* [LEFT PANEL] 결과 리스트 영역 */}
             <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5 md:gap-3">
-              {/* 헤더 섹션 */}
               <div className="px-5 pt-5 md:p-0">
                 <div className="flex items-center justify-between">
                   <div className="text-gray-9 text-[22px] font-semibold tracking-[-1.94%]">
@@ -191,7 +198,6 @@ export default function Page() {
                 </div>
               </div>
 
-              {/* 모바일 전용 지도 영역 */}
               {locationResults.length > 0 &&
                 (() => {
                   const selectedResult =
@@ -213,9 +219,7 @@ export default function Page() {
                   );
                 })()}
 
-              {/* 결과 리스트 & 하단 버튼 */}
               <div className="relative mb-10 flex flex-1 flex-col gap-3 px-5 md:mb-0 md:p-0">
-                {/* 리스트 스크롤 영역 */}
                 <div className="mb-15 flex-1 overflow-auto">
                   <div className="flex h-125 min-h-0 flex-col gap-3 pr-1">
                     {isError || locationResults.length === 0 ? (
@@ -235,7 +239,6 @@ export default function Page() {
                               : 'border-gray-2 hover:bg-gray-1'
                           }`}
                         >
-                          {/* 카드 헤더: 역 이름 & 시간 */}
                           <div className="flex items-center justify-between">
                             <span className="text-gray-10 text-lg font-semibold">
                               {result.endStation}역
@@ -248,7 +251,6 @@ export default function Page() {
                             </span>
                           </div>
 
-                          {/* 환승 경로 (호선 아이콘) */}
                           <div className="text-gray-6 flex items-center gap-3 text-[13px]">
                             <span>내 환승경로</span>
                           </div>
@@ -278,7 +280,6 @@ export default function Page() {
                             )}
                           </div>
 
-                          {/* 모임원 경로 보기 버튼 */}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -301,7 +302,6 @@ export default function Page() {
                   </div>
                 </div>
 
-                {/* 하단 버튼 */}
                 <button
                   onClick={handleModifyStart}
                   className="bg-blue-5 hover:bg-blue-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg font-semibold text-white transition-transform active:scale-[0.98] md:right-0 md:left-0"
@@ -311,7 +311,6 @@ export default function Page() {
               </div>
             </section>
 
-            {/* [RIGHT PANEL] 데스크탑 지도 영역 */}
             <section className="bg-gray-1 hidden h-full flex-1 md:block">
               {locationResults.length > 0 &&
                 (() => {

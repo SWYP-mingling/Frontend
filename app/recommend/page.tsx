@@ -29,17 +29,17 @@ function RecommendContent() {
   // 모임 정보 조회 (purposes 정보를 가져오기 위해)
   const { data: meetingData } = useCheckMeeting(meetingId);
 
-  // 🔥 상위 카테고리 추출 (우선순위: URL > API > localStorage)
+  // 상위 카테고리 추출 (우선순위: URL > API > localStorage)
   const meetingType = useMemo(() => {
     if (typeof window === 'undefined') return null;
 
-    // 1. URL 쿼리스트링에서 가져오기 (최우선)
+    // 1. URL 쿼리스트링에서 가져오기
     if (meetingTypeFromUrl === '회의' || meetingTypeFromUrl === '친목') {
       localStorage.setItem(`meeting_${meetingId}_meetingType`, meetingTypeFromUrl);
       return meetingTypeFromUrl;
     }
 
-    // 2. API에서 purposes 가져오기 (참여자도 접근 가능)
+    // 2. API에서 purposes 가져오기
     if (meetingData?.data?.purposes && meetingData.data.purposes.length > 0) {
       const firstPurpose = meetingData.data.purposes[0];
       if (firstPurpose === '회의' || firstPurpose === '친목') {
@@ -57,11 +57,11 @@ function RecommendContent() {
     return null;
   }, [meetingId, meetingData, meetingTypeFromUrl]);
 
-  // 🔥 하위 카테고리 추출 (우선순위: URL > API > localStorage)
+  // 하위 카테고리 추출 (우선순위: URL > API > localStorage)
   const defaultCategory = useMemo(() => {
     if (typeof window === 'undefined') return '';
 
-    // 1. URL 쿼리스트링에서 가져오기 (최우선)
+    // 1. URL 쿼리스트링에서 가져오기
     if (categoryFromUrl) {
       localStorage.setItem(`meeting_${meetingId}_category`, categoryFromUrl);
       return categoryFromUrl;
@@ -71,7 +71,7 @@ function RecommendContent() {
     if (meetingData?.data?.purposes && meetingData.data.purposes.length > 1) {
       const subCategory = meetingData.data.purposes[meetingData.data.purposes.length - 1];
       if (subCategory) {
-        // localStorage에도 저장 (다음 접근 시 빠르게 사용)
+        // localStorage에도 저장
         localStorage.setItem(`meeting_${meetingId}_category`, subCategory);
         return subCategory;
       }
@@ -140,7 +140,7 @@ function RecommendContent() {
   };
 
   const handleOpenKakaoMap = (e: React.MouseEvent, placeUrl?: string) => {
-    e.stopPropagation(); // 카드 클릭 이벤트 버블링 방지
+    e.stopPropagation();
     if (placeUrl) {
       window.open(placeUrl, '_blank', 'noopener,noreferrer');
     } else {
@@ -197,7 +197,7 @@ function RecommendContent() {
                     onClick={() => setSelectedPlaceId(place.id)}
                     className={`flex cursor-pointer flex-col gap-2 rounded border p-4 ${
                       selectedPlaceId === place.id
-                        ? 'border-blue-5 border-2' // 선택 시 파란 테두리
+                        ? 'border-blue-5 border-2'
                         : 'border-gray-2 hover:bg-gray-1 bg-white'
                     }`}
                   >
@@ -260,7 +260,7 @@ function RecommendContent() {
           </div>
         </section>
 
-        {/* [RIGHT PANEL] 데스크탑 지도 영역 (새로운 컴포넌트 적용) */}
+        {/* [RIGHT PANEL] 데스크탑 지도 영역 */}
         <section className="bg-gray-1 hidden h-full flex-1 md:block">
           <KakaoMapRecommend
             className="h-full w-full"
