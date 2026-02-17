@@ -44,6 +44,10 @@ export default function Page() {
 
       const myRoute = routesWithColor.find((route) => route.nickname === myNickname);
       const travelTime = myRoute?.travelTime || 0;
+      
+      
+      const totalTravelTime = routesWithColor.reduce((sum, route) => sum + (route.travelTime || 0), 0);
+      const averageTravelTime = routesWithColor.length > 0 ? Math.round(totalTravelTime / routesWithColor.length) : 0;
 
       const extractLineNumber = (linenumber: string): string => {
         if (!linenumber) return '';
@@ -96,12 +100,19 @@ export default function Page() {
         latitude: midpoint.latitude,
         longitude: midpoint.longitude,
         travelTime,
+        averageTravelTime,
         transferPath: myRoute?.transferPath || [],
         transferPathLines,
         userRoutes: routesWithColor,
       };
     });
   }, [midpointData, myNickname, id]);
+  
+  // 카테고리 텍스트 생성 함수
+  const getCategoryText = (category: string | undefined): string => {
+    if (!category) return '장소가 가장 많은 곳';
+    return `${category}이 가장 많은 곳`;
+  };
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
 
@@ -184,8 +195,15 @@ export default function Page() {
             <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5 md:gap-3">
               <div className="px-5 pt-5 md:p-0">
                 <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => router.back()}
+                    className="flex items-center justify-center"
+                    type="button"
+                  >
+                    <Image src="/icon/left_chevron.svg" alt="뒤로가기" width={24} height={24} />
+                  </button>
                   <div className="text-gray-9 text-[22px] font-semibold tracking-[-1.94%]">
-                    최종 위치 결과 Top 3
+                    최종 위치 결과 Top3
                   </div>
                   <button
                     className="text-blue-5 bg-blue-1 hover:bg-blue-2 flex h-7 cursor-pointer items-center gap-1 rounded px-2.5 text-[11px] font-semibold transition-colors"
@@ -229,75 +247,115 @@ export default function Page() {
                         </span>
                       </div>
                     ) : (
-                      locationResults.map((result) => (
-                        <div
-                          key={result.id}
-                          onClick={() => setSelectedResultId(result.id)}
-                          className={`flex cursor-pointer flex-col gap-3.75 rounded border bg-white p-5 ${
-                            selectedResultId === result.id
-                              ? 'border-blue-5 border-2'
-                              : 'border-gray-2 hover:bg-gray-1'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-10 text-lg font-semibold">
-                              {result.endStation}역
-                            </span>
-                            <span className="text-gray-6 text-[13px] font-normal">
-                              이동시간
-                              <span className="text-blue-5 ml-1.75 text-lg font-semibold">
-                                {result.travelTime}분
-                              </span>
-                            </span>
-                          </div>
-
-                          <div className="text-gray-6 flex items-center gap-3 text-[13px]">
-                            <span>내 환승경로</span>
-                          </div>
-                          <div className="flex items-center">
-                            {result.transferPathLines.map(
-                              (line: { display: string; text: string }, idx: number) => (
-                                <div key={idx} className="flex items-center">
-                                  <span
-                                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] text-white ${getLineColor(line.text)}`}
-                                  >
-                                    {line.display}
-                                  </span>
-                                  <span className="text-gray-10 ml-1 text-sm font-semibold">
-                                    {line.text}
-                                  </span>
-                                  {idx < result.transferPathLines.length - 1 && (
-                                    <Image
-                                      src="/icon/rightarrow.svg"
-                                      alt="화살표"
-                                      width={13}
-                                      height={22}
-                                      className="text-gray-6 mx-1.75 w-auto"
-                                    />
-                                  )}
-                                </div>
-                              )
-                            )}
-                          </div>
-
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openModal(
-                                'TRANSFER',
-                                {
-                                  userRoutes: result.userRoutes,
-                                  endStation: result.endStation,
-                                },
-                                e
-                              );
-                            }}
-                            className="bg-gray-8 h-8 w-full cursor-pointer rounded py-1 text-[15px] font-normal text-white"
+                      locationResults.map((result) => {
+                        const category = meetingData?.data?.purposes?.[meetingData.data.purposes.length - 1];
+                        const categoryText = getCategoryText(category);
+                        
+                        const handleRecommendClick = (e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          if (!id || !result.endStation) return;
+                          
+                          let meetingType = '';
+                          let categoryParam = '';
+                          
+                          if (typeof window !== 'undefined') {
+                            meetingType = localStorage.getItem(`meeting_${id}_meetingType`) || '';
+                            categoryParam = localStorage.getItem(`meeting_${id}_category`) || '';
+                          }
+                          
+                          if (!meetingType && meetingData?.data?.purposes && meetingData.data.purposes.length > 0) {
+                            meetingType = meetingData.data.purposes[0];
+                          }
+                          if (!categoryParam && category) {
+                            categoryParam = category;
+                          }
+                          
+                          const params = new URLSearchParams({
+                            meetingId: id,
+                            midPlace: result.endStation,
+                            lat: result.latitude.toString(),
+                            lng: result.longitude.toString(),
+                          });
+                          
+                          if (meetingType) params.append('meetingType', meetingType);
+                          if (categoryParam) params.append('category', categoryParam);
+                          
+                          router.push(`/recommend?${params.toString()}`);
+                        };
+                        
+                        return (
+                          <div
+                            key={result.id}
+                            onClick={() => setSelectedResultId(result.id)}
+                            className={`flex cursor-pointer flex-col gap-3.75 rounded-[4px] border bg-white p-5 ${
+                              selectedResultId === result.id
+                                ? 'border-blue-5 border-2'
+                                : 'border-gray-2 hover:bg-gray-1'
+                            }`}
                           >
-                            모임원 환승경로 보기
-                          </button>
-                        </div>
-                      ))
+                            {/* 상단: 카테고리 텍스트 */}
+                            <div className="flex items-center gap-1.5">
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M8 0L9.5 5.5L15 7L9.5 8.5L8 14L6.5 8.5L1 7L6.5 5.5L8 0Z"
+                                  fill="#0091ff"
+                                />
+                              </svg>
+                              <span className="text-blue-5 text-sm font-medium">{categoryText}</span>
+                            </div>
+                            
+                            {/* 중간: 역 이름과 평균 이동시간 */}
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-10 text-xl font-bold">
+                                {result.endStation}역
+                              </span>
+                              <div className="flex flex-col items-end ">
+                                <span className="text-gray-6 text-[13px] font-regular">
+                                  평균 이동시간{' '}
+                                  <span className="text-blue-5 text-[18px] font-bold">
+                                    {result.averageTravelTime}분
+                                  </span>
+                                </span>
+                               
+                              </div>
+                            </div>
+                            
+                            {/* 하단: 두 개의 버튼 */}
+                            <div className="flex gap-2">
+                              <button
+                                onClick={handleRecommendClick}
+                                className="bg-gray-8 hover:bg-gray-9 flex-1 h-10 cursor-pointer rounded-[4px] text-[15px] font-normal text-white transition-colors"
+                                type="button"
+                              >
+                                주변 장소 추천
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openModal(
+                                    'TRANSFER',
+                                    { meetingId: id,
+                                      userRoutes: result.userRoutes,
+                                      endStation: result.endStation,
+                                    },
+                                    e
+                                  );
+                                }}
+                                className="bg-gray-1 hover:bg-gray-2 flex-1 h-10 cursor-pointer rounded-[4px] text-[15px] font-normal text-blue-5 transition-colors"
+                                type="button"
+                              >
+                                환승 경로 보기
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
                     )}
                   </div>
                 </div>
