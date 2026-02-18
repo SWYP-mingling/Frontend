@@ -202,15 +202,7 @@ export default function KakaoMapLine({
         })}
       </Map>
 
-      <div className="absolute top-4 left-1/2 z-10 -translate-x-1/2 transform">
-        <button
-          className="bg-blue-5 hover:bg-blue-8 flex h-10 items-center rounded-full px-5 text-sm font-bold whitespace-nowrap text-white shadow-lg transition-colors"
-          onClick={handleRecommendClick}
-        >
-          {endStation.name}역 주변 장소 추천
-        </button>
-      </div>
-
+     
       <ZoomControl map={map} />
     </div>
   );

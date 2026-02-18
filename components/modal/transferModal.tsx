@@ -116,25 +116,44 @@ export default function TransferModal({
     }
   };
 
-  // transferPath에서 호선과 환승역 추출 함수
-  const extractTransferLines = (
-    route: UserRoute
-  ): Array<{ linenumber: string; station: string }> => {
-    const lines: Array<{ linenumber: string; station: string }> = [];
-
-    // transferPath의 모든 항목에서 호선과 환승역 추출
-    if (route.transferPath && Array.isArray(route.transferPath)) {
-      route.transferPath.forEach((path) => {
-        if (path.linenumber) {
-          lines.push({
-            linenumber: path.linenumber,
-            station: path.station || '',
-          });
-        }
-      });
+  // stations 배열에서 호선별 경로 추출 함수
+  const extractRouteSteps = (route: UserRoute) => {
+    const steps: Array<{ linenumber: string; station: string; isLast: boolean }> = [];
+    
+    if (!route.stations || route.stations.length === 0) {
+      return steps;
     }
 
-    return lines;
+    
+    let currentLine = route.stations[0]?.linenumber || '';
+    
+    route.stations.forEach((station, index) => {
+     
+      if (station.linenumber !== currentLine || index === route.stations.length - 1) {
+        if (currentLine) {
+          steps.push({
+            linenumber: currentLine,
+            station: station.station,
+            isLast: index === route.stations.length - 1,
+          });
+        }
+        currentLine = station.linenumber;
+      }
+    });
+
+    
+    if (route.stations.length > 0) {
+      const lastStation = route.stations[route.stations.length - 1];
+      if (steps.length === 0 || steps[steps.length - 1].station !== lastStation.station) {
+        steps.push({
+          linenumber: lastStation.linenumber,
+          station: lastStation.station,
+          isLast: true,
+        });
+      }
+    }
+
+    return steps;
   };
 
   return (
@@ -145,78 +164,81 @@ export default function TransferModal({
       >
         {/* 헤더 영역 */}
         <DialogHeader className="gap-6 text-left">
-          <DialogTitle className="text-gray-10 text-xl font-semibold">
+          <DialogTitle className="text-gray-10 text-[22px] font-semibold tracking-[-1.94px]">
             모임원 환승경로 보기
           </DialogTitle>
-          <DialogDescription className="text-blue-5 text-lg font-semibold">
+          <DialogDescription className="text-blue-5 text-[20px] font-semibold tracking-[-1.2px]">
             {endStation ? `${endStation}역 도착` : '도착역'}
           </DialogDescription>
         </DialogHeader>
 
-        {/* 리스트 영역 (스크롤) */}
-        <div className="flex flex-col gap-3 overflow-y-scroll">
+        
+        <div className="flex flex-col gap-[12px] overflow-y-scroll">
           {userRoutes.length === 0 ? (
             <div className="flex items-center justify-center py-8">
               <span className="text-gray-6 text-sm">환승 경로 정보가 없습니다.</span>
             </div>
           ) : (
             userRoutes.map((route, index) => {
-              const transferLines = extractTransferLines(route);
+              const routeSteps = extractRouteSteps(route);
 
               return (
                 <div
                   key={index}
-                  className="border-gray-2 flex flex-col rounded border bg-white pr-3 pl-5"
+                  className="border-gray-2 relative flex flex-col rounded-[4px] border bg-white"
                 >
-                  {/* 상단: 이름 및 출발역 */}
-                  <div className="flex items-center gap-3 py-3">
-                    <span className="text-gray-7 text-sm font-semibold">{route.nickname}</span>
-                    <span className="text-gray-9 rounded bg-gray-100 px-1 py-0.5 text-[11px]">
-                      {route.startStation}
+                
+                  <div className="flex items-center justify-between  py-3 border-b-gray-1 border-b mx-5">
+                    <span className="text-gray-7 text-[14px] font-semibold leading-[1.571] tracking-[0.203px]">
+                      {route.nickname}
                     </span>
-                  </div>
-
-                  {/* 하단: 호선 정보 및 시간 */}
-                  <div className="border-t-gray-1 flex items-center justify-between border-t py-5">
-                    {/* 호선 뱃지 */}
-                    <div className="flex items-center gap-1.5">
-                      {transferLines.length === 0 ? (
-                        <span className="text-gray-6 text-[13px]">환승 경로 없음</span>
-                      ) : (
-                        transferLines.map((lineInfo, idx) => (
-                          <div key={idx} className="flex flex-col items-center">
-                            <div className="flex items-center">
-                              <span
-                                className={`flex items-center justify-center rounded-[5px] px-2 py-px text-[13px] text-white ${getLineBadgeStyle(
-                                  lineInfo.linenumber
-                                )}`}
-                              >
-                                {lineInfo.station}({lineInfo.linenumber})
-                              </span>
-                              {/* 화살표 아이콘 (마지막 요소 제외) */}
-                              {idx < transferLines.length - 1 && (
-                                <span className="mx-1 text-gray-400">
-                                  <Image
-                                    src="/icon/rightarrow.svg"
-                                    alt="오른쪽 화살표"
-                                    width={12}
-                                    height={18}
-                                  />
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-                    {/* 이동 시간 */}
-                    <span className="text-gray-6 text-[13px]">
-                      이동시간
-                      <span className="text-blue-5 ml-1.75 text-lg font-semibold">
+                    <div className="flex items-center gap-[7px]">
+                      <span className="text-gray-6 text-[13px] font-normal leading-[1.385] tracking-[0.252px]">
+                        이동시간
+                      </span>
+                      <span className="text-blue-5 text-[18px] font-semibold leading-[1.445] tracking-[-0.0036px]">
                         {route.travelTime}분
                       </span>
-                    </span>
+                    </div>
+                  </div>
+
+               
+
+                  {/* 하단: 환승 경로 (세로 배치) */}
+                  <div className="relative flex gap-4 p-5">
+                    <div className="flex flex-col gap-[10px] items-center">
+                      {routeSteps.map((step, idx) => (
+                        <div key={idx} className="flex flex-col items-center gap-[10px]">
+                          <div
+                            className={`flex min-w-[60px] items-center justify-center gap-1 rounded-[5px] px-[7px] py-[2px] text-[13px] font-normal leading-[1.385] tracking-[0.252px] text-white ${getLineBadgeStyle(
+                              step.linenumber
+                            )}`}
+                          >
+                           <Image src='/icon/train.svg' alt='train' width={12} height={12} />    
+                            <span>{step.linenumber}</span>
+                          </div>
+                        
+                          <div className="flex items-center justify-center">
+                            <Image src='/icon/down.svg' alt='arrow-down' width={12} height={12} />
+                          </div>
+                        </div>
+                      ))}
+                      
+                      <div className="bg-gray-8 flex min-w-[60px] items-center justify-center rounded-[5px] px-[7px] py-[2px] text-[13px] font-normal leading-[1.385] tracking-[0.252px] text-white">
+                        하차
+                      </div>
+                    </div>
+
+                    
+                    <div className="flex flex-col gap-[30px] text-gray-8 text-[13px] font-normal leading-[1.385] tracking-[0.252px]">
+                      {routeSteps.map((step, idx) => (
+                        <span key={idx}>{step.station}역</span>
+                      ))}
+                     
+                      <span>{endStation || routeSteps[routeSteps.length - 1]?.station}역</span>
+                    </div>
+
+                   
                   </div>
                 </div>
               );

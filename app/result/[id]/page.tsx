@@ -110,8 +110,8 @@ export default function Page() {
   
   // 카테고리 텍스트 생성 함수
   const getCategoryText = (category: string | undefined): string => {
-    if (!category) return '장소가 가장 많은 곳';
-    return `${category}이 가장 많은 곳`;
+    if (!category) return '밍글링 추천 1위';
+    return `${category}이 많은 장소`;
   };
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
@@ -293,24 +293,13 @@ export default function Page() {
                                 : 'border-gray-2 hover:bg-gray-1'
                             }`}
                           >
-                            {/* 상단: 카테고리 텍스트 */}
+                           
                             <div className="flex items-center gap-1.5">
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 16 16"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M8 0L9.5 5.5L15 7L9.5 8.5L8 14L6.5 8.5L1 7L6.5 5.5L8 0Z"
-                                  fill="#0091ff"
-                                />
-                              </svg>
+                             <Image src='/icon/stars.svg' alt='stars' width={16} height={16} />
                               <span className="text-blue-5 text-sm font-medium">{categoryText}</span>
                             </div>
                             
-                            {/* 중간: 역 이름과 평균 이동시간 */}
+                           
                             <div className="flex items-center justify-between">
                               <span className="text-gray-10 text-xl font-bold">
                                 {result.endStation}역
@@ -326,7 +315,7 @@ export default function Page() {
                               </div>
                             </div>
                             
-                            {/* 하단: 두 개의 버튼 */}
+                           
                             <div className="flex gap-2">
                               <button
                                 onClick={handleRecommendClick}
