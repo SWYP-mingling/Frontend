@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useOpenModal } from '@/hooks/useOpenModal';
 import { useParams, useRouter } from 'next/navigation';
@@ -44,10 +44,13 @@ export default function Page() {
 
       const myRoute = routesWithColor.find((route) => route.nickname === myNickname);
       const travelTime = myRoute?.travelTime || 0;
-      
-      
-      const totalTravelTime = routesWithColor.reduce((sum, route) => sum + (route.travelTime || 0), 0);
-      const averageTravelTime = routesWithColor.length > 0 ? Math.round(totalTravelTime / routesWithColor.length) : 0;
+
+      const totalTravelTime = routesWithColor.reduce(
+        (sum, route) => sum + (route.travelTime || 0),
+        0
+      );
+      const averageTravelTime =
+        routesWithColor.length > 0 ? Math.round(totalTravelTime / routesWithColor.length) : 0;
 
       const extractLineNumber = (linenumber: string): string => {
         if (!linenumber) return '';
@@ -107,81 +110,35 @@ export default function Page() {
       };
     });
   }, [midpointData, myNickname, id]);
-  
+
   // 카테고리 텍스트 생성 함수
   const getCategoryText = (category: string | undefined): string => {
     if (!category) return '밍글링 추천 1위';
-    return `${category}이 많은 장소`;
+
+    // 카테고리 종성에 따라 "이/가"를 다르게 렌더링
+    const lastChar = category.charCodeAt(category.length - 1);
+    const hasJongseong = (lastChar - 0xac00) % 28 !== 0;
+    return `${category}${hasJongseong ? '이' : '가'} 많은 장소`;
   };
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
 
-  const handleModifyStart = () => {
+  // 뒤로 가기 클릭 시 캐시 데이터 무효화
+  const clearRelatedCache = useCallback(() => {
     queryClient.removeQueries({ queryKey: ['midpoint', id] });
     queryClient.removeQueries({ queryKey: ['recommend', id] });
-    router.back();
+  }, [id, queryClient]);
+
+  const handleModifyStart = () => {
+    clearRelatedCache();
+    router.replace(`/meeting/${id}`);
   };
 
-  const getLineColor = (fullLineName: string) => {
-    const cleaned = fullLineName.replace('호선', '').trim();
-    if (/^\d+$/.test(cleaned)) {
-      switch (cleaned) {
-        case '1':
-          return 'bg-[#004A85]';
-        case '2':
-          return 'bg-[#00A23F]';
-        case '3':
-          return 'bg-[#ED6C00]';
-        case '4':
-          return 'bg-[#009BCE]';
-        case '5':
-          return 'bg-[#794698]';
-        case '6':
-          return 'bg-[#7C4932]';
-        case '7':
-          return 'bg-[#6E7E31]';
-        case '8':
-          return 'bg-[#D11D70]';
-        case '9':
-          return 'bg-[#A49D87]';
-        default:
-          return 'bg-gray-400';
-      }
-    }
-    switch (fullLineName) {
-      case '우이신설선':
-        return 'bg-[#B0CE18]';
-      case '신림선':
-        return 'bg-[#5E7DBB]';
-      case '의정부경전철':
-        return 'bg-[#F0831E]';
-      case '용인에버라인':
-        return 'bg-[#44A436]';
-      case '인천2호선':
-        return 'bg-[#F4A462]';
-      case '김포골드라인':
-        return 'bg-[#F4A462]';
-      case '경의선':
-      case '경의중앙선':
-        return 'bg-[#6AC2B3]';
-      case '수인분당선':
-        return 'bg-[#ECA300]';
-      case '신분당선':
-        return 'bg-[#B81B30]';
-      case '인천1호선':
-        return 'bg-[#B4C7E7]';
-      case '공항철도':
-        return 'bg-[#0079AC]';
-      case '경춘선':
-        return 'bg-[#007A62]';
-      case '경강산':
-        return 'bg-[#0B318F]';
-      case '서해선':
-        return 'bg-[#5EAC41]';
-      default:
-        return 'bg-gray-400';
-    }
-  };
+  useEffect(() => {
+    clearRelatedCache();
+
+    return () => clearRelatedCache();
+  }, [clearRelatedCache]);
 
   return (
     <div className="flex items-center justify-center p-0 md:min-h-[calc(100vh-200px)] md:py-20">
@@ -196,7 +153,7 @@ export default function Page() {
               <div className="px-5 pt-5 md:p-0">
                 <div className="flex items-center justify-between">
                   <button
-                    onClick={() => router.back()}
+                    onClick={handleModifyStart}
                     className="flex items-center justify-center"
                     type="button"
                   >
@@ -248,41 +205,46 @@ export default function Page() {
                       </div>
                     ) : (
                       locationResults.map((result) => {
-                        const category = meetingData?.data?.purposes?.[meetingData.data.purposes.length - 1];
+                        const category =
+                          meetingData?.data?.purposes?.[meetingData.data.purposes.length - 1];
                         const categoryText = getCategoryText(category);
-                        
+
                         const handleRecommendClick = (e: React.MouseEvent) => {
                           e.stopPropagation();
                           if (!id || !result.endStation) return;
-                          
+
                           let meetingType = '';
                           let categoryParam = '';
-                          
+
                           if (typeof window !== 'undefined') {
                             meetingType = localStorage.getItem(`meeting_${id}_meetingType`) || '';
                             categoryParam = localStorage.getItem(`meeting_${id}_category`) || '';
                           }
-                          
-                          if (!meetingType && meetingData?.data?.purposes && meetingData.data.purposes.length > 0) {
+
+                          if (
+                            !meetingType &&
+                            meetingData?.data?.purposes &&
+                            meetingData.data.purposes.length > 0
+                          ) {
                             meetingType = meetingData.data.purposes[0];
                           }
                           if (!categoryParam && category) {
                             categoryParam = category;
                           }
-                          
+
                           const params = new URLSearchParams({
                             meetingId: id,
                             midPlace: result.endStation,
                             lat: result.latitude.toString(),
                             lng: result.longitude.toString(),
                           });
-                          
+
                           if (meetingType) params.append('meetingType', meetingType);
                           if (categoryParam) params.append('category', categoryParam);
-                          
+
                           router.push(`/recommend?${params.toString()}`);
                         };
-                        
+
                         return (
                           <div
                             key={result.id}
@@ -293,33 +255,31 @@ export default function Page() {
                                 : 'border-gray-2 hover:bg-gray-1'
                             }`}
                           >
-                           
                             <div className="flex items-center gap-1.5">
-                             <Image src='/icon/stars.svg' alt='stars' width={16} height={16} />
-                              <span className="text-blue-5 text-sm font-medium">{categoryText}</span>
+                              <Image src="/icon/stars.svg" alt="stars" width={16} height={16} />
+                              <span className="text-blue-5 text-sm font-medium">
+                                {categoryText}
+                              </span>
                             </div>
-                            
-                           
+
                             <div className="flex items-center justify-between">
                               <span className="text-gray-10 text-xl font-bold">
                                 {result.endStation}역
                               </span>
-                              <div className="flex flex-col items-end ">
-                                <span className="text-gray-6 text-[13px] font-regular">
+                              <div className="flex flex-col items-end">
+                                <span className="text-gray-6 text-[13px] font-normal">
                                   평균 이동시간{' '}
                                   <span className="text-blue-5 text-[18px] font-bold">
                                     {result.averageTravelTime}분
                                   </span>
                                 </span>
-                               
                               </div>
                             </div>
-                            
-                           
+
                             <div className="flex gap-2">
                               <button
                                 onClick={handleRecommendClick}
-                                className="bg-gray-8 hover:bg-gray-9 flex-1 h-10 cursor-pointer rounded-[4px] text-[15px] font-normal text-white transition-colors"
+                                className="bg-gray-8 hover:bg-gray-9 h-10 flex-1 cursor-pointer rounded-[4px] text-[15px] font-normal text-white transition-colors"
                                 type="button"
                               >
                                 주변 장소 추천
@@ -329,14 +289,15 @@ export default function Page() {
                                   e.stopPropagation();
                                   openModal(
                                     'TRANSFER',
-                                    { meetingId: id,
+                                    {
+                                      meetingId: id,
                                       userRoutes: result.userRoutes,
                                       endStation: result.endStation,
                                     },
                                     e
                                   );
                                 }}
-                                className="bg-gray-1 hover:bg-gray-2 flex-1 h-10 cursor-pointer rounded-[4px] text-[15px] font-normal text-blue-5 transition-colors"
+                                className="bg-gray-1 hover:bg-gray-2 text-blue-5 h-10 flex-1 cursor-pointer rounded-[4px] text-[15px] font-normal transition-colors"
                                 type="button"
                               >
                                 환승 경로 보기
