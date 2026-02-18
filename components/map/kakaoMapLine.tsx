@@ -176,7 +176,7 @@ export default function KakaoMapLine({
               <CustomOverlayMap position={markerPosition} yAnchor={1} zIndex={30}>
                 <div className="flex flex-col items-center">
                   {/* 1. 상단 정보 말풍선 */}
-                  <div className="relative mb-2 flex min-w-[80px] flex-col items-center justify-center rounded bg-[#2C2F36] px-3 py-2 shadow-lg">
+                  <div className="relative mb-2 flex min-w-20 flex-col items-center justify-center rounded bg-[#2C2F36] px-3 py-2 shadow-lg">
                     <span className="text-[11px] leading-tight whitespace-nowrap text-white">
                       {userRoute.startStation}역에서
                     </span>
@@ -202,7 +202,6 @@ export default function KakaoMapLine({
         })}
       </Map>
 
-     
       <ZoomControl map={map} />
     </div>
   );

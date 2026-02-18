@@ -119,16 +119,14 @@ export default function TransferModal({
   // stations 배열에서 호선별 경로 추출 함수
   const extractRouteSteps = (route: UserRoute) => {
     const steps: Array<{ linenumber: string; station: string; isLast: boolean }> = [];
-    
+
     if (!route.stations || route.stations.length === 0) {
       return steps;
     }
 
-    
     let currentLine = route.stations[0]?.linenumber || '';
-    
+
     route.stations.forEach((station, index) => {
-     
       if (station.linenumber !== currentLine || index === route.stations.length - 1) {
         if (currentLine) {
           steps.push({
@@ -141,7 +139,6 @@ export default function TransferModal({
       }
     });
 
-    
     if (route.stations.length > 0) {
       const lastStation = route.stations[route.stations.length - 1];
       if (steps.length === 0 || steps[steps.length - 1].station !== lastStation.station) {
@@ -164,15 +161,14 @@ export default function TransferModal({
       >
         {/* 헤더 영역 */}
         <DialogHeader className="gap-6 text-left">
-          <DialogTitle className="text-gray-10 text-[22px] font-semibold tracking-[-1.94px]">
+          <DialogTitle className="text-gray-10 text-[22px] font-semibold tracking-[-1.94%]">
             모임원 환승경로 보기
           </DialogTitle>
-          <DialogDescription className="text-blue-5 text-[20px] font-semibold tracking-[-1.2px]">
+          <DialogDescription className="text-blue-5 text-[20px] font-semibold tracking-[-1.2%]">
             {endStation ? `${endStation}역 도착` : '도착역'}
           </DialogDescription>
         </DialogHeader>
 
-        
         <div className="flex flex-col gap-[12px] overflow-y-scroll">
           {userRoutes.length === 0 ? (
             <div className="flex items-center justify-center py-8">
@@ -187,58 +183,52 @@ export default function TransferModal({
                   key={index}
                   className="border-gray-2 relative flex flex-col rounded-[4px] border bg-white"
                 >
-                
-                  <div className="flex items-center justify-between  py-3 border-b-gray-1 border-b mx-5">
-                    <span className="text-gray-7 text-[14px] font-semibold leading-[1.571] tracking-[0.203px]">
+                  <div className="border-b-gray-1 mx-5 flex items-center justify-between border-b py-3">
+                    <span className="text-gray-7 text-[14px] leading-[1.571] font-semibold tracking-[0.203px]">
                       {route.nickname}
                     </span>
                     <div className="flex items-center gap-[7px]">
-                      <span className="text-gray-6 text-[13px] font-normal leading-[1.385] tracking-[0.252px]">
+                      <span className="text-gray-6 text-[13px] leading-[1.385] font-normal tracking-[0.252px]">
                         이동시간
                       </span>
-                      <span className="text-blue-5 text-[18px] font-semibold leading-[1.445] tracking-[-0.0036px]">
+                      <span className="text-blue-5 text-[18px] leading-[1.445] font-semibold tracking-[-0.0036px]">
                         {route.travelTime}분
                       </span>
                     </div>
                   </div>
 
-               
-
                   {/* 하단: 환승 경로 (세로 배치) */}
                   <div className="relative flex gap-4 p-5">
-                    <div className="flex flex-col gap-[10px] items-center">
+                    <div className="flex flex-col items-center gap-[10px]">
                       {routeSteps.map((step, idx) => (
                         <div key={idx} className="flex flex-col items-center gap-[10px]">
                           <div
-                            className={`flex min-w-[60px] items-center justify-center gap-1 rounded-[5px] px-[7px] py-[2px] text-[13px] font-normal leading-[1.385] tracking-[0.252px] text-white ${getLineBadgeStyle(
+                            className={`flex min-w-[60px] items-center justify-center gap-1 rounded-[5px] px-[7px] py-[2px] text-[13px] leading-[1.385] font-normal tracking-[0.252px] text-white ${getLineBadgeStyle(
                               step.linenumber
                             )}`}
                           >
-                           <Image src='/icon/train.svg' alt='train' width={12} height={12} />    
+                            <Image src="/icon/train.svg" alt="train" width={12} height={12} />
                             <span>{step.linenumber}</span>
                           </div>
-                        
+
                           <div className="flex items-center justify-center">
-                            <Image src='/icon/down.svg' alt='arrow-down' width={12} height={12} />
+                            <Image src="/icon/down.svg" alt="arrow-down" width={12} height={12} />
                           </div>
                         </div>
                       ))}
-                      
-                      <div className="bg-gray-8 flex min-w-[60px] items-center justify-center rounded-[5px] px-[7px] py-[2px] text-[13px] font-normal leading-[1.385] tracking-[0.252px] text-white">
+
+                      <div className="bg-gray-8 flex min-w-[60px] items-center justify-center rounded-[5px] px-[7px] py-[2px] text-[13px] leading-[1.385] font-normal tracking-[0.252px] text-white">
                         하차
                       </div>
                     </div>
 
-                    
-                    <div className="flex flex-col gap-[30px] text-gray-8 text-[13px] font-normal leading-[1.385] tracking-[0.252px]">
+                    <div className="text-gray-8 flex flex-col gap-[30px] text-[13px] leading-[1.385] font-normal tracking-[0.252px]">
                       {routeSteps.map((step, idx) => (
                         <span key={idx}>{step.station}역</span>
                       ))}
-                     
+
                       <span>{endStation || routeSteps[routeSteps.length - 1]?.station}역</span>
                     </div>
-
-                   
                   </div>
                 </div>
               );
