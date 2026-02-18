@@ -127,8 +127,6 @@ export default function Page() {
   const clearRelatedCache = useCallback(() => {
     queryClient.removeQueries({ queryKey: ['midpoint', id] });
     queryClient.removeQueries({ queryKey: ['recommend', id] });
-
-    queryClient.invalidateQueries({ queryKey: ['midpoint', id] });
   }, [id, queryClient]);
 
   const handleModifyStart = () => {
@@ -139,71 +137,8 @@ export default function Page() {
   useEffect(() => {
     clearRelatedCache();
 
-    return () => {
-      clearRelatedCache();
-    };
+    return () => clearRelatedCache();
   }, [clearRelatedCache]);
-
-  const getLineColor = (fullLineName: string) => {
-    const cleaned = fullLineName.replace('호선', '').trim();
-    if (/^\d+$/.test(cleaned)) {
-      switch (cleaned) {
-        case '1':
-          return 'bg-[#004A85]';
-        case '2':
-          return 'bg-[#00A23F]';
-        case '3':
-          return 'bg-[#ED6C00]';
-        case '4':
-          return 'bg-[#009BCE]';
-        case '5':
-          return 'bg-[#794698]';
-        case '6':
-          return 'bg-[#7C4932]';
-        case '7':
-          return 'bg-[#6E7E31]';
-        case '8':
-          return 'bg-[#D11D70]';
-        case '9':
-          return 'bg-[#A49D87]';
-        default:
-          return 'bg-gray-400';
-      }
-    }
-    switch (fullLineName) {
-      case '우이신설선':
-        return 'bg-[#B0CE18]';
-      case '신림선':
-        return 'bg-[#5E7DBB]';
-      case '의정부경전철':
-        return 'bg-[#F0831E]';
-      case '용인에버라인':
-        return 'bg-[#44A436]';
-      case '인천2호선':
-        return 'bg-[#F4A462]';
-      case '김포골드라인':
-        return 'bg-[#F4A462]';
-      case '경의선':
-      case '경의중앙선':
-        return 'bg-[#6AC2B3]';
-      case '수인분당선':
-        return 'bg-[#ECA300]';
-      case '신분당선':
-        return 'bg-[#B81B30]';
-      case '인천1호선':
-        return 'bg-[#B4C7E7]';
-      case '공항철도':
-        return 'bg-[#0079AC]';
-      case '경춘선':
-        return 'bg-[#007A62]';
-      case '경강산':
-        return 'bg-[#0B318F]';
-      case '서해선':
-        return 'bg-[#5EAC41]';
-      default:
-        return 'bg-gray-400';
-    }
-  };
 
   return (
     <div className="flex items-center justify-center p-0 md:min-h-[calc(100vh-200px)] md:py-20">
