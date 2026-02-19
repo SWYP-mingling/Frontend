@@ -33,7 +33,7 @@ export default function Page() {
     }
 
     return midpointData.data.map((midpoint, index) => {
-      const { endStation, endStationLine, userRoutes } = midpoint;
+      const { endStation, endStationLine, userRoutes, hot } = midpoint;
 
       const routesWithColor = userRoutes.map((route) => {
         return {
@@ -107,18 +107,52 @@ export default function Page() {
         transferPath: myRoute?.transferPath || [],
         transferPathLines,
         userRoutes: routesWithColor,
+        hot,
       };
     });
   }, [midpointData, myNickname, id]);
 
   // 카테고리 텍스트 생성 함수
-  const getCategoryText = (category: string | undefined): string => {
-    if (!category) return '밍글링 추천 1위';
+  const getCategoryText = (
+    category: string | undefined,
+    hot: boolean | undefined,
+    rank: number,
+  ): string => {
+    const purposeText = '[모임 목적]';
+    const lastChar = purposeText.charCodeAt(purposeText.length - 1);
+    const hasJongseong = (lastChar - 0xac00) % 28 !== 0;
+    const purposeTextWithPostfix = `${purposeText}${hasJongseong ? '이' : '가'} 많은 장소`;
+
+   
+    if (hot === true && rank === 1) {
+      return `밍글링 추천 1위 · ${purposeTextWithPostfix}`;
+    }
+
+    
+    else if (hot === true && rank === 2) {
+      return `밍글링 추천 2위 · ${purposeTextWithPostfix}`;
+    }
+
+    
+    else if (hot === true) {
+      return purposeTextWithPostfix;
+    }
+
+
+    else if (rank === 1) {
+      return '밍글링 추천 1위';
+    }
+
+    else if (rank === 2) {
+      return '밍글링 추천 2위';
+    }
+
+    else if (!category) return '밍글링 추천 1위';
 
     // 카테고리 종성에 따라 "이/가"를 다르게 렌더링
-    const lastChar = category.charCodeAt(category.length - 1);
-    const hasJongseong = (lastChar - 0xac00) % 28 !== 0;
-    return `${category}${hasJongseong ? '이' : '가'} 많은 장소`;
+    const categoryLastChar = category.charCodeAt(category.length - 1);
+    const categoryHasJongseong = (categoryLastChar - 0xac00) % 28 !== 0;
+    return `${category}${categoryHasJongseong ? '이' : '가'} 많은 장소`;
   };
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
@@ -151,7 +185,7 @@ export default function Page() {
           <>
             <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5 md:gap-3">
               <div className="px-5 pt-5 md:p-0">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
                   <button
                     onClick={handleModifyStart}
                     className="flex items-center justify-center"
@@ -162,14 +196,7 @@ export default function Page() {
                   <div className="text-gray-9 text-[22px] font-semibold tracking-[-1.94%]">
                     최종 위치 결과 Top3
                   </div>
-                  <button
-                    className="text-blue-5 bg-blue-1 hover:bg-blue-2 flex h-7 cursor-pointer items-center gap-1 rounded px-2.5 text-[11px] font-semibold transition-colors"
-                    type="button"
-                    onClick={(e) => openModal('SHARE', { meetingId: id }, e)}
-                  >
-                    <Image src="/icon/share.svg" alt="공유 아이콘" width={12} height={12} />
-                    결과 공유하기
-                  </button>
+                
                 </div>
               </div>
 
@@ -207,7 +234,7 @@ export default function Page() {
                       locationResults.map((result) => {
                         const category =
                           meetingData?.data?.purposes?.[meetingData.data.purposes.length - 1];
-                        const categoryText = getCategoryText(category);
+                        const categoryText = getCategoryText(category, result.hot, result.id); 
 
                         const handleRecommendClick = (e: React.MouseEvent) => {
                           e.stopPropagation();
@@ -309,12 +336,13 @@ export default function Page() {
                     )}
                   </div>
                 </div>
-
+ 
                 <button
-                  onClick={handleModifyStart}
-                  className="bg-blue-5 hover:bg-blue-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg font-semibold text-white transition-transform active:scale-[0.98] md:right-0 md:left-0"
+                  onClick={(e) => openModal('SHARE', { meetingId: id }, e)}
+                  className="flex items-center justify-center gap-2.5 bg-blue-5 hover:bg-blue-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg font-semibold text-white transition-transform active:scale-[0.98] md:right-0 md:left-0"
                 >
-                  내 출발지 수정하기
+                   <Image src="/icon/share-white.svg" alt="공유 아이콘" width={20} height={20} />
+                  결과 공유하기
                 </button>
               </div>
             </section>

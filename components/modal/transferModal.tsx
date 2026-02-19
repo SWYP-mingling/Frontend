@@ -116,43 +116,6 @@ export default function TransferModal({
     }
   };
 
-  // stations 배열에서 호선별 경로 추출 함수
-  const extractRouteSteps = (route: UserRoute) => {
-    const steps: Array<{ linenumber: string; station: string; isLast: boolean }> = [];
-
-    if (!route.stations || route.stations.length === 0) {
-      return steps;
-    }
-
-    let currentLine = route.stations[0]?.linenumber || '';
-
-    route.stations.forEach((station, index) => {
-      if (station.linenumber !== currentLine || index === route.stations.length - 1) {
-        if (currentLine) {
-          steps.push({
-            linenumber: currentLine,
-            station: station.station,
-            isLast: index === route.stations.length - 1,
-          });
-        }
-        currentLine = station.linenumber;
-      }
-    });
-
-    if (route.stations.length > 0) {
-      const lastStation = route.stations[route.stations.length - 1];
-      if (steps.length === 0 || steps[steps.length - 1].station !== lastStation.station) {
-        steps.push({
-          linenumber: lastStation.linenumber,
-          station: lastStation.station,
-          isLast: true,
-        });
-      }
-    }
-
-    return steps;
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
@@ -176,8 +139,6 @@ export default function TransferModal({
             </div>
           ) : (
             userRoutes.map((route, index) => {
-              const routeSteps = extractRouteSteps(route);
-
               return (
                 <div
                   key={index}
@@ -200,34 +161,68 @@ export default function TransferModal({
                   {/* 하단: 환승 경로 (세로 배치) */}
                   <div className="relative flex gap-4 p-5">
                     <div className="flex flex-col items-center gap-[10px]">
-                      {routeSteps.map((step, idx) => (
-                        <div key={idx} className="flex flex-col items-center gap-[10px]">
-                          <div
-                            className={`flex min-w-[60px] items-center justify-center gap-1 rounded-[5px] px-[7px] py-[2px] text-[13px] leading-[1.385] font-normal tracking-[0.252px] text-white ${getLineBadgeStyle(
-                              step.linenumber
-                            )}`}
-                          >
-                            <Image src="/icon/train.svg" alt="train" width={12} height={12} />
-                            <span>{step.linenumber}</span>
-                          </div>
+                      
+                      <div className="flex flex-col items-center gap-[10px]">
+                        <div
+                          className={`flex min-w-[60px] items-center justify-center gap-1 rounded-[5px] px-[7px] py-[2px] text-[13px] leading-[1.385] font-normal tracking-[0.252px] text-white ${getLineBadgeStyle(
+                            route.startStationLine
+                          )}`}
+                        >
+                          <Image src="/icon/train.svg" alt="train" width={12} height={12} />
+                          <span>{route.startStationLine}</span>
+                        </div>
 
+                        {route.transferPath && route.transferPath.length > 0 && (
                           <div className="flex items-center justify-center">
                             <Image src="/icon/down.svg" alt="arrow-down" width={12} height={12} />
                           </div>
-                        </div>
-                      ))}
+                        )}
+                      </div>
 
-                      <div className="bg-gray-8 flex min-w-[60px] items-center justify-center rounded-[5px] px-[7px] py-[2px] text-[13px] leading-[1.385] font-normal tracking-[0.252px] text-white">
-                        하차
+                      
+                      {route.transferPath &&
+                        route.transferPath.map((transfer, idx) => (
+                          <div key={idx} className="flex flex-col items-center gap-[10px]">
+                            <div
+                              className={`flex min-w-[60px] items-center justify-center gap-1 rounded-[5px] px-[7px] py-[2px] text-[13px] leading-[1.385] font-normal tracking-[0.252px] text-white ${getLineBadgeStyle(
+                                transfer.linenumber
+                              )}`}
+                            >
+                              <Image src="/icon/train.svg" alt="train" width={12} height={12} />
+                              <span>{transfer.linenumber}</span>
+                            </div>
+
+                            {idx < route.transferPath.length - 1 && (
+                              <div className="flex items-center justify-center">
+                                <Image src="/icon/down.svg" alt="arrow-down" width={12} height={12} />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+
+                      
+                      <div className="flex flex-col items-center gap-[10px]">
+                        <div className="flex items-center justify-center">
+                          <Image src="/icon/down.svg" alt="arrow-down" width={12} height={12} />
+                        </div>
+                        <div className="bg-gray-8 flex min-w-[60px] items-center justify-center rounded-[5px] px-[7px] py-[2px] text-[13px] leading-[1.385] font-normal tracking-[0.252px] text-white">
+                          하차
+                        </div>
                       </div>
                     </div>
 
                     <div className="text-gray-8 flex flex-col gap-[30px] text-[13px] leading-[1.385] font-normal tracking-[0.252px]">
-                      {routeSteps.map((step, idx) => (
-                        <span key={idx}>{step.station}역</span>
-                      ))}
+                      
+                      <span>{route.startStation}역</span>
 
-                      <span>{endStation || routeSteps[routeSteps.length - 1]?.station}역</span>
+                     
+                      {route.transferPath &&
+                        route.transferPath.map((transfer, idx) => (
+                          <span key={idx}>{transfer.station}역</span>
+                        ))}
+
+                      {/* 종료역 */}
+                      <span>{endStation}역</span>
                     </div>
                   </div>
                 </div>
