@@ -33,7 +33,7 @@ export default function Page() {
     }
 
     return midpointData.data.map((midpoint, index) => {
-      const { endStation, endStationLine, userRoutes } = midpoint;
+      const { endStation, endStationLine, userRoutes, hot } = midpoint;
 
       const routesWithColor = userRoutes.map((route) => {
         return {
@@ -107,18 +107,52 @@ export default function Page() {
         transferPath: myRoute?.transferPath || [],
         transferPathLines,
         userRoutes: routesWithColor,
+        hot,
       };
     });
   }, [midpointData, myNickname, id]);
 
   // 카테고리 텍스트 생성 함수
-  const getCategoryText = (category: string | undefined): string => {
-    if (!category) return '밍글링 추천 1위';
+  const getCategoryText = (
+    category: string | undefined,
+    hot: boolean | undefined,
+    rank: number,
+  ): string => {
+    const purposeText = '[모임 목적]';
+    const lastChar = purposeText.charCodeAt(purposeText.length - 1);
+    const hasJongseong = (lastChar - 0xac00) % 28 !== 0;
+    const purposeTextWithPostfix = `${purposeText}${hasJongseong ? '이' : '가'} 많은 장소`;
+
+   
+    if (hot === true && rank === 1) {
+      return `밍글링 추천 1위 · ${purposeTextWithPostfix}`;
+    }
+
+    
+    else if (hot === true && rank === 2) {
+      return `밍글링 추천 2위 · ${purposeTextWithPostfix}`;
+    }
+
+    
+    else if (hot === true) {
+      return purposeTextWithPostfix;
+    }
+
+
+    else if (rank === 1) {
+      return '밍글링 추천 1위';
+    }
+
+    else if (rank === 2) {
+      return '밍글링 추천 2위';
+    }
+
+    else if (!category) return '밍글링 추천 1위';
 
     // 카테고리 종성에 따라 "이/가"를 다르게 렌더링
-    const lastChar = category.charCodeAt(category.length - 1);
-    const hasJongseong = (lastChar - 0xac00) % 28 !== 0;
-    return `${category}${hasJongseong ? '이' : '가'} 많은 장소`;
+    const categoryLastChar = category.charCodeAt(category.length - 1);
+    const categoryHasJongseong = (categoryLastChar - 0xac00) % 28 !== 0;
+    return `${category}${categoryHasJongseong ? '이' : '가'} 많은 장소`;
   };
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
@@ -200,7 +234,7 @@ export default function Page() {
                       locationResults.map((result) => {
                         const category =
                           meetingData?.data?.purposes?.[meetingData.data.purposes.length - 1];
-                        const categoryText = getCategoryText(category);
+                        const categoryText = getCategoryText(category, result.hot, result.id); 
 
                         const handleRecommendClick = (e: React.MouseEvent) => {
                           e.stopPropagation();

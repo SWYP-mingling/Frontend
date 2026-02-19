@@ -70,6 +70,7 @@ export type MeetingStatusResponse = ApiResponse<MeetingStatusData>;
 export interface MidpointData {
   endStation: string;
   endStationLine: string;
+  hot: boolean;
   latitude: number;
   longitude: number;
   userRoutes: {
