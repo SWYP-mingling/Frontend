@@ -151,7 +151,7 @@ export default function Page() {
           <>
             <section className="border-gray-1 flex w-full flex-col gap-5 bg-white md:w-77.5 md:gap-3">
               <div className="px-5 pt-5 md:p-0">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
                   <button
                     onClick={handleModifyStart}
                     className="flex items-center justify-center"
@@ -162,14 +162,7 @@ export default function Page() {
                   <div className="text-gray-9 text-[22px] font-semibold tracking-[-1.94%]">
                     최종 위치 결과 Top3
                   </div>
-                  <button
-                    className="text-blue-5 bg-blue-1 hover:bg-blue-2 flex h-7 cursor-pointer items-center gap-1 rounded px-2.5 text-[11px] font-semibold transition-colors"
-                    type="button"
-                    onClick={(e) => openModal('SHARE', { meetingId: id }, e)}
-                  >
-                    <Image src="/icon/share.svg" alt="공유 아이콘" width={12} height={12} />
-                    결과 공유하기
-                  </button>
+                
                 </div>
               </div>
 
@@ -309,12 +302,13 @@ export default function Page() {
                     )}
                   </div>
                 </div>
-
+ 
                 <button
-                  onClick={handleModifyStart}
-                  className="bg-blue-5 hover:bg-blue-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg font-semibold text-white transition-transform active:scale-[0.98] md:right-0 md:left-0"
+                  onClick={(e) => openModal('SHARE', { meetingId: id }, e)}
+                  className="flex items-center justify-center gap-2.5 bg-blue-5 hover:bg-blue-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg font-semibold text-white transition-transform active:scale-[0.98] md:right-0 md:left-0"
                 >
-                  내 출발지 수정하기
+                   <Image src="/icon/share-white.svg" alt="공유 아이콘" width={20} height={20} />
+                  결과 공유하기
                 </button>
               </div>
             </section>
