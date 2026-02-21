@@ -24,8 +24,21 @@ export default function Page() {
     return getMeetingUserId(id) || '';
   });
 
+  // 로컬스토리지에서 가져온 카테고리 값을 저장할 State
+  const [localCategory, setLocalCategory] = useState<string>('');
+
   const { data: midpointData, isLoading, isError } = useMidpoint(id);
   const { data: meetingData } = useCheckMeeting(id);
+
+  // 컴포넌트 마운트 시 로컬스토리지 값 가져오기 (Hydration 에러 방지)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && id) {
+      const storedCategory = localStorage.getItem(`meeting_${id}_category`);
+      if (storedCategory) {
+        setLocalCategory(storedCategory);
+      }
+    }
+  }, [id]);
 
   const locationResults = useMemo(() => {
     if (!midpointData?.success || !midpointData.data || !Array.isArray(midpointData.data)) {
@@ -112,47 +125,25 @@ export default function Page() {
     });
   }, [midpointData, myNickname, id]);
 
-  // 카테고리 텍스트 생성 함수
+  // 카테고리 텍스트 생성 함수 업데이트
   const getCategoryText = (
-    category: string | undefined,
-    hot: boolean | undefined,
-    rank: number,
+    apiCategory: string | undefined,
+    hot: boolean | undefined, // hot 파라미터를 안 쓰게 되더라도 시그니처 유지를 위해 둠
+    rank: number
   ): string => {
-    const purposeText = '[모임 목적]';
-    const lastChar = purposeText.charCodeAt(purposeText.length - 1);
-    const hasJongseong = (lastChar - 0xac00) % 28 !== 0;
-    const purposeTextWithPostfix = `${purposeText}${hasJongseong ? '이' : '가'} 많은 장소`;
-
-   
-    if (hot === true && rank === 1) {
-      return `밍글링 추천 1위 · ${purposeTextWithPostfix}`;
-    }
-
-    
-    else if (hot === true && rank === 2) {
-      return `밍글링 추천 2위 · ${purposeTextWithPostfix}`;
-    }
-
-    
-    else if (hot === true) {
-      return purposeTextWithPostfix;
-    }
-
-
-    else if (rank === 1) {
+    // 밍글링 추천 문구가 들어가는 1위, 2위는 "OO이 많은 장소" 텍스트를 완전히 생략합니다.
+    if (rank === 1) {
       return '밍글링 추천 1위';
-    }
-
-    else if (rank === 2) {
+    } else if (rank === 2) {
       return '밍글링 추천 2위';
     }
 
-    else if (!category) return '밍글링 추천 1위';
+    // 3위 등 밍글링 추천이 안 붙는 경우에만 로컬스토리지 값 활용하여 "OO이/가 많은 장소" 표시
+    const purposeText = localCategory || apiCategory || '모임 목적';
+    const lastChar = purposeText.charCodeAt(purposeText.length - 1);
+    const hasJongseong = (lastChar - 0xac00) % 28 !== 0;
 
-    // 카테고리 종성에 따라 "이/가"를 다르게 렌더링
-    const categoryLastChar = category.charCodeAt(category.length - 1);
-    const categoryHasJongseong = (categoryLastChar - 0xac00) % 28 !== 0;
-    return `${category}${categoryHasJongseong ? '이' : '가'} 많은 장소`;
+    return `${purposeText}${hasJongseong ? '이' : '가'} 많은 장소`;
   };
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
@@ -196,7 +187,6 @@ export default function Page() {
                   <div className="text-gray-9 text-[22px] font-semibold tracking-[-1.94%]">
                     최종 위치 결과 Top3
                   </div>
-                
                 </div>
               </div>
 
@@ -234,7 +224,7 @@ export default function Page() {
                       locationResults.map((result) => {
                         const category =
                           meetingData?.data?.purposes?.[meetingData.data.purposes.length - 1];
-                        const categoryText = getCategoryText(category, result.hot, result.id); 
+                        const categoryText = getCategoryText(category, result.hot, result.id);
 
                         const handleRecommendClick = (e: React.MouseEvent) => {
                           e.stopPropagation();
@@ -336,12 +326,12 @@ export default function Page() {
                     )}
                   </div>
                 </div>
- 
+
                 <button
                   onClick={(e) => openModal('SHARE', { meetingId: id }, e)}
-                  className="flex items-center justify-center gap-2.5 bg-blue-5 hover:bg-blue-8 absolute right-5 bottom-0 left-5 h-12 rounded text-lg font-semibold text-white transition-transform active:scale-[0.98] md:right-0 md:left-0"
+                  className="bg-blue-5 hover:bg-blue-8 absolute right-5 bottom-0 left-5 flex h-12 items-center justify-center gap-2.5 rounded text-lg font-semibold text-white transition-transform active:scale-[0.98] md:right-0 md:left-0"
                 >
-                   <Image src="/icon/share-white.svg" alt="공유 아이콘" width={20} height={20} />
+                  <Image src="/icon/share-white.svg" alt="공유 아이콘" width={20} height={20} />
                   결과 공유하기
                 </button>
               </div>
