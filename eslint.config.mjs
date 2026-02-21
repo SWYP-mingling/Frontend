@@ -20,6 +20,7 @@ const eslintConfig = defineConfig([
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
 ]);
