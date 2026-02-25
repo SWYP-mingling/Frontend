@@ -7,6 +7,7 @@ import { useCreateMeeting } from '@/hooks/api/mutation/useCreateMeeting';
 import type { MeetingCreateRequest } from '@/types/api';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
+import { sendGAEvent } from '@next/third-parties/google';
 
 export default function Page() {
   const [meetingName, setMeetingName] = useState('');
@@ -123,7 +124,7 @@ export default function Page() {
 
     const purposes = getPurposes();
 
-    // capacity 처리: "아직 안정해졌어요" 체크 시 30으로 설정
+    // capacity 처리: "아직 안정해졌어요" 체크 시 10으로 설정
     const capacity = isParticipantUndecided ? 10 : participantCount || 1;
 
     const requestData: MeetingCreateRequest = {
@@ -141,6 +142,27 @@ export default function Page() {
       if (result.success && result.data?.meetingId) {
         const { meetingId } = result.data;
         console.log('생성된 ID:', meetingId);
+
+        // --- [GA4 이벤트 전송 로직 추가] ---
+        if (typeof window !== 'undefined') {
+          // 1. 브라우저 식별자(browser_id) 확인 및 생성 (Get or Create)
+          let browserId = localStorage.getItem('browser_id');
+          if (!browserId) {
+            // 없으면 새로 발급해서 브라우저에 각인!
+            const randomStr = Math.random().toString(36).substring(2, 15);
+            browserId = `bid_${randomStr}${Date.now().toString(36)}`;
+            localStorage.setItem('browser_id', browserId);
+          }
+
+          // 2. 방 만든 브라우저가 누구인지 식별자를 담아서 이벤트 전송
+          sendGAEvent('event', 'url_created', {
+            meeting_url_id: meetingId,
+            participant_count_expected: capacity,
+            browser_id: browserId,
+            entry_method: 'url_direct',
+          });
+        }
+        // -----------------------------------
 
         // purposes를 localStorage에 저장 (장소 추천 카테고리로 사용)
         const purposes = getPurposes();
