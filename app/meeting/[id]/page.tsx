@@ -15,7 +15,7 @@ import MeetingInfoSection from '@/components/meeting/MeetingInfoSection';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
 import { getMeetingUserId, removeMeetingUserId } from '@/lib/storage';
-
+import { sendGAEvent } from '@next/third-parties/google';
 interface StationInfo {
   line: string;
   name: string;
@@ -127,6 +127,21 @@ export default function Page() {
       show();
       return;
     }
+
+    if (typeof window !== 'undefined') {
+      const calculationType = id ? 'recalculated' : 'first';
+      const isHost = localStorage.getItem(`browser_id`) !== null;
+      const role_type = isHost ? 'host' : 'participant';
+      const browserId = localStorage.getItem('browser_id');
+
+      sendGAEvent('event', 'midpoint_calculated', {
+        meeting_url_id: id,
+        browser_id: browserId,
+        role: role_type,
+        calculation_type: calculationType,
+      });
+    }
+
     router.push(`/result/${id}`);
   };
 
