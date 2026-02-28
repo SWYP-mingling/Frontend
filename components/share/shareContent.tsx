@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Toast from '@/components/ui/toast';
 import { useShareMeeting } from '@/hooks/api/query/useShareMeeting';
 import Image from 'next/image';
+import { sendGAEvent } from '@next/third-parties/google';
 
 interface ShareContentProps {
   id: string;
@@ -13,6 +14,28 @@ interface ShareContentProps {
 export default function ShareContent({ id }: ShareContentProps) {
   // useParams() 대신 부모(Page)에서 전달받은 id 사용
   const { shareUrl, isError, isLoading, handleCopyLink, isVisible } = useShareMeeting(id);
+
+  // 복사 버튼 클릭 시 실행할 래퍼 함수 생성
+  const handleCopyClickWithGA = () => {
+    handleCopyLink();
+
+    // 2. GA4 이벤트 전송 로직 인라인 처리
+    if (typeof window !== 'undefined') {
+      // 브라우저 식별자(browser_id) 확인 및 생성 (Get or Create)
+      let browserId = localStorage.getItem('browser_id');
+      if (!browserId) {
+        const randomStr = Math.random().toString(36).substring(2, 15);
+        browserId = `bid_${randomStr}${Date.now().toString(36)}`;
+        localStorage.setItem('browser_id', browserId);
+      }
+
+      sendGAEvent('event', 'share_link', {
+        meeting_url_id: id,
+        location: 'creation_complete',
+        browser_id: browserId,
+      });
+    }
+  };
 
   if (isError) notFound();
   if (isLoading) return null;
@@ -44,7 +67,7 @@ export default function ShareContent({ id }: ShareContentProps) {
         />
         <button
           type="button"
-          onClick={handleCopyLink}
+          onClick={handleCopyClickWithGA}
           className="bg-gray-1 text-gray-6 border-gray-1 hover:bg-gray-2 cursor-pointer rounded-r-sm border px-3.5 py-3 text-sm font-semibold whitespace-nowrap transition-colors"
         >
           복사

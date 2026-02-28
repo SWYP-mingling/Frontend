@@ -11,6 +11,7 @@ import { getMeetingUserId } from '@/lib/storage';
 import { useQueryClient } from '@tanstack/react-query';
 import Loading from '@/components/loading/loading';
 import { getRandomHexColor } from '@/lib/color';
+import { sendGAEvent } from '@next/third-parties/google';
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -159,6 +160,26 @@ export default function Page() {
     router.replace(`/meeting/${id}`);
   };
 
+  const handleResultShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // 1. GA 데이터 먼저 전송!
+    if (typeof window !== 'undefined') {
+      let browserId = localStorage.getItem('browser_id');
+      if (!browserId) {
+        browserId = `bid_${Math.random().toString(36).substring(2, 15)}${Date.now().toString(36)}`;
+        localStorage.setItem('browser_id', browserId);
+      }
+
+      sendGAEvent('event', 'share_link', {
+        meeting_url_id: id,
+        location: 'place_list', // PM님 명세: 결과 리스트 페이지
+        browser_id: browserId,
+      });
+    }
+
+    // 2. 안전하게 전송 후 모달 띄우기
+    openModal('SHARE', { meetingId: id }, e);
+  };
+
   useEffect(() => {
     clearRelatedCache();
 
@@ -266,7 +287,7 @@ export default function Page() {
                           <div
                             key={result.id}
                             onClick={() => setSelectedResultId(result.id)}
-                            className={`flex cursor-pointer flex-col gap-3.75 rounded-[4px] border bg-white p-5 ${
+                            className={`flex cursor-pointer flex-col gap-3.75 rounded border bg-white p-5 ${
                               selectedResultId === result.id
                                 ? 'border-blue-5 border-2'
                                 : 'border-gray-2 hover:bg-gray-1'
@@ -296,7 +317,7 @@ export default function Page() {
                             <div className="flex gap-2">
                               <button
                                 onClick={handleRecommendClick}
-                                className="bg-gray-8 hover:bg-gray-9 h-10 flex-1 cursor-pointer rounded-[4px] text-[15px] font-normal text-white transition-colors"
+                                className="bg-gray-8 hover:bg-gray-9 h-10 flex-1 cursor-pointer rounded text-[15px] font-normal text-white transition-colors"
                                 type="button"
                               >
                                 주변 장소 추천
@@ -314,7 +335,7 @@ export default function Page() {
                                     e
                                   );
                                 }}
-                                className="bg-gray-1 hover:bg-gray-2 text-blue-5 h-10 flex-1 cursor-pointer rounded-[4px] text-[15px] font-normal transition-colors"
+                                className="bg-gray-1 hover:bg-gray-2 text-blue-5 h-10 flex-1 cursor-pointer rounded text-[15px] font-normal transition-colors"
                                 type="button"
                               >
                                 환승 경로 보기
@@ -328,7 +349,7 @@ export default function Page() {
                 </div>
 
                 <button
-                  onClick={(e) => openModal('SHARE', { meetingId: id }, e)}
+                  onClick={handleResultShareClick}
                   className="bg-blue-5 hover:bg-blue-8 absolute right-5 bottom-0 left-5 flex h-12 items-center justify-center gap-2.5 rounded text-lg font-semibold text-white transition-transform active:scale-[0.98] md:right-0 md:left-0"
                 >
                   <Image src="/icon/share-white.svg" alt="공유 아이콘" width={20} height={20} />

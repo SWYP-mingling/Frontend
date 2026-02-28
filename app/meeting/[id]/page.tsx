@@ -15,6 +15,8 @@ import MeetingInfoSection from '@/components/meeting/MeetingInfoSection';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
 import { getMeetingUserId, removeMeetingUserId } from '@/lib/storage';
+// ⭐️ GA4 전송 함수 임포트
+import { sendGAEvent } from '@next/third-parties/google';
 
 interface StationInfo {
   line: string;
@@ -73,8 +75,33 @@ export default function Page() {
     }
   }, [isError, error, id]);
 
+  // GA4 전송 전용 도우미 함수
+  const trackShareEvent = () => {
+    if (typeof window !== 'undefined') {
+      let browserId = localStorage.getItem('browser_id');
+      if (!browserId) {
+        browserId = `bid_${Math.random().toString(36).substring(2, 15)}${Date.now().toString(36)}`;
+        localStorage.setItem('browser_id', browserId);
+      }
+
+      sendGAEvent('event', 'share_link', {
+        meeting_url_id: id,
+        location: 'creation_complete',
+        browser_id: browserId,
+      });
+    }
+  };
+
+  // 공유하기 버튼 전용 핸들러
   const handleShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     openModal('SHARE', { meetingId: id }, e);
+    trackShareEvent();
+  };
+
+  // 재촉하기 버튼 전용 핸들러
+  const handleNudgeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    openModal('NUDGE', { meetingId: id }, e);
+    trackShareEvent();
   };
 
   const handleSelectStation = (stationName: string | null) => {
@@ -244,7 +271,7 @@ export default function Page() {
             <button
               type="button"
               className="bg-blue-5 hover:bg-blue-8 flex h-21 w-full cursor-pointer items-center justify-between rounded p-4 text-left text-white transition-transform active:scale-[0.98]"
-              onClick={(e) => openModal('NUDGE', { meetingId: id }, e)}
+              onClick={handleNudgeClick}
             >
               <div className="flex flex-col gap-0.5">
                 <span className="text-lg leading-[1.44] font-semibold">
