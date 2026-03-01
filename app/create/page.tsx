@@ -145,7 +145,7 @@ export default function Page() {
 
         // --- [GA4 이벤트 전송 로직 추가] ---
         if (typeof window !== 'undefined') {
-          // 1. 브라우저 식별자(browser_id) 확인 및 생성 (Get or Create)
+          // 브라우저 식별자(browser_id) 확인 및 생성 (Get or Create)
           let browserId = localStorage.getItem('browser_id');
           if (!browserId) {
             // 없으면 새로 발급해서 브라우저에 각인!
@@ -154,7 +154,10 @@ export default function Page() {
             localStorage.setItem('browser_id', browserId);
           }
 
-          // 2. 방 만든 브라우저가 누구인지 식별자를 담아서 이벤트 전송
+          // 방장임을 증명하는 마패(로컬스토리지) 발급!
+          localStorage.setItem(`is_host_${meetingId}`, 'true');
+
+          // 방 만든 브라우저가 누구인지 식별자를 담아서 이벤트 전송
           sendGAEvent('event', 'url_created', {
             meeting_url_id: meetingId,
             participant_count_expected: capacity,
