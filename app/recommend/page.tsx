@@ -140,8 +140,28 @@ function RecommendContent() {
     router.back();
   };
 
-  const handleOpenKakaoMap = (e: React.MouseEvent, placeUrl?: string) => {
+  const handleOpenKakaoMap = (
+    e: React.MouseEvent,
+    placeUrl?: string,
+    place?: (typeof places)[0]
+  ) => {
     e.stopPropagation();
+
+    // 카카오맵에서 보기 클릭 시 GA 전송 (external_map_opened)
+    if (typeof window !== 'undefined' && meetingId && place) {
+      const browserId = localStorage.getItem('browser_id');
+      const isHost = localStorage.getItem(`is_host_${meetingId}`) === 'true';
+      const userRole = isHost ? 'host' : 'participant';
+      const candidateId = `place_${String(place.id).padStart(2, '0')}`;
+
+      sendGAEvent('event', 'external_map_opened', {
+        meeting_url_id: meetingId,
+        user_cookie_id: browserId,
+        role: userRole,
+        candidate_id: candidateId,
+      });
+    }
+
     if (placeUrl) {
       window.open(placeUrl, '_blank', 'noopener,noreferrer');
     } else {
@@ -262,7 +282,7 @@ function RecommendContent() {
                     {/* 하단 버튼은 조건부 렌더링 */}
                     {selectedPlaceId === place.id ? (
                       <button
-                        onClick={(e) => handleOpenKakaoMap(e, place.placeUrl)}
+                        onClick={(e) => handleOpenKakaoMap(e, place.placeUrl, place)}
                         className="bg-gray-8 w-full rounded py-2 text-[15px] text-white"
                       >
                         카카오맵에서 보기
