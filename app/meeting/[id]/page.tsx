@@ -172,14 +172,14 @@ export default function Page() {
 
     if (typeof window !== 'undefined') {
       const calculationType = id ? 'recalculated' : 'first';
-      const isHost = localStorage.getItem(`browser_id`) !== null;
-      const role_type = isHost ? 'host' : 'participant';
+      const isHost = localStorage.getItem(`is_host_${id}`) === 'true';
+      const userRole = isHost ? 'host' : 'participant';
       const browserId = localStorage.getItem('browser_id');
 
       sendGAEvent('event', 'midpoint_calculated', {
         meeting_url_id: id,
         browser_id: browserId,
-        role: role_type,
+        role: userRole,
         calculation_type: calculationType,
       });
     }
