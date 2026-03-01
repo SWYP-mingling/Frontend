@@ -6,6 +6,7 @@ import Image from 'next/image';
 import KakaoMapRecommend from '@/components/map/kakaoMapRecommend';
 import { useRecommend } from '@/hooks/api/query/useRecommend';
 import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting';
+import { sendGAEvent } from '@next/third-parties/google';
 
 function RecommendContent() {
   const router = useRouter();
@@ -148,6 +149,20 @@ function RecommendContent() {
     }
   };
 
+  // 장소 리스트 중 하나 클릭 시 GA 전송 (place_list_viewed)
+  const handlePlaceClick = (place: (typeof places)[0]) => {
+    setSelectedPlaceId(place.id);
+    if (meetingId) {
+      const candidateId = `place_${String(place.id).padStart(2, '0')}`;
+      sendGAEvent('event', 'place_list_viewed', {
+        meeting_url_id: meetingId,
+        candidate_id: candidateId,
+        place_category: place.category,
+        rank_order: place.id,
+      });
+    }
+  };
+
   return (
     <div className="flex items-center justify-center p-0 md:min-h-[calc(100vh-200px)] md:py-25">
       <div className="flex h-full w-full flex-col bg-white md:h-175 md:w-174 md:flex-row md:gap-2 lg:w-215">
@@ -194,7 +209,7 @@ function RecommendContent() {
                 {places.map((place) => (
                   <div
                     key={place.id}
-                    onClick={() => setSelectedPlaceId(place.id)}
+                    onClick={() => handlePlaceClick(place)}
                     className={`flex cursor-pointer flex-col gap-2 rounded border p-4 ${
                       selectedPlaceId === place.id
                         ? 'border-blue-5 border-2'
