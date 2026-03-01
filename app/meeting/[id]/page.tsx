@@ -135,6 +135,23 @@ export default function Page() {
         {
           onSuccess: () => {
             refetch();
+
+            if (typeof window !== 'undefined') {
+              let browserId = localStorage.getItem('browser_id');
+              if (!browserId) {
+                browserId = `bid_${Math.random().toString(36).substring(2, 15)}${Date.now().toString(36)}`;
+                localStorage.setItem('browser_id', browserId);
+              }
+
+              const isHost = localStorage.getItem(`is_host_${id}`) === 'true';
+              const userRole = isHost ? 'host' : 'participant';
+
+              sendGAEvent('event', 'departure_location_submitted', {
+                meeting_url_id: id,
+                user_cookie_id: browserId,
+                role: userRole,
+              });
+            }
           },
           onError: () => {
             setErrorMessage('출발지 등록에 실패했습니다.');
