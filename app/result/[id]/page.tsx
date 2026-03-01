@@ -149,6 +149,41 @@ export default function Page() {
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
 
+  // 중간지점 후보 조회 GA 이벤트 (role: meeting 페이지와 동일한 is_host_${id} 기준)
+  const trackMidpointCandidateViewed = useCallback(
+    (candidateRankOrder: number, candidateId: string) => {
+      if (typeof window === 'undefined' || !id) return;
+      let browserId = localStorage.getItem('browser_id');
+      if (!browserId) {
+        browserId = `bid_${Math.random().toString(36).substring(2, 15)}${Date.now().toString(36)}`;
+        localStorage.setItem('browser_id', browserId);
+      }
+      const isHost = localStorage.getItem(`is_host_${id}`) === 'true';
+      const userRole = isHost ? 'host' : 'participant';
+
+      sendGAEvent('event', 'midpoint_candidate_viewed', {
+        meeting_url_id: id,
+        user_cookie_id: browserId,
+        role: userRole,
+        candidate_rank_order: candidateRankOrder,
+        candidate_id: candidateId,
+      });
+    },
+    [id]
+  );
+
+  // 장소 리스트에서 결과보기 페이지로 돌아왔을 때 midpoint_candidate_viewed 전송
+  useEffect(() => {
+    if (typeof window === 'undefined' || !id || locationResults.length === 0) return;
+    const fromRecommend = sessionStorage.getItem(`from_recommend_${id}`);
+    if (fromRecommend !== '1') return;
+
+    sessionStorage.removeItem(`from_recommend_${id}`);
+    const selected = locationResults.find((r) => r.id === selectedResultId) ?? locationResults[0];
+    const candidateId = `mid_${selected.endStation.replace(/\s+/g, '_')}`;
+    trackMidpointCandidateViewed(selected.id, candidateId);
+  }, [id, locationResults, selectedResultId, trackMidpointCandidateViewed]);
+
   // 뒤로 가기 클릭 시 캐시 데이터 무효화
   const clearRelatedCache = useCallback(() => {
     queryClient.removeQueries({ queryKey: ['midpoint', id] });
@@ -280,13 +315,20 @@ export default function Page() {
                           if (meetingType) params.append('meetingType', meetingType);
                           if (categoryParam) params.append('category', categoryParam);
 
+                          if (typeof window !== 'undefined') {
+                            sessionStorage.setItem(`from_recommend_${id}`, '1');
+                          }
                           router.push(`/recommend?${params.toString()}`);
                         };
 
                         return (
                           <div
                             key={result.id}
-                            onClick={() => setSelectedResultId(result.id)}
+                            onClick={() => {
+                              setSelectedResultId(result.id);
+                              const candidateId = `mid_${result.endStation.replace(/\s+/g, '_')}`;
+                              trackMidpointCandidateViewed(result.id, candidateId);
+                            }}
                             className={`flex cursor-pointer flex-col gap-3.75 rounded border bg-white p-5 ${
                               selectedResultId === result.id
                                 ? 'border-blue-5 border-2'
