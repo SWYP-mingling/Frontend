@@ -149,15 +149,11 @@ export default function Page() {
 
   const [selectedResultId, setSelectedResultId] = useState<number>(1);
 
-  // 중간지점 후보 조회 GA 이벤트 (role: meeting 페이지와 동일한 is_host_${id} 기준)
+  // 중간지점 후보 조회 GA 이벤트
   const trackMidpointCandidateViewed = useCallback(
     (candidateRankOrder: number, candidateId: string) => {
       if (typeof window === 'undefined' || !id) return;
-      let browserId = localStorage.getItem('browser_id');
-      if (!browserId) {
-        browserId = `bid_${Math.random().toString(36).substring(2, 15)}${Date.now().toString(36)}`;
-        localStorage.setItem('browser_id', browserId);
-      }
+      const browserId = localStorage.getItem('browser_id');
       const isHost = localStorage.getItem(`is_host_${id}`) === 'true';
       const userRole = isHost ? 'host' : 'participant';
 
