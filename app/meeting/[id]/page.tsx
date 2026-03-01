@@ -15,7 +15,6 @@ import MeetingInfoSection from '@/components/meeting/MeetingInfoSection';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
 import { getMeetingUserId, removeMeetingUserId } from '@/lib/storage';
-// ⭐️ GA4 전송 함수 임포트
 import { sendGAEvent } from '@next/third-parties/google';
 
 interface StationInfo {
