@@ -6,7 +6,6 @@ import Image from 'next/image';
 import KakaoMapRecommend from '@/components/map/kakaoMapRecommend';
 import { useRecommend } from '@/hooks/api/query/useRecommend';
 import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting';
-import { sendGAEvent } from '@next/third-parties/google';
 
 function RecommendContent() {
   const router = useRouter();
@@ -147,14 +146,17 @@ function RecommendContent() {
   ) => {
     e.stopPropagation();
 
-    // 카카오맵에서 보기 클릭 시 GA 전송 (external_map_opened)
+    // ⭐️ 카카오맵에서 보기 클릭 시 GA 전송 (GTM 친화적 dataLayer 직접 Push)
     if (typeof window !== 'undefined' && meetingId && place) {
       const browserId = localStorage.getItem('browser_id');
       const isHost = localStorage.getItem(`is_host_${meetingId}`) === 'true';
       const userRole = isHost ? 'host' : 'participant';
       const candidateId = `place_${String(place.id).padStart(2, '0')}`;
 
-      sendGAEvent('event', 'external_map_opened', {
+      const w = window as any;
+      w.dataLayer = w.dataLayer || [];
+      w.dataLayer.push({
+        event: 'external_map_opened',
         meeting_url_id: meetingId,
         user_cookie_id: browserId,
         role: userRole,
@@ -169,12 +171,16 @@ function RecommendContent() {
     }
   };
 
-  // 장소 리스트 중 하나 클릭 시 GA 전송 (place_list_viewed)
+  // ⭐️ 장소 리스트 중 하나 클릭 시 GA 전송 (GTM 친화적 dataLayer 직접 Push)
   const handlePlaceClick = (place: (typeof places)[0]) => {
     setSelectedPlaceId(place.id);
-    if (meetingId) {
+    if (typeof window !== 'undefined' && meetingId) {
       const candidateId = `place_${String(place.id).padStart(2, '0')}`;
-      sendGAEvent('event', 'place_list_viewed', {
+
+      const w = window as any;
+      w.dataLayer = w.dataLayer || [];
+      w.dataLayer.push({
+        event: 'place_list_viewed',
         meeting_url_id: meetingId,
         candidate_id: candidateId,
         place_category: place.category,

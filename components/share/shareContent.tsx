@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Toast from '@/components/ui/toast';
 import { useShareMeeting } from '@/hooks/api/query/useShareMeeting';
 import Image from 'next/image';
-import { sendGAEvent } from '@next/third-parties/google';
 
 interface ShareContentProps {
   id: string;
@@ -17,9 +16,7 @@ export default function ShareContent({ id }: ShareContentProps) {
 
   // 복사 버튼 클릭 시 실행할 래퍼 함수 생성
   const handleCopyClickWithGA = () => {
-    handleCopyLink();
-
-    // 2. GA4 이벤트 전송 로직 인라인 처리
+    // 1. GA4 이벤트 전송 로직 (GTM 친화적 순수 객체 형태 & 무조건 먼저 실행!)
     if (typeof window !== 'undefined') {
       // 브라우저 식별자(browser_id) 확인 및 생성 (Get or Create)
       let browserId = localStorage.getItem('browser_id');
@@ -29,12 +26,19 @@ export default function ShareContent({ id }: ShareContentProps) {
         localStorage.setItem('browser_id', browserId);
       }
 
-      sendGAEvent('event', 'share_link', {
+      // dataLayer 직접 Push (이벤트명을 키값으로!)
+      const w = window as any;
+      w.dataLayer = w.dataLayer || [];
+      w.dataLayer.push({
+        event: 'share_link',
         meeting_url_id: id,
         location: 'creation_complete',
         browser_id: browserId,
       });
     }
+
+    // 2. 안전하게 전송 후 클립보드 복사 로직 실행
+    handleCopyLink();
   };
 
   if (isError) notFound();

@@ -7,7 +7,6 @@ import { useCreateMeeting } from '@/hooks/api/mutation/useCreateMeeting';
 import type { MeetingCreateRequest } from '@/types/api';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
-import { sendGAEvent } from '@next/third-parties/google';
 
 export default function Page() {
   const [meetingName, setMeetingName] = useState('');
@@ -157,8 +156,11 @@ export default function Page() {
           // 방장임을 증명하는 마패(로컬스토리지) 발급!
           localStorage.setItem(`is_host_${meetingId}`, 'true');
 
-          // 방 만든 브라우저가 누구인지 식별자를 담아서 이벤트 전송
-          sendGAEvent('event', 'url_created', {
+          // ⭐️ 방 만든 브라우저가 누구인지 식별자를 담아서 이벤트 전송 (dataLayer 직접 Push)
+          const w = window as any;
+          w.dataLayer = w.dataLayer || [];
+          w.dataLayer.push({
+            event: 'url_created', // 객체 내부의 키로 이벤트명 삽입
             meeting_url_id: meetingId,
             participant_count_expected: capacity,
             browser_id: browserId,
@@ -168,8 +170,8 @@ export default function Page() {
         // -----------------------------------
 
         // purposes를 localStorage에 저장 (장소 추천 카테고리로 사용)
-        const purposes = getPurposes();
-        if (purposes.length > 0) {
+        const purposesStr = getPurposes();
+        if (purposesStr.length > 0) {
           // meetingType 저장 (회의 또는 친목)
           if (meetingType) {
             localStorage.setItem(`meeting_${meetingId}_meetingType`, meetingType);
