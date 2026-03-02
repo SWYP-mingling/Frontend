@@ -15,7 +15,8 @@ import MeetingInfoSection from '@/components/meeting/MeetingInfoSection';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
 import { getMeetingUserId, removeMeetingUserId } from '@/lib/storage';
-import { sendGAEvent } from '@next/third-parties/google';
+import { pushDataLayer } from '@/lib/gtm';
+
 interface StationInfo {
   line: string;
   name: string;
@@ -73,7 +74,7 @@ export default function Page() {
     }
   }, [isError, error, id]);
 
-  // GA4 전송 전용 도우미 함수
+  // GA4 전송 전용 도우미 함수 (GTM 친화적)
   const trackShareEvent = () => {
     if (typeof window !== 'undefined') {
       let browserId = localStorage.getItem('browser_id');
@@ -82,7 +83,8 @@ export default function Page() {
         localStorage.setItem('browser_id', browserId);
       }
 
-      sendGAEvent('event', 'share_link', {
+      pushDataLayer({
+        event: 'share_link',
         meeting_url_id: id,
         location: 'creation_complete',
         browser_id: browserId,
@@ -145,7 +147,8 @@ export default function Page() {
               const isHost = localStorage.getItem(`is_host_${id}`) === 'true';
               const userRole = isHost ? 'host' : 'participant';
 
-              sendGAEvent('event', 'departure_location_submitted', {
+              pushDataLayer({
+                event: 'departure_location_submitted',
                 meeting_url_id: id,
                 user_cookie_id: browserId,
                 role: userRole,
@@ -176,7 +179,8 @@ export default function Page() {
       const userRole = isHost ? 'host' : 'participant';
       const browserId = localStorage.getItem('browser_id');
 
-      sendGAEvent('event', 'midpoint_calculated', {
+      pushDataLayer({
+        event: 'midpoint_calculated',
         meeting_url_id: id,
         browser_id: browserId,
         role: userRole,

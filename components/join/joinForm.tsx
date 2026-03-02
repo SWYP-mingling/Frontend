@@ -10,7 +10,7 @@ import { useIsLoggedIn } from '@/hooks/useIsLoggedIn';
 import { setMeetingUserId } from '@/lib/storage';
 import Image from 'next/image';
 import { getRandomHexColor } from '@/lib/color';
-import { sendGAEvent } from '@next/third-parties/google';
+import { pushDataLayer } from '@/lib/gtm';
 
 interface JoinFormProps {
   meetingId: string;
@@ -66,7 +66,7 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
     e.preventDefault();
     if (!isFormValid || !meetingId) return;
 
-    // ⭐️ 1. 비즈니스 로직 실행 전 GA 이벤트 선(先) 전송!
+    // ⭐️ 1. 비즈니스 로직 실행 전 GA 이벤트 선(先) 전송! (dataLayer 방식 적용)
     if (typeof window !== 'undefined') {
       let browserId = localStorage.getItem('browser_id');
       if (!browserId) {
@@ -74,15 +74,15 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
         localStorage.setItem('browser_id', browserId);
       }
 
-      // ⭐️ 개발자님의 완벽한 엣지케이스 방어 로직!
-      // 로컬스토리지에 '이 방의 생성자(방장)'라는 징표가 있는지 확인
+      // 방장/참여자 구분 로직
       const isHost = localStorage.getItem(`is_host_${meetingId}`) === 'true';
       const userRole = isHost ? 'host' : 'participant';
 
-      sendGAEvent('event', 'participant_registration', {
+      pushDataLayer({
+        event: 'participant_registration',
         meeting_url_id: meetingId,
-        user_cookie_id: browserId, // 생성 때 썼던 그 browserId와 일치하게 됨!
-        role: userRole, // 완벽하게 방장/참여자 구분 완료
+        user_cookie_id: browserId,
+        role: userRole,
         remember_me: isRemembered ? 'yes' : 'no',
       });
     }
