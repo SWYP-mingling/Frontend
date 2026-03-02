@@ -6,6 +6,7 @@ import Image from 'next/image';
 import KakaoMapRecommend from '@/components/map/kakaoMapRecommend';
 import { useRecommend } from '@/hooks/api/query/useRecommend';
 import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting';
+import { sendGAEvent } from '@next/third-parties/google';
 
 function RecommendContent() {
   const router = useRouter();
@@ -139,12 +140,46 @@ function RecommendContent() {
     router.back();
   };
 
-  const handleOpenKakaoMap = (e: React.MouseEvent, placeUrl?: string) => {
+  const handleOpenKakaoMap = (
+    e: React.MouseEvent,
+    placeUrl?: string,
+    place?: (typeof places)[0]
+  ) => {
     e.stopPropagation();
+
+    // 카카오맵에서 보기 클릭 시 GA 전송 (external_map_opened)
+    if (typeof window !== 'undefined' && meetingId && place) {
+      const browserId = localStorage.getItem('browser_id');
+      const isHost = localStorage.getItem(`is_host_${meetingId}`) === 'true';
+      const userRole = isHost ? 'host' : 'participant';
+      const candidateId = `place_${String(place.id).padStart(2, '0')}`;
+
+      sendGAEvent('event', 'external_map_opened', {
+        meeting_url_id: meetingId,
+        user_cookie_id: browserId,
+        role: userRole,
+        candidate_id: candidateId,
+      });
+    }
+
     if (placeUrl) {
       window.open(placeUrl, '_blank', 'noopener,noreferrer');
     } else {
       window.open('https://map.kakao.com', '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  // 장소 리스트 중 하나 클릭 시 GA 전송 (place_list_viewed)
+  const handlePlaceClick = (place: (typeof places)[0]) => {
+    setSelectedPlaceId(place.id);
+    if (meetingId) {
+      const candidateId = `place_${String(place.id).padStart(2, '0')}`;
+      sendGAEvent('event', 'place_list_viewed', {
+        meeting_url_id: meetingId,
+        candidate_id: candidateId,
+        place_category: place.category,
+        rank_order: place.id,
+      });
     }
   };
 
@@ -194,7 +229,7 @@ function RecommendContent() {
                 {places.map((place) => (
                   <div
                     key={place.id}
-                    onClick={() => setSelectedPlaceId(place.id)}
+                    onClick={() => handlePlaceClick(place)}
                     className={`flex cursor-pointer flex-col gap-2 rounded border p-4 ${
                       selectedPlaceId === place.id
                         ? 'border-blue-5 border-2'
@@ -247,7 +282,7 @@ function RecommendContent() {
                     {/* 하단 버튼은 조건부 렌더링 */}
                     {selectedPlaceId === place.id ? (
                       <button
-                        onClick={(e) => handleOpenKakaoMap(e, place.placeUrl)}
+                        onClick={(e) => handleOpenKakaoMap(e, place.placeUrl, place)}
                         className="bg-gray-8 w-full rounded py-2 text-[15px] text-white"
                       >
                         카카오맵에서 보기
