@@ -15,6 +15,7 @@ import MeetingInfoSection from '@/components/meeting/MeetingInfoSection';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
 import { getMeetingUserId, removeMeetingUserId } from '@/lib/storage';
+import { pushDataLayer } from '@/lib/gtm';
 
 interface StationInfo {
   line: string;
@@ -82,9 +83,7 @@ export default function Page() {
         localStorage.setItem('browser_id', browserId);
       }
 
-      const w = window as any;
-      w.dataLayer = w.dataLayer || [];
-      w.dataLayer.push({
+      pushDataLayer({
         event: 'share_link',
         meeting_url_id: id,
         location: 'creation_complete',
@@ -148,9 +147,7 @@ export default function Page() {
               const isHost = localStorage.getItem(`is_host_${id}`) === 'true';
               const userRole = isHost ? 'host' : 'participant';
 
-              const w = window as any;
-              w.dataLayer = w.dataLayer || [];
-              w.dataLayer.push({
+              pushDataLayer({
                 event: 'departure_location_submitted',
                 meeting_url_id: id,
                 user_cookie_id: browserId,
@@ -182,9 +179,7 @@ export default function Page() {
       const userRole = isHost ? 'host' : 'participant';
       const browserId = localStorage.getItem('browser_id');
 
-      const w = window as any;
-      w.dataLayer = w.dataLayer || [];
-      w.dataLayer.push({
+      pushDataLayer({
         event: 'midpoint_calculated',
         meeting_url_id: id,
         browser_id: browserId,

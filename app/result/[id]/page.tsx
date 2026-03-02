@@ -11,6 +11,7 @@ import { getMeetingUserId } from '@/lib/storage';
 import { useQueryClient } from '@tanstack/react-query';
 import Loading from '@/components/loading/loading';
 import { getRandomHexColor } from '@/lib/color';
+import { pushDataLayer } from '@/lib/gtm';
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -168,9 +169,7 @@ export default function Page() {
         localStorage.setItem('browser_id', browserId);
       }
 
-      const w = window as any;
-      w.dataLayer = w.dataLayer || [];
-      w.dataLayer.push({
+      pushDataLayer({
         event: 'share_link',
         meeting_url_id: id,
         location: 'place_list', // PM님 명세: 결과 리스트 페이지

@@ -7,6 +7,7 @@ import { useCreateMeeting } from '@/hooks/api/mutation/useCreateMeeting';
 import type { MeetingCreateRequest } from '@/types/api';
 import { useToast } from '@/hooks/useToast';
 import Toast from '@/components/ui/toast';
+import { pushDataLayer } from '@/lib/gtm';
 
 export default function Page() {
   const [meetingName, setMeetingName] = useState('');
@@ -157,9 +158,7 @@ export default function Page() {
           localStorage.setItem(`is_host_${meetingId}`, 'true');
 
           // ⭐️ 방 만든 브라우저가 누구인지 식별자를 담아서 이벤트 전송 (dataLayer 직접 Push)
-          const w = window as any;
-          w.dataLayer = w.dataLayer || [];
-          w.dataLayer.push({
+          pushDataLayer({
             event: 'url_created', // 객체 내부의 키로 이벤트명 삽입
             meeting_url_id: meetingId,
             participant_count_expected: capacity,

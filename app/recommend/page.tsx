@@ -6,6 +6,7 @@ import Image from 'next/image';
 import KakaoMapRecommend from '@/components/map/kakaoMapRecommend';
 import { useRecommend } from '@/hooks/api/query/useRecommend';
 import { useCheckMeeting } from '@/hooks/api/query/useCheckMeeting';
+import { pushDataLayer } from '@/lib/gtm';
 
 function RecommendContent() {
   const router = useRouter();
@@ -153,9 +154,7 @@ function RecommendContent() {
       const userRole = isHost ? 'host' : 'participant';
       const candidateId = `place_${String(place.id).padStart(2, '0')}`;
 
-      const w = window as any;
-      w.dataLayer = w.dataLayer || [];
-      w.dataLayer.push({
+      pushDataLayer({
         event: 'external_map_opened',
         meeting_url_id: meetingId,
         user_cookie_id: browserId,
@@ -177,9 +176,7 @@ function RecommendContent() {
     if (typeof window !== 'undefined' && meetingId) {
       const candidateId = `place_${String(place.id).padStart(2, '0')}`;
 
-      const w = window as any;
-      w.dataLayer = w.dataLayer || [];
-      w.dataLayer.push({
+      pushDataLayer({
         event: 'place_list_viewed',
         meeting_url_id: meetingId,
         candidate_id: candidateId,

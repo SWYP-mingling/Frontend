@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Toast from '@/components/ui/toast';
 import { useShareMeeting } from '@/hooks/api/query/useShareMeeting';
 import Image from 'next/image';
+import { pushDataLayer } from '@/lib/gtm';
 
 interface ShareContentProps {
   id: string;
@@ -27,9 +28,7 @@ export default function ShareContent({ id }: ShareContentProps) {
       }
 
       // dataLayer 직접 Push (이벤트명을 키값으로!)
-      const w = window as any;
-      w.dataLayer = w.dataLayer || [];
-      w.dataLayer.push({
+      pushDataLayer({
         event: 'share_link',
         meeting_url_id: id,
         location: 'creation_complete',

@@ -10,6 +10,7 @@ import { useIsLoggedIn } from '@/hooks/useIsLoggedIn';
 import { setMeetingUserId } from '@/lib/storage';
 import Image from 'next/image';
 import { getRandomHexColor } from '@/lib/color';
+import { pushDataLayer } from '@/lib/gtm';
 
 interface JoinFormProps {
   meetingId: string;
@@ -77,10 +78,7 @@ export default function JoinForm({ meetingId }: JoinFormProps) {
       const isHost = localStorage.getItem(`is_host_${meetingId}`) === 'true';
       const userRole = isHost ? 'host' : 'participant';
 
-      // dataLayer 직접 Push
-      const w = window as any;
-      w.dataLayer = w.dataLayer || [];
-      w.dataLayer.push({
+      pushDataLayer({
         event: 'participant_registration',
         meeting_url_id: meetingId,
         user_cookie_id: browserId,
