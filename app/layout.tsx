@@ -6,7 +6,7 @@ import Header from '../components/header';
 import Footer from '../components/footer';
 import GlobalModal from '@/components/modal/globalModal';
 import QueryProvider from '@/components/providers/queryProvider';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google';
 
 const pretendard = localFont({
   src: [
@@ -38,6 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={pretendard.variable}>
+      <GoogleTagManager gtmId="GTM-MSQ45TJD" />
       <body className="flex min-h-screen flex-col">
         <QueryProvider>
           <Header />
@@ -50,7 +51,6 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
       </body>
-      <GoogleAnalytics gaId="G-3FN93H79SZ" />
     </html>
   );
 }
