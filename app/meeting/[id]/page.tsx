@@ -174,7 +174,12 @@ export default function Page() {
     }
 
     if (typeof window !== 'undefined') {
-      const calculationType = id ? 'recalculated' : 'first';
+      const alreadyCalculated = localStorage.getItem(`midpoint_calculated_${id}`) === '1';
+      const calculationType = alreadyCalculated ? 'recalculated' : 'first';
+      if (!alreadyCalculated) {
+        localStorage.setItem(`midpoint_calculated_${id}`, '1');
+      }
+
       const isHost = localStorage.getItem(`is_host_${id}`) === 'true';
       const userRole = isHost ? 'host' : 'participant';
       const browserId = localStorage.getItem('browser_id');
