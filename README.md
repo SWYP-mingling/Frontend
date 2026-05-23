@@ -90,12 +90,12 @@ pnpm dev
 
 | 랜딩 페이지 | 모임 생성 |
 |:---:|:---:|
-| <img src="public/readme/main.png" width="350px" height="250px" alt="main" /> | <img src="public/readme/create.png" width="350px" height="250px" alt="create" /> |
+| <img src="https://github.com/user-attachments/assets/268a64cc-96d5-4dad-80dd-70531ebeb434" width="450px" height="350px" alt="main" /> | <img src="https://github.com/user-attachments/assets/7cb0f46b-613b-4794-8765-8bf065f06164" width="450px" height="350px" alt="create" /> |
 
 | 모임 참여 | 출발 위치 선택 |
 |:---:|:---:|
-|  <img src="public/readme/join.png" width="350px" height="250px" alt="join" /> | <img src="public/readme/meeting.png" width="350px" height="250px" alt="Route" /> |
+|  <img src="https://github.com/user-attachments/assets/6150289e-19c5-480e-8515-1710db9b5e63" width="450px" height="350px" alt="join" /> | <img src="https://github.com/user-attachments/assets/ba416180-613d-4f13-be41-8929a0675cda" width="450px" height="350px" alt="Route" /> |
 
 | 중간지점 및 경로 확인 | 목적별 장소 추천 |
 |:---:|:---:|
-| <img src="public/readme/result.png" width="350px" height="250px" alt="midpoint" /> | <img src="public/readme/recommend.png" width="350px" height="250px" alt="recommend" /> |
+| <img src="https://github.com/user-attachments/assets/10ca3f09-49b9-49db-a16b-9b0ed6771a19" width="450px" height="350px" alt="midpoint" /> | <img src="https://github.com/user-attachments/assets/299959f9-2e6c-43f2-855a-4abffe216195" width="450px" height="350px" alt="recommend" /> |
