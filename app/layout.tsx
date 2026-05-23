@@ -6,7 +6,7 @@ import Header from '../components/header';
 import Footer from '../components/footer';
 import GlobalModal from '@/components/modal/globalModal';
 import QueryProvider from '@/components/providers/queryProvider';
-import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google';
+import { GoogleTagManager } from '@next/third-parties/google';
 
 const pretendard = localFont({
   src: [
