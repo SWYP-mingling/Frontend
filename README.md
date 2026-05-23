@@ -90,12 +90,12 @@ pnpm dev
 
 | 랜딩 페이지 | 모임 생성 |
 |:---:|:---:|
-| <img src="public/readme/main.png" width="350px" height="250px" alt="main" /> | <img src="public/readme/create.png" width="350px" height="250px" alt="create" /> |
+| <img src="readme/main.png" width="350px" height="250px" alt="main" /> | <img src="readme/create.png" width="350px" height="250px" alt="create" /> |
 
 | 모임 참여 | 출발 위치 선택 |
 |:---:|:---:|
-|  <img src="public/readme/join.png" width="350px" height="250px" alt="join" /> | <img src="public/readme/meeting.png" width="350px" height="250px" alt="Route" /> |
+|  <img src="readme/join.png" width="350px" height="250px" alt="join" /> | <img src="readme/meeting.png" width="350px" height="250px" alt="Route" /> |
 
 | 중간지점 및 경로 확인 | 목적별 장소 추천 |
 |:---:|:---:|
-| <img src="public/readme/result.png" width="350px" height="250px" alt="midpoint" /> | <img src="public/readme/recommend.png" width="350px" height="250px" alt="recommend" /> |
+| <img src="readme/result.png" width="350px" height="250px" alt="midpoint" /> | <img src="readme/recommend.png" width="350px" height="250px" alt="recommend" /> |
