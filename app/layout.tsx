@@ -1,3 +1,4 @@
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import './globals.css';
 import type { Metadata } from 'next';
 import Script from 'next/script';
@@ -33,16 +34,6 @@ export default function RootLayout({
           {`window.dataLayer = window.dataLayer || [];
 window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });`}
         </Script>
-        <Script id="load-pretendard" strategy="lazyOnload">
-          {`const fontStylesheet = document.createElement('link');
-fontStylesheet.rel = 'stylesheet';
-fontStylesheet.href = '/fonts/pretendard.css';
-document.head.appendChild(fontStylesheet);`}
-        </Script>
-        <noscript>
-          {/* eslint-disable-next-line @next/next/no-css-tags -- JavaScript 비활성 환경의 폰트 fallback */}
-          <link rel="stylesheet" href="/fonts/pretendard.css" />
-        </noscript>
         <Script
           id="gtm-script"
           src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`}
