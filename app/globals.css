@@ -68,7 +68,7 @@
 }
 
 :root {
-  --font-pretendard: 'Pretendard', 'Pretendard Fallback';
+  --font-pretendard: 'Pretendard Variable', 'Pretendard Fallback';
   --radius: 0.625rem;
 
   /* 흰색 배경, 검은색 글씨 */
