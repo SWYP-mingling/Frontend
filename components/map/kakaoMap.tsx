@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
+import { useKakaoMapsLoader } from '@/hooks/useKakaoMapsLoader';
 import ZoomControl from './zoomControl';
 
 interface Participant {
@@ -20,6 +21,8 @@ interface KakaoMapProps {
 }
 
 export default function KakaoMap({ className, participants = [] }: KakaoMapProps) {
+  useKakaoMapsLoader();
+
   // 지도 객체를 담을 state (범위 재설정용)
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
 

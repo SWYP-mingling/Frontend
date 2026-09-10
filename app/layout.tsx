@@ -1,28 +1,12 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Script from 'next/script';
-import localFont from 'next/font/local';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import GlobalModal from '@/components/modal/globalModal';
 import QueryProvider from '@/components/providers/queryProvider';
-import { GoogleTagManager } from '@next/third-parties/google';
 
-const pretendard = localFont({
-  src: [
-    { path: '../public/fonts/Pretendard-Thin.woff2', weight: '100' },
-    { path: '../public/fonts/Pretendard-ExtraLight.woff2', weight: '200' },
-    { path: '../public/fonts/Pretendard-Light.woff2', weight: '300' },
-    { path: '../public/fonts/Pretendard-Regular.woff2', weight: '400' },
-    { path: '../public/fonts/Pretendard-Medium.woff2', weight: '500' },
-    { path: '../public/fonts/Pretendard-SemiBold.woff2', weight: '600' },
-    { path: '../public/fonts/Pretendard-Bold.woff2', weight: '700' },
-    { path: '../public/fonts/Pretendard-ExtraBold.woff2', weight: '800' },
-    { path: '../public/fonts/Pretendard-Black.woff2', weight: '900' },
-  ],
-  variable: '--font-pretendard',
-  display: 'swap',
-});
+const GTM_ID = 'GTM-MSQ45TJD';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://www.mingling.kr'),
@@ -37,8 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={pretendard.variable}>
-      <GoogleTagManager gtmId="GTM-MSQ45TJD" />
+    <html lang="ko">
       <body className="flex min-h-screen flex-col">
         <QueryProvider>
           <Header />
@@ -46,9 +29,24 @@ export default function RootLayout({
           <Footer />
           <GlobalModal />
         </QueryProvider>
+        <Script id="gtm-data-layer" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });`}
+        </Script>
+        <Script id="load-pretendard" strategy="lazyOnload">
+          {`const fontStylesheet = document.createElement('link');
+fontStylesheet.rel = 'stylesheet';
+fontStylesheet.href = '/fonts/pretendard.css';
+document.head.appendChild(fontStylesheet);`}
+        </Script>
+        <noscript>
+          {/* eslint-disable-next-line @next/next/no-css-tags -- JavaScript 비활성 환경의 폰트 fallback */}
+          <link rel="stylesheet" href="/fonts/pretendard.css" />
+        </noscript>
         <Script
-          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services,clusterer&autoload=false`}
-          strategy="beforeInteractive"
+          id="gtm-script"
+          src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`}
+          strategy="lazyOnload"
         />
       </body>
     </html>

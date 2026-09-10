@@ -1,6 +1,43 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import Image, { getImageProps } from 'next/image';
+import { preload } from 'react-dom';
 import { Tooltip, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+const HERO_IMAGE_MEDIA = {
+  mobile: '(max-width: 767px)',
+  tablet: '(min-width: 768px) and (max-width: 1023px)',
+  desktop: '(min-width: 1024px)',
+} as const;
+
+const HERO_IMAGE_SIZES = {
+  mobile: '217px',
+  tablet: 'min(658px, calc(100vw - 361px))',
+  desktop: 'min(860px, calc(100vw - 361px))',
+} as const;
+
+const { props: mobileHeroImage } = getImageProps({
+  src: '/images/iphone.jpg',
+  alt: 'mobile preview',
+  width: 867,
+  height: 1752,
+  sizes: HERO_IMAGE_SIZES.mobile,
+});
+
+const { props: tabletHeroImage } = getImageProps({
+  src: '/images/tablet.jpg',
+  alt: 'tablet preview',
+  width: 2866,
+  height: 2106,
+  sizes: HERO_IMAGE_SIZES.tablet,
+});
+
+const { props: desktopHeroImage } = getImageProps({
+  src: '/images/desktop.jpg',
+  alt: 'desktop preview',
+  width: 3746,
+  height: 2752,
+  sizes: HERO_IMAGE_SIZES.desktop,
+});
 
 // --- Data & Constants ---
 const CATEGORIES = [
@@ -74,59 +111,85 @@ const FeatureCard = ({ title, desc, desc2 }: { title: string; desc: string; desc
 
 // --- Sections ---
 
-const HeroSection = () => (
-  <section className="mx-[71.73px] mt-30 flex flex-col items-center justify-center md:px-[101px]">
-    <div className="flex flex-col items-center">
-      <h1 className="text-gray-8 max-w-[209px] text-center text-[28px] leading-[1.3] font-bold tracking-[-1.128px] break-keep md:max-w-full md:text-[36px] xl:text-[40px]">
-        모임 장소 선정, 출발역만 넣으면 끝!
-      </h1>
+const HeroSection = () => {
+  preload(mobileHeroImage.src, {
+    as: 'image',
+    fetchPriority: 'high',
+    imageSrcSet: mobileHeroImage.srcSet,
+    imageSizes: mobileHeroImage.sizes,
+    media: HERO_IMAGE_MEDIA.mobile,
+  });
+  preload(tabletHeroImage.src, {
+    as: 'image',
+    fetchPriority: 'high',
+    imageSrcSet: tabletHeroImage.srcSet,
+    imageSizes: tabletHeroImage.sizes,
+    media: HERO_IMAGE_MEDIA.tablet,
+  });
+  preload(desktopHeroImage.src, {
+    as: 'image',
+    fetchPriority: 'high',
+    imageSrcSet: desktopHeroImage.srcSet,
+    imageSizes: desktopHeroImage.sizes,
+    media: HERO_IMAGE_MEDIA.desktop,
+  });
 
-      <div className="mt-4 flex flex-col flex-nowrap items-center">
-        <p className="text-gray-5 text-center text-[16px] leading-[1.364] font-semibold tracking-[-0.4268px] md:text-[18px] md:leading-[1.444]">
-          참석자들이 지하철 출발역을 입력하면,
-          <br className="block md:hidden lg:block" />
-          <span className="hidden md:inline lg:hidden">&nbsp;</span>
-          이동시간과 편차를 고려해
-          <br className="block lg:hidden" />
-          <span className="hidden lg:inline">&nbsp;</span>
-          서울 내 최적의 번화가를 추천합니다
-        </p>
+  return (
+    <section className="mx-[71.73px] mt-30 flex flex-col items-center justify-center md:px-[101px]">
+      <div className="flex flex-col items-center">
+        <h1 className="text-gray-8 max-w-[209px] text-center text-[28px] leading-[1.3] font-bold tracking-[-1.128px] break-keep md:max-w-full md:text-[36px] xl:text-[40px]">
+          모임 장소 선정, 출발역만 넣으면 끝!
+        </h1>
+
+        <div className="mt-4 flex flex-col flex-nowrap items-center">
+          <p className="text-gray-5 text-center text-[16px] leading-[1.364] font-semibold tracking-[-0.4268px] md:text-[18px] md:leading-[1.444]">
+            참석자들이 지하철 출발역을 입력하면,
+            <br className="block md:hidden lg:block" />
+            <span className="hidden md:inline lg:hidden">&nbsp;</span>
+            이동시간과 편차를 고려해
+            <br className="block lg:hidden" />
+            <span className="hidden lg:inline">&nbsp;</span>
+            서울 내 최적의 번화가를 추천합니다
+          </p>
+        </div>
+
+        <Link
+          href="/create"
+          className="bg-blue-5 hover:bg-blue-8 mt-7.5 flex h-12 w-[196px] items-center justify-center rounded-[8px] text-[18px] leading-[1.445] font-semibold tracking-[-0.0036px] text-white transition-colors"
+        >
+          모임 만들기
+        </Link>
+
+        <div className="mt-[74px] md:mt-[74px] lg:mt-10">
+          <picture>
+            <source
+              media={HERO_IMAGE_MEDIA.desktop}
+              srcSet={desktopHeroImage.srcSet}
+              sizes={desktopHeroImage.sizes}
+              width={3746}
+              height={2752}
+            />
+            <source
+              media={HERO_IMAGE_MEDIA.tablet}
+              srcSet={tabletHeroImage.srcSet}
+              sizes={tabletHeroImage.sizes}
+              width={2866}
+              height={2106}
+            />
+            <img
+              {...mobileHeroImage}
+              alt="mobile preview"
+              className="block h-auto w-[216.54px] md:w-[658px] lg:w-[860px]"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </picture>
+        </div>
       </div>
-
-      <Link
-        href="/create"
-        className="bg-blue-5 hover:bg-blue-8 mt-7.5 flex h-12 w-[196px] items-center justify-center rounded-[8px] text-[18px] leading-[1.445] font-semibold tracking-[-0.0036px] text-white transition-colors"
-      >
-        모임 만들기
-      </Link>
-
-      {/* Responsive Images (기존 코드 유지) */}
-      <div className="mt-[74px] md:mt-[74px] lg:mt-10">
-        <Image
-          src="/images/iphone.jpg"
-          alt="mobile preview"
-          width={860}
-          height={635}
-          className="block h-auto w-[216.54px] md:hidden"
-        />
-        <Image
-          src="/images/tablet.jpg"
-          alt="tablet preview"
-          width={860}
-          height={635}
-          className="hidden h-auto md:block md:w-[658px] lg:hidden lg:w-[860px]"
-        />
-        <Image
-          src="/images/desktop.jpg"
-          alt="desktop preview"
-          width={860}
-          height={635}
-          className="hidden h-auto md:w-[658px] lg:block lg:w-[860px]"
-        />
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const PainPointsSection = () => (
   <section

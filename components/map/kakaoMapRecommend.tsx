@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import Image from 'next/image';
+import { useKakaoMapsLoader } from '@/hooks/useKakaoMapsLoader';
 import ZoomControl from './zoomControl';
 
 interface Place {
@@ -47,6 +48,8 @@ export default function KakaoMapRecommend({
   onCategoryChange,
   meetingType,
 }: KakaoMapRecommendProps) {
+  useKakaoMapsLoader();
+
   // 1. 지도 객체를 state로 관리 (줌 컨트롤 제어용)
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
 
