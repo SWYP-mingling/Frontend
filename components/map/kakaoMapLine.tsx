@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Map, Polyline, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import { useRouter } from 'next/navigation';
+import { useKakaoMapsLoader } from '@/hooks/useKakaoMapsLoader';
 import ZoomControl from './zoomControl';
 
 interface EndStation {
@@ -50,6 +51,8 @@ export default function KakaoMapLine({
   meetingId,
   purposes = [],
 }: KakaoMapLineProps) {
+  useKakaoMapsLoader();
+
   const router = useRouter();
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
 

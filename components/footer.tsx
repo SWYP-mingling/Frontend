@@ -12,7 +12,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-1 flex h-59 items-center md:h-35">
       <div className="flex w-full flex-col items-start gap-5 px-5 md:flex-row md:justify-between md:gap-0">
-        <Image src="/logo.svg" alt="Mingling Logo" width={112} height={40} priority />
+        <Image src="/logo.svg" alt="Mingling Logo" width={112} height={40} />
         <nav className="flex flex-col items-start gap-6 md:items-end">
           <div className="flex flex-col gap-3 md:flex-row md:gap-8">
             <div className="flex gap-4 md:gap-8">

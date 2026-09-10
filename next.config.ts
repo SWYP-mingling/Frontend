@@ -2,6 +2,9 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  images: {
+    formats: ['image/avif', 'image/webp'],
+  },
   experimental: {
     // 기본값이 30초~60초 정도인데, 이를 120초(120,000ms)로 늘립니다.
     proxyTimeout: 120000,

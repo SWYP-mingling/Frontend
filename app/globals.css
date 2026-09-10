@@ -1,6 +1,15 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+@font-face {
+  font-family: 'Pretendard Fallback';
+  src: local('Arial');
+  ascent-override: 93.76%;
+  descent-override: 23.75%;
+  line-gap-override: 0%;
+  size-adjust: 101.55%;
+}
+
 /* 사용자 정의 컬러 시스템 */
 @theme {
   --color-gray-1: #f2f3f8;
@@ -59,6 +68,7 @@
 }
 
 :root {
+  --font-pretendard: 'Pretendard', 'Pretendard Fallback';
   --radius: 0.625rem;
 
   /* 흰색 배경, 검은색 글씨 */
